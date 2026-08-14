@@ -2,15 +2,16 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build an automated weekly price scraper (Python + GitHub Actions) for Abasto Central MDP, store normalized price records in Supabase (PostgreSQL with `NULLS NOT DISTINCT` idempotency), and serve a dynamic SPA dashboard hosted on Vercel using Vite, React, and Recharts with built-in mock data fallback.
+**Goal:** Build an automated weekly price scraper (Python + GitHub Actions) for Abasto Central MDP, store normalized price records in Supabase (PostgreSQL 15+ with `NULLS NOT DISTINCT` idempotency), and serve a dynamic SPA dashboard hosted on Vercel using Vite, React, and Recharts with built-in mock data fallback.
 
-**Architecture:** A Python script in GitHub Actions periodically fetches price payloads from Abasto Central MDP via POST, normalizes data, and executes an idempotent `UPSERT` on Supabase. A Vite + React + Recharts SPA reads data via Supabase JS SDK (or falls back to mock data if offline) and renders interactive time-series price charts and tables.
+**Architecture:** A Python script in GitHub Actions periodically fetches price payloads from Abasto Central MDP via POST, normalizes data with `America/Argentina/Buenos_Aires` timezone, and executes an idempotent `UPSERT` on Supabase. A Vite + React + Recharts SPA reads data via Supabase JS SDK (or falls back to mock data if offline) and renders interactive time-series price charts and tables.
 
-**Tech Stack:** Python 3.10+, Supabase (PostgreSQL 15), GitHub Actions, Vite, React 18, Recharts, TypeScript, Vanilla CSS.
+**Tech Stack:** Python 3.10+, Supabase (PostgreSQL 15+), GitHub Actions, Vite, React 18, Recharts, TypeScript, Vanilla CSS.
 
 ## Global Constraints
 
 - Platform: Windows local workspace, Linux GitHub Actions runner, Vercel SPA hosting.
+- Timezone: `America/Argentina/Buenos_Aires` (UTC-3) for all `snapshot_date` calculations.
 - PostgreSQL 15 `NULLS NOT DISTINCT` for composite unique index idempotency.
 - Database access: RLS enabled on all tables; `anon` role restricted to SELECT on `categories`, `products`, `price_records`; `scraping_logs` restricted to `service_role`.
 - Charting: Recharts library only.
@@ -23,7 +24,7 @@
 - Create: `supabase/migrations/20260814000000_init_schema.sql`
 
 **Interfaces:**
-- Consumes: PostgreSQL DDL from spec v2.1
+- Consumes: PostgreSQL DDL from spec v2.2
 - Produces: Database tables (`categories`, `products`, `price_records`, `scraping_logs`) and RLS policies.
 
 - [ ] **Step 1: Create migration file with complete DDL**
@@ -53,7 +54,7 @@ CREATE TABLE IF NOT EXISTS public.products (
 -- 3. Historical Price Records Table with Postgres 15 NULLS NOT DISTINCT idempotency
 CREATE TABLE IF NOT EXISTS public.price_records (
     id BIGSERIAL PRIMARY KEY,
-    snapshot_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    snapshot_date DATE NOT NULL,
     product_id INT NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
     price_from NUMERIC(12,2),
     price_to NUMERIC(12,2),
@@ -72,7 +73,7 @@ ON public.price_records(product_id, snapshot_date DESC);
 CREATE TABLE IF NOT EXISTS public.scraping_logs (
     id BIGSERIAL PRIMARY KEY,
     executed_at TIMESTAMPTZ DEFAULT NOW(),
-    snapshot_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    snapshot_date DATE NOT NULL,
     status VARCHAR(20) NOT NULL CHECK (status IN ('SUCCESS', 'WARNING', 'ERROR')),
     records_inserted INT DEFAULT 0,
     error_message TEXT
@@ -116,7 +117,7 @@ git commit -m "feat(db): add initial PostgreSQL 15 schema and RLS policies"
 
 **Interfaces:**
 - Consumes: Raw dict from API response object
-- Produces: `clean_price_val(val)`, `calculate_avg(price_from, price_to)`, `normalize_record(raw_dict, category_id, snapshot_date)`
+- Produces: `clean_price_val(val)`, `calculate_avg(price_from, price_to)`, `get_argentina_date()`, `normalize_record(raw_dict, category_id, snapshot_date)`
 
 - [ ] **Step 1: Write failing unit test for normalizer**
 
@@ -124,7 +125,7 @@ Create file `tests/test_normalizer.py`:
 ```python
 import pytest
 from datetime import date
-from scraper.normalizer import clean_price_val, calculate_avg, normalize_record
+from scraper.normalizer import clean_price_val, calculate_avg, normalize_record, get_argentina_date
 
 def test_clean_price_val():
     assert clean_price_val("-") is None
@@ -137,6 +138,10 @@ def test_calculate_avg():
     assert calculate_avg(10000.0, None) == 10000.0
     assert calculate_avg(None, 12000.0) == 12000.0
     assert calculate_avg(None, None) is None
+
+def test_get_argentina_date():
+    today_arg = get_argentina_date()
+    assert isinstance(today_arg, date)
 
 def test_normalize_record():
     raw = {
@@ -176,8 +181,16 @@ Create `scraper/__init__.py` (empty file).
 Create `scraper/normalizer.py`:
 ```python
 import re
-from datetime import date
+from datetime import datetime, date
 from typing import Optional, Dict, Any
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo
+
+def get_argentina_date() -> date:
+    tz = ZoneInfo("America/Argentina/Buenos_Aires")
+    return datetime.now(tz).date()
 
 def clean_price_val(val: Optional[str]) -> Optional[float]:
     if not val:
@@ -185,7 +198,6 @@ def clean_price_val(val: Optional[str]) -> Optional[float]:
     cleaned = val.strip()
     if cleaned in ("-", "", "---"):
         return None
-    # Remove thousand separators or currency signs if any
     cleaned = cleaned.replace("$", "").replace(",", "").strip()
     try:
         return float(cleaned)
@@ -237,7 +249,7 @@ Expected: PASS
 
 ```bash
 git add scraper/ tests/
-git commit -m "feat(scraper): add data normalizer and unit test suite"
+git commit -m "feat(scraper): add data normalizer with argentina timezone"
 ```
 
 ---
@@ -324,15 +336,14 @@ import sys
 import json
 import logging
 import requests
-from datetime import date
 from typing import List, Dict, Any
-from scraper.normalizer import normalize_record
+from scraper.normalizer import normalize_record, get_argentina_date
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 API_URL = "https://abastocentralmdp.com.ar/dws/dws-app/pages/precios/back/precios.php"
 CATEGORIES = [1, 2, 3, 4]
-MIN_RECORDS_PER_CAT = 5
+MIN_TOTAL_RECORDS = 20
 
 def fetch_category_data(category_id: int) -> List[Dict[str, Any]]:
     session = requests.Session()
@@ -347,17 +358,18 @@ def fetch_category_data(category_id: int) -> List[Dict[str, Any]]:
     return data
 
 def run_scraper(dry_run: bool = False) -> None:
-    today = date.today()
+    today = get_argentina_date()
     all_normalized = []
-    total_records = 0
+    category_counts = {}
     errors = []
 
     for cat_id in CATEGORIES:
         try:
             raw_items = fetch_category_data(cat_id)
-            if len(raw_items) < MIN_RECORDS_PER_CAT:
-                msg = f"Category idcat={cat_id} returned {len(raw_items)} records (expected >= {MIN_RECORDS_PER_CAT})"
-                logging.warning(msg)
+            category_counts[cat_id] = len(raw_items)
+            if len(raw_items) == 0:
+                msg = f"Data Quality ERROR: Category idcat={cat_id} returned 0 records."
+                logging.error(msg)
                 errors.append(msg)
             
             for item in raw_items:
@@ -370,10 +382,10 @@ def run_scraper(dry_run: bool = False) -> None:
             errors.append(msg)
 
     total_records = len(all_normalized)
-    logging.info(f"Total normalized records collected: {total_records}")
+    logging.info(f"Total normalized records collected for snapshot {today}: {total_records}")
 
-    if total_records == 0:
-        logging.error("Data Quality Gate FAILED: Zero records collected.")
+    if total_records < MIN_TOTAL_RECORDS or any(category_counts.get(c, 0) == 0 for c in CATEGORIES):
+        logging.error(f"Data Quality Gate FAILED: total={total_records} (min {MIN_TOTAL_RECORDS}), counts={category_counts}")
         sys.exit(1)
 
     if dry_run:
@@ -449,13 +461,13 @@ if __name__ == "__main__":
 - [ ] **Step 4: Run dry run check**
 
 Run: `python -m scraper.scrape --dry-run`
-Expected: Logs output fetching categories and successfully normalizing ~100+ records.
+Expected: Logs output fetching categories with Argentina timezone and successfully normalizing ~100+ records.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add scraper/ requirements.txt tests/
-git commit -m "feat(scraper): implement execution engine and data quality gate"
+git commit -m "feat(scraper): implement execution engine with unified quality rules"
 ```
 
 ---
@@ -726,7 +738,6 @@ export const MOCK_PRODUCTS: Product[] = [
 const dates = ['2026-06-22', '2026-06-29', '2026-07-06', '2026-07-13', '2026-07-20', '2026-07-27', '2026-08-03', '2026-08-10'];
 
 export const MOCK_PRICE_RECORDS: PriceRecord[] = [
-  // Mandarina Okitsu history
   { id: 1, snapshot_date: dates[0], product_id: 101, price_from: 9000, price_to: 10000, price_avg: 9500, origin: 'ENTRE RIOS', presentation: 'CAJON', quantity_raw: '18 KG.' },
   { id: 2, snapshot_date: dates[1], product_id: 101, price_from: 9500, price_to: 10500, price_avg: 10000, origin: 'ENTRE RIOS', presentation: 'CAJON', quantity_raw: '18 KG.' },
   { id: 3, snapshot_date: dates[2], product_id: 101, price_from: 10000, price_to: 11000, price_avg: 10500, origin: 'ENTRE RIOS', presentation: 'CAJON', quantity_raw: '18 KG.' },
@@ -736,7 +747,6 @@ export const MOCK_PRICE_RECORDS: PriceRecord[] = [
   { id: 7, snapshot_date: dates[6], product_id: 101, price_from: 12000, price_to: 12500, price_avg: 12250, origin: 'ENTRE RIOS', presentation: 'CAJON', quantity_raw: '18 KG.' },
   { id: 8, snapshot_date: dates[7], product_id: 101, price_from: 12000, price_to: 13000, price_avg: 12500, origin: 'ENTRE RIOS', presentation: 'CAJON', quantity_raw: '18 KG.' },
   
-  // Acelga history
   { id: 9, snapshot_date: dates[0], product_id: 201, price_from: 7000, price_to: 8000, price_avg: 7500, origin: 'ZONA', presentation: 'JAULA', quantity_raw: '10 PAQUETES' },
   { id: 10, snapshot_date: dates[7], product_id: 201, price_from: 10000, price_to: 11000, price_avg: 10500, origin: 'ZONA', presentation: 'JAULA', quantity_raw: '10 PAQUETES' }
 ];
@@ -952,13 +962,21 @@ export const PriceChart: React.FC<PriceChartProps> = ({ records, metric, product
 Create `src/components/PriceTable.tsx`:
 ```tsx
 import React from 'react';
-import { PriceRecord } from '../types';
+import { PriceRecord, PriceMetric } from '../types';
 
 interface PriceTableProps {
   records: PriceRecord[];
+  selectedMetric: PriceMetric;
 }
 
-export const PriceTable: React.FC<PriceTableProps> = ({ records }) => {
+export const PriceTable: React.FC<PriceTableProps> = ({ records, selectedMetric }) => {
+  const calculateChange = (current: number | null, prev: number | null): string => {
+    if (current === null || prev === null || prev <= 0) return 'N/A';
+    const diff = ((current - prev) / prev) * 100;
+    const sign = diff > 0 ? '+' : '';
+    return `${sign}${diff.toFixed(1)}%`;
+  };
+
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
@@ -968,21 +986,31 @@ export const PriceTable: React.FC<PriceTableProps> = ({ records }) => {
             <th style={{ padding: '12px' }}>Desde</th>
             <th style={{ padding: '12px' }}>Hasta</th>
             <th style={{ padding: '12px' }}>Promedio</th>
+            <th style={{ padding: '12px' }}>Variación Semanal</th>
             <th style={{ padding: '12px' }}>Origen</th>
             <th style={{ padding: '12px' }}>Presentación</th>
           </tr>
         </thead>
         <tbody>
-          {records.map((r, i) => (
-            <tr key={r.id || i} style={{ borderBottom: '1px solid var(--border-color)' }}>
-              <td style={{ padding: '12px' }}>{r.snapshot_date}</td>
-              <td style={{ padding: '12px' }}>{r.price_from ? `$${r.price_from.toLocaleString()}` : '-'}</td>
-              <td style={{ padding: '12px' }}>{r.price_to ? `$${r.price_to.toLocaleString()}` : '-'}</td>
-              <td style={{ padding: '12px', fontWeight: 600, color: '#10b981' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
-              <td style={{ padding: '12px' }}>{r.origin || '-'}</td>
-              <td style={{ padding: '12px' }}>{r.presentation || '-'} ({r.quantity_raw || ''})</td>
-            </tr>
-          ))}
+          {records.map((r, i) => {
+            const prevVal = i > 0 ? records[i - 1][selectedMetric] : null;
+            const changeStr = calculateChange(r[selectedMetric], prevVal);
+            const isPos = changeStr.startsWith('+');
+            const isNeg = changeStr.startsWith('-');
+            const changeColor = isPos ? '#ef4444' : isNeg ? '#10b981' : 'var(--text-secondary)';
+
+            return (
+              <tr key={r.id || i} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <td style={{ padding: '12px' }}>{r.snapshot_date}</td>
+                <td style={{ padding: '12px' }}>{r.price_from ? `$${r.price_from.toLocaleString()}` : '-'}</td>
+                <td style={{ padding: '12px' }}>{r.price_to ? `$${r.price_to.toLocaleString()}` : '-'}</td>
+                <td style={{ padding: '12px', fontWeight: 600, color: '#10b981' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
+                <td style={{ padding: '12px', fontWeight: 600, color: changeColor }}>{changeStr}</td>
+                <td style={{ padding: '12px' }}>{r.origin || '-'}</td>
+                <td style={{ padding: '12px' }}>{r.presentation || '-'} ({r.quantity_raw || ''})</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -1055,7 +1083,7 @@ export function App() {
       {records.length > 0 && activeProduct ? (
         <>
           <PriceChart records={records} metric={selectedMetric} productName={activeProduct.name} />
-          <PriceTable records={records} />
+          <PriceTable records={records} selectedMetric={selectedMetric} />
         </>
       ) : (
         <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-secondary)' }}>
@@ -1088,15 +1116,3 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 git add src/
 git commit -m "feat(frontend): assemble Recharts dashboard UI with interactive filters and tables"
 ```
-
----
-
-Plan complete and saved to `docs/plans/2026-08-14-abasto-precios-implementation-plan.md`.
-
-Two execution options:
-
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration.
-
-**2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints.
-
-Which approach?

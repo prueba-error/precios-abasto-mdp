@@ -1,7 +1,7 @@
-# Especificación Técnica de Proyecto: Sistema de Seguimiento y Visualización de Precios de Abasto Central MDP (v2.3)
+# Especificación Técnica de Proyecto: Sistema de Seguimiento y Visualización de Precios de Abasto Central MDP (v2.4)
 
 **Fecha:** 2026-08-14  
-**Versión:** 2.3 (Revisión de contrato estricto, comportamiento UPSERT y guardarraíles de alertas)  
+**Versión:** 2.4 (Revisión de validez analítica de precios, SQL canónico de UPSERT y umbral por categoría)  
 **Estado:** Aprobado para implementación  
 
 ---
@@ -11,12 +11,13 @@
 El objetivo de este proyecto es construir un sistema automatizado, resiliente y de bajo mantenimiento para la captura, almacenamiento y visualización histórica de la lista de precios mayoristas del **Mercado de Abasto Central de Mar del Plata** (`https://abastocentralmdp.com.ar/lista-precios`).
 
 ### Objetivos Clave:
-1. **Idempotencia Estricta:** Ejecución semanal segura. Uso de sintaxis PostgreSQL 15 `NULLS NOT DISTINCT` en restricciones de unicidad con actualización explícita de precios (`DO UPDATE`) ante ejecuciones repetidas.
-2. **Validación de Contrato y Calidad:** Verificación de campos obligatorios (`id`, `producto`, `categoria`) con tolerancia máxima de registros inválidos del 5% (al menos 95% válidos) y umbral mínimo ($\ge 20$ registros totales).
-3. **Manejo de Zona Horaria:** Generación de la fecha lógica (`snapshot_date`) fijada explícitamente en zona horaria argentina (`America/Argentina/Buenos_Aires`, UTC-3).
-4. **Persistencia Estructurada y Segura:** Esquema relacional en Supabase (PostgreSQL 15+) con lectura pública restringida únicamente a tablas de catálogo/precios y logs bloqueados a la clave pública `anon`.
-5. **Visualización SPA:** Dashboard interactivo en Vercel (Vite + React + Recharts) con fallback automático a **Mock Data** para desarrollo y testing.
-6. **Observabilidad con Guardarraíles:** Clasificación entre `WARNING` (alertas de negocio con al menos 2 antecedentes históricos) y `ERROR` (fallos estructurales o de contrato `exit 1`).
+1. **Idempotencia Estricta:** Ejecución semanal segura. Uso de sintaxis PostgreSQL 15 `NULLS NOT DISTINCT` en restricciones de unicidad con sentencia canónica `INSERT ... ON CONFLICT DO UPDATE`.
+2. **Validación de Contrato y Validez Analítica:** Verificación de campos estructurales (`id`, `producto`, `categoria`) y analíticos (al menos un precio válido `precio_desde` o `precio_hasta`).
+3. **Umbrales Duales de Calidad:** Tolerancia de registros válidos de al menos el **90% en cada categoría** individual y el **95% en el total global** (mínimo 20 registros totales).
+4. **Manejo de Zona Horaria:** Fecha lógica (`snapshot_date`) fijada en zona horaria argentina (`America/Argentina/Buenos_Aires`, UTC-3).
+5. **Persistencia Estructurada y Segura:** Esquema relacional en Supabase (PostgreSQL 15+) con lectura pública restringida a tablas de negocio y `scraping_logs` bloqueado a `anon`.
+6. **Visualización SPA:** Dashboard interactivo en Vercel (Vite + React + Recharts) con fallback automático a **Mock Data**.
+7. **Observabilidad:** Alertas `WARNING` (con guardarraíl de 2 semanas de historial) y `ERROR` (fallos estructurales o de contrato `exit 1`).
 
 ---
 
@@ -27,12 +28,12 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
   │ POST (idcat = 1..4) (3 reintentos con backoff)
   ▼
 [ Python Scraper Script ] (Timezone: America/Argentina/Buenos_Aires)
-  ├── Validación de Contrato (>95% registros válidos) & Calidad (Total >= 20, min >= 1/cat)
-  │     ├── (ERROR: <95% contrato ok, 0 en cat, total < 20, crash) ──► Log 'ERROR' + sys.exit(1) ──► Email Alert
-  │     ├── (WARNING: anomalía con >= 2 registros previos) ──────────► Log 'WARNING' + sys.exit(0)
+  ├── Validación de Contrato (>90% cat / >95% global con al menos 1 precio) & Calidad (Total >= 20)
+  │     ├── (ERROR: <90% cat, <95% global, 0 en cat, total < 20, crash) ──► Log 'ERROR' + sys.exit(1) ──► Email Alert
+  │     ├── (WARNING: anomalía con >= 2 registros previos) ──────────────► Log 'WARNING' + sys.exit(0)
   │     └── (Pasó validaciones: SUCCESS)
   ▼
-[ Supabase PostgreSQL 15+ (UPSERT DO UPDATE ON CONFLICT) ]
+[ Supabase PostgreSQL 15+ (UPSERT CANÓNICO ON CONFLICT DO UPDATE) ]
   │
   ├── Data API (REST / SDK Supabase Anon Client)
   ▼
@@ -48,31 +49,43 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
 - **URL Endpoint:** `https://abastocentralmdp.com.ar/dws/dws-app/pages/precios/back/precios.php`
 - **Método HTTP:** `POST`
 - **Payloads:** `idcat=1` (Frutas), `idcat=2` (Verduras), `idcat=3` (Hortalizas Pesadas), `idcat=4` (Otros).
-- **Campos Obligatorios de Contrato:** `id` (no vacío), `producto` (no vacío), `categoria` (no vacío).
+- **Criterio de Registro Válido (Estructural + Analítico):**
+  1. Campos obligatorios no vacíos: `id`, `producto`, `categoria`.
+  2. Validez analítica: Al menos uno de los campos `precio_desde` o `precio_hasta` debe contener un valor numérico parseable válido (diferente de `"-"`, `""` o `"---"`).
 
-### 3.2. Reglas de Calidad, Tolerancia y Taxonomía de Errores
-
-1. **Tolerancia y Validación de Esquema:**
-   - Cada objeto del arreglo JSON retornado debe incluir la totalidad de los campos obligatorios.
-   - **Tolerancia de Calidad:** Al menos el **95%** de los registros retornados en la ejecución deben cumplir con el contrato estricto. Si los registros corruptos/inválidos superan el 5%, el proceso se aborta inmediatamente con estado `ERROR`.
-   - **Umbral Estructural:** Total de registros procesados $\ge 20$ y ninguna categoría con 0 registros.
+### 3.2. Reglas de Calidad, Umbrales Duales y Taxonomía
+1. **Umbrales Duales de Tolerancia:**
+   - **Por categoría:** Al menos el **90%** de los registros de cada categoría deben ser válidos.
+   - **Global:** Al menos el **95%** del total acumulado de los registros procesados debe ser válido.
+   - **Mínimo Absoluto:** Ninguna categoría con 0 registros y total de registros procesados $\ge 20$.
 
 2. **Taxonomía de Ejecución y Guardarraíles de Alerta:**
-   - **`SUCCESS`**: Todas las validaciones de contrato y volumen superadas. Registra log `SUCCESS` y finaliza con `sys.exit(0)`.
-   - **`WARNING`**: Registra log `WARNING` y termina con `sys.exit(0)` solo si se detecta una variación de precio mayor al $100\%$ sobre un producto que posea **al menos 2 semanas de historial previo** en la base de datos y precio anterior $> 0$ (evitando falsos positivos en productos nuevos o de datos escasos).
-   - **`ERROR`**: Falla de red, status HTTP != 200, $>5\%$ registros con contrato inválido, 0 registros en alguna categoría o total $< 20$. Registra log `ERROR` y termina con `sys.exit(1)` (dispara e-mail en GitHub Actions).
+   - **`SUCCESS`**: Todos los contratos y umbrales cumplidos. Registra log `SUCCESS` y finaliza con `sys.exit(0)`.
+   - **`WARNING`**: Registra log `WARNING` (`sys.exit(0)`) solo si se detecta una variación de precio mayor al $100\%$ sobre un producto que posea **al menos 2 semanas de historial previo** y precio anterior $> 0$.
+   - **`ERROR`**: Fallo de red, status HTTP != 200, $<90\%$ validez en alguna categoría, $<95\%$ validez global o total $< 20$. Registra log `ERROR` y termina con `sys.exit(1)` (dispara e-mail en GitHub Actions).
 
 ---
 
-## 4. Esquema de Base de Datos y Comportamiento UPSERT
+## 4. Esquema de Base de Datos y Sentencia Canónica UPSERT
 
-### 4.1. Comportamiento Exacto del UPSERT en Conflicto
-Cuando se ejecuta el comando `UPSERT` sobre `price_records` ante la coincidencia de la clave de unicidad `(snapshot_date, product_id, origin, presentation, quantity_raw)`:
-- **Campos Actualizados:** `price_from = EXCLUDED.price_from`, `price_to = EXCLUDED.price_to`, `price_avg = EXCLUDED.price_avg`, `scraped_at = EXCLUDED.scraped_at`.
-- **Campos Preservados:** `id`, `snapshot_date`, `product_id`, `origin`, `presentation`, `quantity_raw`.
+### 4.1. Sentencia Canónica de UPSERT
+Cuando el scraper inserta lote de datos en `price_records`, utiliza la siguiente instrucción SQL en PostgreSQL 15+:
 
 ```sql
--- DDL de Creación
+INSERT INTO public.price_records (
+    snapshot_date, product_id, price_from, price_to, price_avg, origin, presentation, quantity_raw
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+ON CONFLICT (snapshot_date, product_id, origin, presentation, quantity_raw)
+DO UPDATE SET 
+    price_from = EXCLUDED.price_from,
+    price_to = EXCLUDED.price_to,
+    price_avg = EXCLUDED.price_avg,
+    scraped_at = EXCLUDED.scraped_at;
+```
+
+### 4.2. DDL de Creación
+```sql
 CREATE TABLE IF NOT EXISTS public.categories (
     id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL
@@ -170,7 +183,7 @@ CREATE POLICY "Permitir escritura completa a service_role en scraping_logs" ON p
 ## 7. Plan de Cobertura de Pruebas (Testing)
 
 1. **Pruebas Unitarias (`tests/test_normalizer.py`):**
-   - Normalización de precios, validación de contrato estricto (mínimo 95% válidos), fecha en timezone `America/Argentina/Buenos_Aires` y divisor cero.
+   - Normalización de precios, validación de validez analítica y umbrales duales (90% cat / 95% global), fecha en timezone `America/Argentina/Buenos_Aires` y divisor cero.
 2. **Pruebas con Fixtures (`tests/test_parser.py`):**
    - Parseo de respuestas JSON offline utilizando datos guardados en `tests/fixtures/`.
 3. **Prueba Canario de Contrato (`tests/test_canary_contract.py`):**

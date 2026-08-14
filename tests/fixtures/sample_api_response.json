@@ -1,0 +1,24 @@
+[
+  {
+    "id": "198",
+    "producto": "MANDARINA OKITSU",
+    "estado": "1",
+    "categoria": "Frutas",
+    "precio_desde": "-",
+    "precio_hasta": "12000",
+    "origen": "ENTRE RIOS",
+    "presentacion": "CAJON",
+    "cantidad": "18 KG."
+  },
+  {
+    "id": "27",
+    "producto": "MANGO",
+    "estado": "1",
+    "categoria": "Frutas",
+    "precio_desde": "15000",
+    "precio_hasta": "",
+    "origen": "BRASIL",
+    "presentacion": "CAJA",
+    "cantidad": "12 UNIDADES"
+  }
+]

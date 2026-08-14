@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build an automated weekly price scraper (Python + GitHub Actions) for Abasto Central MDP, store normalized price records in Supabase (PostgreSQL 15+ with `NULLS NOT DISTINCT` idempotency and explicit UPSERT updates), and serve a dynamic SPA dashboard hosted on Vercel using Vite, React, and Recharts with built-in mock data fallback.
+**Goal:** Build an automated weekly price scraper (Python + GitHub Actions) for Abasto Central MDP, store normalized price records in Supabase (PostgreSQL 15+ with `NULLS NOT DISTINCT` idempotency and canonical UPSERT updates), and serve a dynamic SPA dashboard hosted on Vercel using Vite, React, and Recharts with built-in mock data fallback.
 
-**Architecture:** A Python script in GitHub Actions periodically fetches price payloads from Abasto Central MDP via POST, validates schema contract (>=95% valid records ratio), normalizes data with `America/Argentina/Buenos_Aires` timezone, and executes an idempotent `UPSERT` on Supabase. A Vite + React + Recharts SPA reads data via Supabase JS SDK (or falls back to mock data if offline) and renders interactive time-series price charts and tables.
+**Architecture:** A Python script in GitHub Actions periodically fetches price payloads from Abasto Central MDP via POST, validates schema & analytical price contract (>=90% per category and >=95% global), normalizes data with `America/Argentina/Buenos_Aires` timezone, and executes an idempotent `UPSERT` on Supabase. A Vite + React + Recharts SPA reads data via Supabase JS SDK (or falls back to mock data if offline) and renders interactive time-series price charts and tables.
 
 **Tech Stack:** Python 3.10+, Supabase (PostgreSQL 15+), GitHub Actions, Vite, React 18, Recharts, TypeScript, Vanilla CSS.
 
@@ -12,7 +12,7 @@
 
 - Platform: Windows local workspace, Linux GitHub Actions runner, Vercel SPA hosting.
 - Timezone: `America/Argentina/Buenos_Aires` (UTC-3) for all `snapshot_date` calculations.
-- Contract Quality: >=95% of API items must contain mandatory keys (`id`, `producto`, `categoria`); total records >= 20.
+- Contract Quality: Mandatory structural keys (`id`, `producto`, `categoria`) + at least one valid price (`precio_desde` or `precio_hasta`). >=90% ratio per category and >=95% global ratio. Total records >= 20.
 - PostgreSQL 15 `NULLS NOT DISTINCT` for composite unique index idempotency.
 - Database access: RLS enabled on all tables; `anon` role restricted to SELECT on `categories`, `products`, `price_records`; `scraping_logs` restricted to `service_role`.
 - Charting: Recharts library only.
@@ -25,7 +25,7 @@
 - Create: `supabase/migrations/20260814000000_init_schema.sql`
 
 **Interfaces:**
-- Consumes: PostgreSQL DDL from spec v2.3
+- Consumes: PostgreSQL DDL from spec v2.4
 - Produces: Database tables (`categories`, `products`, `price_records`, `scraping_logs`) and RLS policies.
 
 - [ ] **Step 1: Create migration file with complete DDL**
@@ -129,10 +129,13 @@ from datetime import date
 from scraper.normalizer import is_valid_contract, clean_price_val, calculate_avg, normalize_record, get_argentina_date
 
 def test_is_valid_contract():
-    valid_item = {"id": "198", "producto": "MANDARINA", "categoria": "Frutas"}
-    invalid_item = {"id": "", "producto": "MANDARINA"}
+    valid_item = {"id": "198", "producto": "MANDARINA", "categoria": "Frutas", "precio_hasta": "12000"}
+    invalid_no_price = {"id": "198", "producto": "MANDARINA", "categoria": "Frutas", "precio_desde": "-", "precio_hasta": ""}
+    invalid_no_id = {"id": "", "producto": "MANDARINA", "categoria": "Frutas", "precio_hasta": "12000"}
+    
     assert is_valid_contract(valid_item) is True
-    assert is_valid_contract(invalid_item) is False
+    assert is_valid_contract(invalid_no_price) is False
+    assert is_valid_contract(invalid_no_id) is False
 
 def test_clean_price_val():
     assert clean_price_val("-") is None
@@ -180,7 +183,7 @@ def test_normalize_record():
 - [ ] **Step 2: Run test to verify failure**
 
 Run: `pytest tests/test_normalizer.py`
-Expected: FAIL (is_valid_contract not found or ModuleNotFoundError)
+Expected: FAIL (is_valid_contract analytical price failure)
 
 - [ ] **Step 3: Implement `scraper/normalizer.py`**
 
@@ -195,18 +198,6 @@ try:
 except ImportError:
     from backports.zoneinfo import ZoneInfo
 
-def is_valid_contract(raw: Dict[str, Any]) -> bool:
-    if not isinstance(raw, dict):
-        return False
-    prod_id = str(raw.get("id", "")).strip()
-    product_name = str(raw.get("producto", "")).strip()
-    cat_name = str(raw.get("categoria", "")).strip()
-    return bool(prod_id and product_name and cat_name)
-
-def get_argentina_date() -> date:
-    tz = ZoneInfo("America/Argentina/Buenos_Aires")
-    return datetime.now(tz).date()
-
 def clean_price_val(val: Optional[str]) -> Optional[float]:
     if not val:
         return None
@@ -218,6 +209,23 @@ def clean_price_val(val: Optional[str]) -> Optional[float]:
         return float(cleaned)
     except ValueError:
         return None
+
+def is_valid_contract(raw: Dict[str, Any]) -> bool:
+    if not isinstance(raw, dict):
+        return False
+    prod_id = str(raw.get("id", "")).strip()
+    product_name = str(raw.get("producto", "")).strip()
+    cat_name = str(raw.get("categoria", "")).strip()
+    if not (prod_id and product_name and cat_name):
+        return False
+    
+    p_from = clean_price_val(raw.get("precio_desde"))
+    p_to = clean_price_val(raw.get("precio_hasta"))
+    return (p_from is not None or p_to is not None)
+
+def get_argentina_date() -> date:
+    tz = ZoneInfo("America/Argentina/Buenos_Aires")
+    return datetime.now(tz).date()
 
 def calculate_avg(p_from: Optional[float], p_to: Optional[float]) -> Optional[float]:
     if p_from is not None and p_to is not None:
@@ -264,12 +272,12 @@ Expected: PASS
 
 ```bash
 git add scraper/ tests/
-git commit -m "feat(scraper): add contract validation helper and normalizer"
+git commit -m "feat(scraper): update contract check to include price analytical validity"
 ```
 
 ---
 
-### Task 3: Python Scraper Execution Engine & Data Quality Gate
+### Task 3: Python Scraper Execution Engine & Dual Threshold Gate
 
 **Files:**
 - Create: `scraper/scrape.py`
@@ -345,7 +353,7 @@ python-dotenv>=1.0.0
 pytest>=7.0.0
 ```
 
-- [ ] **Step 3: Implement `scraper/scrape.py`**
+- [ ] **Step 3: Implement `scraper/scrape.py` with Dual Thresholds (90% per-cat / 95% global)**
 
 Create `scraper/scrape.py`:
 ```python
@@ -362,7 +370,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 API_URL = "https://abastocentralmdp.com.ar/dws/dws-app/pages/precios/back/precios.php"
 CATEGORIES = [1, 2, 3, 4]
 MIN_TOTAL_RECORDS = 20
-MIN_VALID_RATIO = 0.95  # At least 95% valid records ratio
+MIN_GLOBAL_VALID_RATIO = 0.95
+MIN_CAT_VALID_RATIO = 0.90
 
 def fetch_category_data(category_id: int) -> List[Dict[str, Any]]:
     session = requests.Session()
@@ -379,7 +388,8 @@ def fetch_category_data(category_id: int) -> List[Dict[str, Any]]:
 def run_scraper(dry_run: bool = False) -> None:
     today = get_argentina_date()
     all_normalized = []
-    category_counts = {}
+    category_raw_counts = {}
+    category_valid_counts = {}
     total_raw_fetched = 0
     total_valid_contract = 0
     errors = []
@@ -387,8 +397,9 @@ def run_scraper(dry_run: bool = False) -> None:
     for cat_id in CATEGORIES:
         try:
             raw_items = fetch_category_data(cat_id)
-            category_counts[cat_id] = len(raw_items)
+            category_raw_counts[cat_id] = len(raw_items)
             total_raw_fetched += len(raw_items)
+            valid_in_cat = 0
 
             if len(raw_items) == 0:
                 msg = f"Data Quality ERROR: Category idcat={cat_id} returned 0 records."
@@ -397,19 +408,28 @@ def run_scraper(dry_run: bool = False) -> None:
             
             for item in raw_items:
                 if is_valid_contract(item):
+                    valid_in_cat += 1
                     total_valid_contract += 1
                     norm = normalize_record(item, category_id=cat_id, snapshot_date=today)
                     all_normalized.append(norm)
+
+            category_valid_counts[cat_id] = valid_in_cat
+            cat_ratio = (valid_in_cat / len(raw_items)) if len(raw_items) > 0 else 0.0
+            if cat_ratio < MIN_CAT_VALID_RATIO and len(raw_items) > 0:
+                msg = f"Data Quality ERROR: Category idcat={cat_id} valid ratio {cat_ratio:.2f} < {MIN_CAT_VALID_RATIO}"
+                logging.error(msg)
+                errors.append(msg)
+
         except Exception as e:
             msg = f"Failed fetching category idcat={cat_id}: {e}"
             logging.error(msg)
             errors.append(msg)
 
-    valid_ratio = (total_valid_contract / total_raw_fetched) if total_raw_fetched > 0 else 0.0
-    logging.info(f"Fetched {total_raw_fetched} raw items. Valid contract count: {total_valid_contract} ({valid_ratio*100:.1f}%)")
+    global_ratio = (total_valid_contract / total_raw_fetched) if total_raw_fetched > 0 else 0.0
+    logging.info(f"Fetched {total_raw_fetched} raw items. Valid contract count: {total_valid_contract} ({global_ratio*100:.1f}%)")
 
-    if total_raw_fetched == 0 or valid_ratio < MIN_VALID_RATIO or total_valid_contract < MIN_TOTAL_RECORDS or any(category_counts.get(c, 0) == 0 for c in CATEGORIES):
-        logging.error(f"Data Quality Gate FAILED: ratio={valid_ratio:.2f} (min {MIN_VALID_RATIO}), valid_count={total_valid_contract} (min {MIN_TOTAL_RECORDS})")
+    if total_raw_fetched == 0 or global_ratio < MIN_GLOBAL_VALID_RATIO or total_valid_contract < MIN_TOTAL_RECORDS or len(errors) > 0:
+        logging.error(f"Data Quality Gate FAILED: global_ratio={global_ratio:.2f}, errors={errors}")
         sys.exit(1)
 
     if dry_run:
@@ -467,12 +487,11 @@ def run_scraper(dry_run: bool = False) -> None:
         on_conflict="snapshot_date,product_id,origin,presentation,quantity_raw"
     ).execute()
 
-    status = "SUCCESS" if not errors else "WARNING"
     log_entry = {
         "snapshot_date": today.isoformat(),
-        "status": status,
+        "status": "SUCCESS",
         "records_inserted": len(price_records),
-        "error_message": "; ".join(errors) if errors else None
+        "error_message": None
     }
     supabase.table("scraping_logs").insert(log_entry).execute()
     logging.info("Scraping finished successfully.")
@@ -485,13 +504,13 @@ if __name__ == "__main__":
 - [ ] **Step 4: Run dry run check**
 
 Run: `python -m scraper.scrape --dry-run`
-Expected: Logs output fetching categories, verifying contract ratio >=95%, and outputting dry run success.
+Expected: Logs output fetching categories, verifying dual thresholds (90% per-cat / 95% global), and completing dry run.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add scraper/ requirements.txt tests/
-git commit -m "feat(scraper): enforce strict contract quality gate and explicit upsert handling"
+git commit -m "feat(scraper): implement dual 90%/95% quality gate thresholds"
 ```
 
 ---

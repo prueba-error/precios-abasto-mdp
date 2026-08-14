@@ -4,7 +4,7 @@
 
 **Goal:** Build an automated weekly price scraper (Python + GitHub Actions) for Abasto Central MDP, store normalized price records in Supabase (PostgreSQL 15+ with `NULLS NOT DISTINCT` idempotency and canonical UPSERT updates), and serve a dynamic SPA dashboard hosted on Vercel using Vite, React, and Recharts with built-in mock data fallback.
 
-**Architecture:** A Python script in GitHub Actions periodically fetches price payloads from Abasto Central MDP via POST, validates schema & analytical price contract (>=90% per category and >=95% global), normalizes data with `America/Argentina/Buenos_Aires` timezone, and executes an idempotent `UPSERT` on Supabase. A Vite + React + Recharts SPA reads data via Supabase JS SDK (or falls back to mock data if offline) and renders interactive time-series price charts and tables.
+**Architecture:** A Python script in GitHub Actions periodically fetches price payloads from Abasto Central MDP via POST with custom `User-Agent` and 1s delay, validates schema & analytical price contract (>=90% per category and >=95% global), normalizes data with `America/Argentina/Buenos_Aires` timezone, and executes idempotent `UPSERT` statements for products and prices on Supabase. A Vite + React + Recharts SPA reads data via Supabase JS SDK (or falls back to mock data if offline) and renders interactive time-series price charts and tables.
 
 **Tech Stack:** Python 3.10+, Supabase (PostgreSQL 15+), GitHub Actions, Vite, React 18, Recharts, TypeScript, Vanilla CSS.
 
@@ -12,6 +12,8 @@
 
 - Platform: Windows local workspace, Linux GitHub Actions runner, Vercel SPA hosting.
 - Timezone: `America/Argentina/Buenos_Aires` (UTC-3) for all `snapshot_date` calculations.
+- HTTP Etiquette: `User-Agent: AbastoPreciosBot/1.0 (+https://github.com/user/scraping-verduras)` and `time.sleep(1.0)` between requests.
+- GitHub Actions Concurrency: `concurrency: group: scrape-precios cancel-in-progress: true`.
 - Contract Quality: Mandatory structural keys (`id`, `producto`, `categoria`) + at least one valid price (`precio_desde` or `precio_hasta`). >=90% ratio per category and >=95% global ratio. Total records >= 20.
 - PostgreSQL 15 `NULLS NOT DISTINCT` for composite unique index idempotency.
 - Database access: RLS enabled on all tables; `anon` role restricted to SELECT on `categories`, `products`, `price_records`; `scraping_logs` restricted to `service_role`.
@@ -25,7 +27,7 @@
 - Create: `supabase/migrations/20260814000000_init_schema.sql`
 
 **Interfaces:**
-- Consumes: PostgreSQL DDL from spec v2.4
+- Consumes: PostgreSQL DDL from spec v2.5
 - Produces: Database tables (`categories`, `products`, `price_records`, `scraping_logs`) and RLS policies.
 
 - [ ] **Step 1: Create migration file with complete DDL**
@@ -183,7 +185,7 @@ def test_normalize_record():
 - [ ] **Step 2: Run test to verify failure**
 
 Run: `pytest tests/test_normalizer.py`
-Expected: FAIL (is_valid_contract analytical price failure)
+Expected: FAIL
 
 - [ ] **Step 3: Implement `scraper/normalizer.py`**
 
@@ -277,7 +279,7 @@ git commit -m "feat(scraper): update contract check to include price analytical 
 
 ---
 
-### Task 3: Python Scraper Execution Engine & Dual Threshold Gate
+### Task 3: Python Scraper Execution Engine with HTTP Etiquette & Dual Gate
 
 **Files:**
 - Create: `scraper/scrape.py`
@@ -353,12 +355,13 @@ python-dotenv>=1.0.0
 pytest>=7.0.0
 ```
 
-- [ ] **Step 3: Implement `scraper/scrape.py` with Dual Thresholds (90% per-cat / 95% global)**
+- [ ] **Step 3: Implement `scraper/scrape.py` with User-Agent, 1s delay, and Product UPSERT SQL**
 
 Create `scraper/scrape.py`:
 ```python
 import os
 import sys
+import time
 import json
 import logging
 import requests
@@ -368,6 +371,7 @@ from scraper.normalizer import normalize_record, get_argentina_date, is_valid_co
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 API_URL = "https://abastocentralmdp.com.ar/dws/dws-app/pages/precios/back/precios.php"
+USER_AGENT = "AbastoPreciosBot/1.0 (+https://github.com/user/scraping-verduras)"
 CATEGORIES = [1, 2, 3, 4]
 MIN_TOTAL_RECORDS = 20
 MIN_GLOBAL_VALID_RATIO = 0.95
@@ -375,6 +379,7 @@ MIN_CAT_VALID_RATIO = 0.90
 
 def fetch_category_data(category_id: int) -> List[Dict[str, Any]]:
     session = requests.Session()
+    session.headers.update({"User-Agent": USER_AGENT})
     adapter = requests.adapters.HTTPAdapter(max_retries=3)
     session.mount("https://", adapter)
     
@@ -396,6 +401,8 @@ def run_scraper(dry_run: bool = False) -> None:
 
     for cat_id in CATEGORIES:
         try:
+            if cat_id > 1:
+                time.sleep(1.0)  # Rate limiting delay
             raw_items = fetch_category_data(cat_id)
             category_raw_counts[cat_id] = len(raw_items)
             total_raw_fetched += len(raw_items)
@@ -447,7 +454,7 @@ def run_scraper(dry_run: bool = False) -> None:
     from supabase import create_client
     supabase = create_client(supabase_url, supabase_key)
 
-    # 1. Upsert products
+    # 1. Upsert products (ON CONFLICT original_id, category_id DO UPDATE SET name = EXCLUDED.name)
     products_map = {}
     for rec in all_normalized:
         prod_key = (rec["original_id"], rec["category_id"])
@@ -504,24 +511,24 @@ if __name__ == "__main__":
 - [ ] **Step 4: Run dry run check**
 
 Run: `python -m scraper.scrape --dry-run`
-Expected: Logs output fetching categories, verifying dual thresholds (90% per-cat / 95% global), and completing dry run.
+Expected: Logs output fetching categories with User-Agent and 1s delay, completing dry run successfully.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add scraper/ requirements.txt tests/
-git commit -m "feat(scraper): implement dual 90%/95% quality gate thresholds"
+git commit -m "feat(scraper): add HTTP etiquette, 1s rate limiting delay, and product UPSERT"
 ```
 
 ---
 
-### Task 4: GitHub Actions Workflow Configuration
+### Task 4: GitHub Actions Workflow Configuration with Concurrency
 
 **Files:**
 - Create: `.github/workflows/scrape_precios.yml`
 
 **Interfaces:**
-- Runs: Weekly GitHub cron job with secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
+- Runs: Weekly GitHub cron job with concurrency lock and secrets
 
 - [ ] **Step 1: Create workflow file**
 
@@ -534,6 +541,10 @@ on:
     # Run every Monday at 09:00 UTC (06:00 ART)
     - cron: '0 9 * * 1'
   workflow_dispatch:
+
+concurrency:
+  group: scrape-precios
+  cancel-in-progress: true
 
 jobs:
   scrape:
@@ -568,7 +579,7 @@ jobs:
 
 ```bash
 git add .github/workflows/scrape_precios.yml
-git commit -m "ci: add weekly github actions scraper workflow"
+git commit -m "ci: add concurrency lock to github actions workflow"
 ```
 
 ---

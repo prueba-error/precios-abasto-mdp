@@ -1,7 +1,7 @@
-# Especificación Técnica de Proyecto: Sistema de Seguimiento y Visualización de Precios de Abasto Central MDP (v2.5 Final)
+# Especificación Técnica de Proyecto: Sistema de Seguimiento y Visualización de Precios de Abasto Central MDP (v2.5.1 Definitive)
 
 **Fecha:** 2026-08-14  
-**Versión:** 2.5 Final (Especificación completa de bordes de implementación, etiquetado HTTP, concurrencia y UPSERTs SQL)  
+**Versión:** 2.5.1 Definitive (Cierre completo de mapeos de payload, bloques YAML, política de WARNINGs y SQL canónico)  
 **Estado:** Aprobado para implementación  
 
 ---
@@ -11,11 +11,11 @@
 El objetivo de este proyecto es construir un sistema automatizado, resiliente y de bajo mantenimiento para la captura, almacenamiento y visualización histórica de la lista de precios mayoristas del **Mercado de Abasto Central de Mar del Plata** (`https://abastocentralmdp.com.ar/lista-precios`).
 
 ### Objetivos Clave:
-1. **Idempotencia Estricta:** Ejecución semanal segura. Sentencias canónicas `INSERT ... ON CONFLICT DO UPDATE` en PostgreSQL 15+ tanto para el catálogo de `products` como para `price_records`.
-2. **Validación de Contrato y Validez Analítica:** Verificación de claves estructurales (`id`, `producto`, `categoria`) y analíticas (al menos un precio válido `precio_desde` o `precio_hasta`).
-3. **Umbrales Duales de Calidad:** Tolerancia de registros válidos de al menos el **90% en cada categoría** individual y el **95% en el total global** (mínimo 20 registros totales).
-4. **Etiquetado HTTP y Rate Limiting:** Identificación respetuosa con `User-Agent` personalizado y delay prudencial de 1 segundo entre peticiones POST.
-5. **Manejo de Zona Horaria y Concurrencia:** `snapshot_date` fijada en `America/Argentina/Buenos_Aires` (UTC-3). Bloqueo de concurrencia en GitHub Actions para prevenir ejecuciones simultáneas.
+1. **Idempotencia Estricta:** Ejecución semanal segura. Sentencias canónicas `INSERT ... ON CONFLICT DO UPDATE` en PostgreSQL 15+ para `products` y `price_records` actualizando `scraped_at = NOW()`.
+2. **Validación de Contrato y Validez Analítica:** Mapeo de payload de origen (`origen` -> `origin`, `presentacion` -> `presentation`, `cantidad` -> `quantity_raw`). Verificación de campos obligatorios (`id`, `producto`, `categoria`) y al menos un precio válido (`precio_desde` o `precio_hasta`).
+3. **Umbrales Duales de Calidad:** Tolerancia de registros válidos de al menos el **90% en cada categoría** individual y el **95% en el total global** (mínimo 20 registros totales). Si 1 categoría falla tras reintentos (0 registros), el pipeline cae automáticamente a `ERROR`.
+4. **Etiquetado HTTP y Rate Limiting:** Identificación con `User-Agent: AbastoPreciosBot/1.0 (+https://github.com/Diegolas/scraping-verduras)` y pausa prudencial de 1.0 segundo entre solicitudes POST.
+5. **Manejo de Zona Horaria y Concurrencia:** `snapshot_date` fijada en `America/Argentina/Buenos_Aires` (UTC-3). Bloqueo de concurrencia en GitHub Actions y cron semanal (`0 9 * * 1`).
 6. **Persistencia Estructurada y Segura:** Esquema relacional en Supabase (PostgreSQL 15+) con lectura pública en tablas de negocio y `scraping_logs` restringido a `service_role`.
 7. **Visualización SPA:** Dashboard interactivo en Vercel (Vite + React + Recharts) con fallback automático a **Mock Data**.
 
@@ -30,7 +30,7 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
 [ Python Scraper Script ] (Timezone: America/Argentina/Buenos_Aires)
   ├── Validación de Contrato (>90% cat / >95% global con al menos 1 precio)
   │     ├── (ERROR: <90% cat, <95% global, 0 en cat, total < 20, crash) ──► Log 'ERROR' + sys.exit(1) ──► Email Alert
-  │     ├── (WARNING: anomalía con >= 2 registros previos) ──────────────► Log 'WARNING' + sys.exit(0)
+  │     ├── (WARNING: anomalía con >= 2 registros previos) ──────────────► Log 'WARNING' en BD + sys.exit(0) (Consulta en Dashboard)
   │     └── (Pasó validaciones: SUCCESS)
   ▼
 [ Supabase PostgreSQL 15+ (UPSERTs CANÓNICOS ON CONFLICT DO UPDATE) ]
@@ -45,16 +45,31 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
 
 ## 3. Especificación del Scraper (Python + GitHub Actions)
 
-### 3.1. Endpoint Origen, Etiquetado HTTP y Concurrencia
+### 3.1. Endpoint Origen, Mapeo de Payload y Etiquetado HTTP
 - **URL Endpoint:** `https://abastocentralmdp.com.ar/dws/dws-app/pages/precios/back/precios.php`
 - **Método HTTP:** `POST`
 - **Payloads:** `idcat=1` (Frutas), `idcat=2` (Verduras), `idcat=3` (Hortalizas Pesadas), `idcat=4` (Otros).
-- **Relación `categoria` vs `idcat`:** El entero `idcat` (1 a 4) determina la FK `category_id` en la base de datos. El texto `categoria` retornado en el JSON se utiliza para validar la no vacuidad del contrato.
+- **Mapeo Explícito JSON -> Columnas BD:**
+  - `id` -> `products.original_id` (string)
+  - `producto` -> `products.name` (string normalizado UTF-8)
+  - `idcat` (1..4) -> `products.category_id` & `price_records.category_id` (integer)
+  - `categoria` -> Utilizado exclusivamente para validación de contrato no vacío.
+  - `precio_desde` -> `price_records.price_from` (numeric / NULL)
+  - `precio_hasta` -> `price_records.price_to` (numeric / NULL)
+  - `origen` -> `price_records.origin` (string / NULL)
+  - `presentacion` -> `price_records.presentation` (string / NULL)
+  - `cantidad` -> `price_records.quantity_raw` (string / NULL)
 - **Cabeceras HTTP y Rate Limiting:**
-  - `User-Agent`: `AbastoPreciosBot/1.0 (+https://github.com/user/scraping-verduras)`
+  - `User-Agent`: `AbastoPreciosBot/1.0 (+https://github.com/Diegolas/scraping-verduras)`
   - Pausa de 1.0 segundo (`time.sleep(1.0)`) entre solicitudes a cada `idcat`.
-- **Control de Concurrencia GitHub Actions:**
-  - `concurrency: group: scrape-precios cancel-in-progress: true` (garantiza un único job activo a la vez).
+- **Workflow Cron y Concurrencia GitHub Actions:**
+  - **Cron Schedule:** `0 9 * * 1` (Todos los lunes a las 09:00 UTC / 06:00 ART).
+  - **Bloque YAML de Concurrencia:**
+    ```yaml
+    concurrency:
+      group: scrape-precios
+      cancel-in-progress: true
+    ```
 - **Secrets Requeridos:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
 
 ### 3.2. Criterio de Registro Válido y Cálculo de `price_avg`
@@ -67,19 +82,20 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
    - Si solo existe `price_to`: `round(price_to, 2)`.
    - Si ninguno existe: `NULL`.
 
-### 3.3. Reglas de Calidad, Umbrales Duales y Auditoría
-1. **Umbrales de Tolerancia:**
-   - **Por categoría:** Al menos el **90%** de los registros de cada `idcat` deben ser válidos.
-   - **Global:** Al menos el **95%** del total acumulado de registros procesados debe ser válido.
-   - **Mínimo Absoluto:** Ninguna categoría con 0 registros y total procesado $\ge 20$.
-2. **Definición de `records_inserted` en Log:**
-   - Representa el recuento total de registros de precios procesados e insertados/actualizados exitosamente en la tabla `price_records` para esa fecha de snapshot.
+### 3.3. Reglas de Calidad, Fallos Parciales y Observabilidad
+1. **Fallo Parcial de Categoría:**
+   - Si tras 3 reintentos una categoría (ej. `idcat=3`) no retorna datos (0 registros), el pipeline evalúa 0 en esa categoría, violando el umbral de 0 registros y deteniendo la ejecución con estado `ERROR` (`sys.exit(1)`), impidiendo cargas incompletas.
+2. **Canal de Alertas y Revisión:**
+   - **`ERROR`**: Aborta script con `sys.exit(1)`, inserta log en `scraping_logs` y dispara notificación por e-mail nativa de GitHub Actions.
+   - **`WARNING`**: Finaliza script con `sys.exit(0)` indicando anomalías de negocio (variaciones $>100\%$ en productos con $\ge 2$ antecedentes previos y precio anterior $> 0$). Se almacena de forma silenciosa en `scraping_logs` para auditoría en el Dashboard o consulta manual.
 
 ---
 
 ## 4. Esquema de Base de Datos y Sentencias Canónicas UPSERT
 
 ### 4.1. Sentencia Canónica de UPSERT para `products`
+> **Comportamiento en Reasignación de Categoría:** La unicidad por `(original_id, category_id)` es intencional. Si un producto cambia de categoría entre semanas, se genera un nuevo registro de producto vinculado a la nueva categoría.
+
 ```sql
 INSERT INTO public.products (original_id, name, category_id)
 VALUES ($1, $2, $3)
@@ -100,7 +116,7 @@ DO UPDATE SET
     price_from = EXCLUDED.price_from,
     price_to = EXCLUDED.price_to,
     price_avg = EXCLUDED.price_avg,
-    scraped_at = EXCLUDED.scraped_at;
+    scraped_at = NOW();
 ```
 
 ### 4.3. DDL de Creación y RLS
@@ -194,7 +210,7 @@ CREATE POLICY "Permitir escritura completa a service_role en scraping_logs" ON p
 ## 6. Monitoreo y Estrategia de Reintentos
 
 1. **Reintentos HTTP:** 3 reintentos con backoff exponencial.
-2. **Idempotencia SQL:** Clave de unicidad Postgres 15+ `NULLS NOT DISTINCT` actualizando `price_from`, `price_to`, `price_avg`, `scraped_at`.
+2. **Idempotencia SQL:** Clave de unicidad Postgres 15+ `NULLS NOT DISTINCT` actualizando `price_from`, `price_to`, `price_avg`, `scraped_at = NOW()`.
 3. **Alertas:** Registro en `scraping_logs` y `sys.exit(1)` ante estados `ERROR` para notificaciones por e-mail de GitHub Actions.
 
 ---

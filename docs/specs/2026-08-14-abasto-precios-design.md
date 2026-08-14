@@ -48,7 +48,7 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
 ### 3.1. Endpoint Origen, Mapeo de Payload y Etiquetado HTTP
 - **URL Endpoint:** `https://abastocentralmdp.com.ar/dws/dws-app/pages/precios/back/precios.php`
 - **Método HTTP:** `POST`
-- **Payloads:** `idcat=1` (Frutas), `idcat=2` (Verduras), `idcat=3` (Hortalizas Pesadas), `idcat=4` (Otros).
+- **Payloads:** `idcat=1` (Frutas), `idcat=2` (Verduras), `idcat=3` (Hortalizas), `idcat=4` (Otros).
 - **Mapeo Explícito JSON -> Columnas BD:**
   - `id` -> `products.original_id` (string)
   - `producto` -> `products.name` (string normalizado UTF-8, espacios colapsados `strip()`)
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS public.categories (
 );
 
 INSERT INTO public.categories (id, name) VALUES 
-(1, 'Frutas'), (2, 'Verduras'), (3, 'Hortalizas Pesadas'), (4, 'Otros')
+(1, 'Frutas'), (2, 'Verduras'), (3, 'Hortalizas'), (4, 'Otros')
 ON CONFLICT (id) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS public.products (

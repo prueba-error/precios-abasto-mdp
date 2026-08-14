@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS public.categories (
 );
 
 INSERT INTO public.categories (id, name) VALUES 
-(1, 'Frutas'), (2, 'Verduras'), (3, 'Hortalizas Pesadas'), (4, 'Otros')
+(1, 'Frutas'), (2, 'Verduras'), (3, 'Hortalizas'), (4, 'Otros')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Products Table
@@ -778,7 +778,7 @@ import { Category, Product, PriceRecord } from '../types';
 export const MOCK_CATEGORIES: Category[] = [
   { id: 1, name: 'Frutas' },
   { id: 2, name: 'Verduras' },
-  { id: 3, name: 'Hortalizas Pesadas' },
+  { id: 3, name: 'Hortalizas' },
   { id: 4, name: 'Otros' }
 ];
 

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS public.categories (
 );
 
 INSERT INTO public.categories (id, name) VALUES 
-(1, 'Frutas'), (2, 'Verduras'), (3, 'Hortalizas Pesadas'), (4, 'Otros')
+(1, 'Frutas'), (2, 'Verduras'), (3, 'Hortalizas'), (4, 'Otros')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Products Table

@@ -14,7 +14,7 @@
 - Timezone: `America/Argentina/Buenos_Aires` (UTC-3) for all `snapshot_date` calculations.
 - HTTP Etiquette: `User-Agent: AbastoPreciosBot/1.0 (+https://github.com/Diegolas/scraping-verduras)` and `time.sleep(1.0)` between requests.
 - GitHub Actions Concurrency & Cron: Cron `0 9 * * 1` (Mondays 09:00 UTC / 06:00 ART) and `concurrency: group: scrape-precios cancel-in-progress: true`.
-- Payload Mapping: `id` -> `original_id`, `producto` -> `name`, `origen` -> `origin`, `presentacion` -> `presentation`, `cantidad` -> `quantity_raw`.
+- Payload Mapping: `id` -> `original_id`, `producto` -> `name`, `origen` -> `origin`, `presentacion` -> `presentation`, `cantidad` -> `quantity_raw`. (Category for `price_records` is joined via `product_id -> products.category_id`).
 - Contract Quality: Mandatory structural keys (`id`, `producto`, `categoria`) + at least one valid price (`precio_desde` or `precio_hasta`). >=90% ratio per category and >=95% global ratio. Total records >= 20.
 - PostgreSQL 15 `NULLS NOT DISTINCT` for composite unique index idempotency.
 - Database access: RLS enabled on all tables; `anon` role restricted to SELECT on `categories`, `products`, `price_records`; `scraping_logs` restricted to `service_role`.
@@ -28,7 +28,7 @@
 - Create: `supabase/migrations/20260814000000_init_schema.sql`
 
 **Interfaces:**
-- Consumes: PostgreSQL DDL from spec v2.5.1
+- Consumes: PostgreSQL DDL from spec v2.5.2
 - Produces: Database tables (`categories`, `products`, `price_records`, `scraping_logs`) and RLS policies.
 
 - [ ] **Step 1: Create migration file with complete DDL**

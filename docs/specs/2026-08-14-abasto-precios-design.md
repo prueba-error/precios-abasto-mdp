@@ -1,7 +1,7 @@
-# Especificación Técnica de Proyecto: Sistema de Seguimiento y Visualización de Precios de Abasto Central MDP (v2.5.1 Definitive)
+# Especificación Técnica de Proyecto: Sistema de Seguimiento y Visualización de Precios de Abasto Central MDP (v2.5.2 Master)
 
 **Fecha:** 2026-08-14  
-**Versión:** 2.5.1 Definitive (Cierre completo de mapeos de payload, bloques YAML, política de WARNINGs y SQL canónico)  
+**Versión:** 2.5.2 Master (Consistencia DDL/mapeo, RLS de logs y detalle de mensajes de advertencia)  
 **Estado:** Aprobado para implementación  
 
 ---
@@ -16,7 +16,7 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
 3. **Umbrales Duales de Calidad:** Tolerancia de registros válidos de al menos el **90% en cada categoría** individual y el **95% en el total global** (mínimo 20 registros totales). Si 1 categoría falla tras reintentos (0 registros), el pipeline cae automáticamente a `ERROR`.
 4. **Etiquetado HTTP y Rate Limiting:** Identificación con `User-Agent: AbastoPreciosBot/1.0 (+https://github.com/Diegolas/scraping-verduras)` y pausa prudencial de 1.0 segundo entre solicitudes POST.
 5. **Manejo de Zona Horaria y Concurrencia:** `snapshot_date` fijada en `America/Argentina/Buenos_Aires` (UTC-3). Bloqueo de concurrencia en GitHub Actions y cron semanal (`0 9 * * 1`).
-6. **Persistencia Estructurada y Segura:** Esquema relacional en Supabase (PostgreSQL 15+) con lectura pública en tablas de negocio y `scraping_logs` restringido a `service_role`.
+6. **Persistencia Estructurada y Segura:** Esquema relacional en Supabase (PostgreSQL 15+) con lectura pública en tablas de negocio (`categories`, `products`, `price_records`) y `scraping_logs` restringido al rol `service_role`.
 7. **Visualización SPA:** Dashboard interactivo en Vercel (Vite + React + Recharts) con fallback automático a **Mock Data**.
 
 ---
@@ -30,7 +30,7 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
 [ Python Scraper Script ] (Timezone: America/Argentina/Buenos_Aires)
   ├── Validación de Contrato (>90% cat / >95% global con al menos 1 precio)
   │     ├── (ERROR: <90% cat, <95% global, 0 en cat, total < 20, crash) ──► Log 'ERROR' + sys.exit(1) ──► Email Alert
-  │     ├── (WARNING: anomalía con >= 2 registros previos) ──────────────► Log 'WARNING' en BD + sys.exit(0) (Consulta en Dashboard)
+  │     ├── (WARNING: anomalía con >= 2 registros previos) ──────────────► Log 'WARNING' en BD + sys.exit(0) (Auditoría Admin)
   │     └── (Pasó validaciones: SUCCESS)
   ▼
 [ Supabase PostgreSQL 15+ (UPSERTs CANÓNICOS ON CONFLICT DO UPDATE) ]
@@ -51,8 +51,8 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
 - **Payloads:** `idcat=1` (Frutas), `idcat=2` (Verduras), `idcat=3` (Hortalizas Pesadas), `idcat=4` (Otros).
 - **Mapeo Explícito JSON -> Columnas BD:**
   - `id` -> `products.original_id` (string)
-  - `producto` -> `products.name` (string normalizado UTF-8)
-  - `idcat` (1..4) -> `products.category_id` & `price_records.category_id` (integer)
+  - `producto` -> `products.name` (string normalizado UTF-8, espacios colapsados `strip()`)
+  - `idcat` (1..4) -> `products.category_id` (integer) — *Nota: La categoría de `price_records` se asocia relacionalmente vía `product_id -> products.category_id`*.
   - `categoria` -> Utilizado exclusivamente para validación de contrato no vacío.
   - `precio_desde` -> `price_records.price_from` (numeric / NULL)
   - `precio_hasta` -> `price_records.price_to` (numeric / NULL)
@@ -85,9 +85,9 @@ El objetivo de este proyecto es construir un sistema automatizado, resiliente y 
 ### 3.3. Reglas de Calidad, Fallos Parciales y Observabilidad
 1. **Fallo Parcial de Categoría:**
    - Si tras 3 reintentos una categoría (ej. `idcat=3`) no retorna datos (0 registros), el pipeline evalúa 0 en esa categoría, violando el umbral de 0 registros y deteniendo la ejecución con estado `ERROR` (`sys.exit(1)`), impidiendo cargas incompletas.
-2. **Canal de Alertas y Revisión:**
-   - **`ERROR`**: Aborta script con `sys.exit(1)`, inserta log en `scraping_logs` y dispara notificación por e-mail nativa de GitHub Actions.
-   - **`WARNING`**: Finaliza script con `sys.exit(0)` indicando anomalías de negocio (variaciones $>100\%$ en productos con $\ge 2$ antecedentes previos y precio anterior $> 0$). Se almacena de forma silenciosa en `scraping_logs` para auditoría en el Dashboard o consulta manual.
+2. **Canal de Alertas y Detalle en `scraping_logs`:**
+   - **`ERROR`**: Aborta script con `sys.exit(1)`, inserta log en `scraping_logs` con la traza del fallo en `error_message` y dispara notificación por e-mail nativa de GitHub Actions.
+   - **`WARNING`**: Finaliza script con `sys.exit(0)` indicando anomalías de negocio (ej. variaciones $>100\%$ en productos con $\ge 2$ antecedentes previos y precio anterior $> 0$). Se almacena en `scraping_logs` detallando el contexto en `error_message` (ej. `"WARNING: Variación del +120% en MANDARINA OKITSU"`) para auditoría administrativa (rol `service_role`).
 
 ---
 

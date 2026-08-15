@@ -35,7 +35,46 @@ export const Filters: React.FC<FiltersProps> = ({
   onClearPinned,
   onResetChart
 }) => {
+  const [isPinHovered, setIsPinHovered] = React.useState(false);
+  const [isPinPressed, setIsPinPressed] = React.useState(false);
+  
   const [isResetHovered, setIsResetHovered] = React.useState(false);
+  const [isResetPressed, setIsResetPressed] = React.useState(false);
+
+  // Compute Fijar/Fijado button styles dynamically based on state
+  const getPinStyle = () => {
+    if (isCurrentPinned) {
+      if (isPinPressed) {
+        return { background: '#1e40af', border: '1px solid #93c5fd', color: '#ffffff', transform: 'scale(0.97)' };
+      }
+      if (isPinHovered) {
+        return { background: '#2563eb', border: '1px solid #60a5fa', color: '#ffffff', transform: 'none' };
+      }
+      return { background: '#1d4ed8', border: '1px solid #3b82f6', color: '#ffffff', transform: 'none' };
+    }
+    // Unpinned state
+    if (isPinPressed) {
+      return { background: '#1d4ed8', border: '1px solid #93c5fd', color: '#ffffff', transform: 'scale(0.97)' };
+    }
+    if (isPinHovered) {
+      return { background: '#1e3a8a', border: '1px solid #60a5fa', color: '#93c5fd', transform: 'none' };
+    }
+    return { background: '#1e293b', border: '1px solid #3b82f6', color: '#60a5fa', transform: 'none' };
+  };
+
+  // Compute Restablecer button styles dynamically based on state
+  const getResetStyle = () => {
+    if (isResetPressed) {
+      return { background: '#991b1b', border: '1px solid #fca5a5', color: '#ffffff', transform: 'scale(0.97)' };
+    }
+    if (isResetHovered) {
+      return { background: '#7f1d1d', border: '1px solid #f87171', color: '#fca5a5', transform: 'none' };
+    }
+    return { background: '#1e293b', border: '1px solid #ef4444', color: '#f87171', transform: 'none' };
+  };
+
+  const pinStyle = getPinStyle();
+  const resetStyle = getResetStyle();
 
   return (
     <div style={{ marginBottom: '24px' }}>
@@ -62,6 +101,10 @@ export const Filters: React.FC<FiltersProps> = ({
             </select>
             <button
               onClick={onTogglePin}
+              onMouseEnter={() => setIsPinHovered(true)}
+              onMouseLeave={() => { setIsPinHovered(false); setIsPinPressed(false); }}
+              onMouseDown={() => setIsPinPressed(true)}
+              onMouseUp={() => setIsPinPressed(false)}
               title={isCurrentPinned ? 'Desfijar del gráfico' : 'Fijar en el gráfico'}
               style={{
                 display: 'flex',
@@ -69,14 +112,15 @@ export const Filters: React.FC<FiltersProps> = ({
                 gap: '6px',
                 padding: '8px 14px',
                 borderRadius: '6px',
-                border: isCurrentPinned ? '1px solid #60a5fa' : '1px solid #3b82f6',
-                background: isCurrentPinned ? '#2563eb' : 'rgba(37, 99, 235, 0.25)',
-                color: isCurrentPinned ? '#ffffff' : '#93c5fd',
-                fontWeight: 600,
+                border: pinStyle.border,
+                background: pinStyle.background,
+                color: pinStyle.color,
+                transform: pinStyle.transform,
+                fontWeight: 500,
                 fontSize: '0.8125rem',
                 whiteSpace: 'nowrap',
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.15s ease'
               }}
             >
               <Pin size={15} fill={isCurrentPinned ? '#ffffff' : 'none'} />
@@ -100,7 +144,9 @@ export const Filters: React.FC<FiltersProps> = ({
           <button
             onClick={onResetChart}
             onMouseEnter={() => setIsResetHovered(true)}
-            onMouseLeave={() => setIsResetHovered(false)}
+            onMouseLeave={() => { setIsResetHovered(false); setIsResetPressed(false); }}
+            onMouseDown={() => setIsResetPressed(true)}
+            onMouseUp={() => setIsResetPressed(false)}
             title="Restablecer gráfico a la vista por defecto"
             style={{
               display: 'inline-flex',
@@ -110,14 +156,15 @@ export const Filters: React.FC<FiltersProps> = ({
               height: '38px',
               padding: '0 14px',
               borderRadius: '6px',
-              border: isResetHovered ? '1px solid #ef4444' : '1px solid #f87171',
-              background: isResetHovered ? 'rgba(220, 38, 38, 0.75)' : 'rgba(220, 38, 38, 0.25)',
-              color: isResetHovered ? '#ffffff' : '#fca5a5',
-              fontWeight: 600,
+              border: resetStyle.border,
+              background: resetStyle.background,
+              color: resetStyle.color,
+              transform: resetStyle.transform,
+              fontWeight: 500,
               fontSize: '0.8125rem',
               whiteSpace: 'nowrap',
               cursor: 'pointer',
-              transition: 'all 0.2s'
+              transition: 'all 0.15s ease'
             }}
           >
             <RotateCcw size={14} />

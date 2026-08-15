@@ -67,9 +67,9 @@ export const Filters: React.FC<FiltersProps> = ({
                 gap: '6px',
                 padding: '8px 14px',
                 borderRadius: '6px',
-                border: isCurrentPinned ? '1px solid #10b981' : '1px solid rgba(16, 185, 129, 0.4)',
-                background: isCurrentPinned ? '#10b981' : 'rgba(16, 185, 129, 0.12)',
-                color: isCurrentPinned ? '#0f172a' : '#10b981',
+                border: isCurrentPinned ? '1px solid #3b82f6' : '1px solid rgba(59, 130, 246, 0.4)',
+                background: isCurrentPinned ? '#3b82f6' : 'rgba(59, 130, 246, 0.12)',
+                color: isCurrentPinned ? '#ffffff' : '#3b82f6',
                 fontWeight: 600,
                 fontSize: '0.8125rem',
                 whiteSpace: 'nowrap',
@@ -77,7 +77,7 @@ export const Filters: React.FC<FiltersProps> = ({
                 transition: 'all 0.2s'
               }}
             >
-              <Pin size={15} fill={isCurrentPinned ? '#0f172a' : 'none'} />
+              <Pin size={15} fill={isCurrentPinned ? '#ffffff' : 'none'} />
               <span>{isCurrentPinned ? 'Fijado' : 'Fijar'}</span>
             </button>
           </div>
@@ -106,9 +106,9 @@ export const Filters: React.FC<FiltersProps> = ({
               height: '38px',
               padding: '0 14px',
               borderRadius: '6px',
-              border: '1px solid rgba(56, 189, 248, 0.4)',
-              background: 'rgba(56, 189, 248, 0.1)',
-              color: '#38bdf8',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              background: 'rgba(239, 68, 68, 0.12)',
+              color: '#ef4444',
               fontWeight: 500,
               fontSize: '0.8125rem',
               whiteSpace: 'nowrap',

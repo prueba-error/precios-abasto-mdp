@@ -6,9 +6,10 @@ interface PriceChartProps {
   records: PriceRecord[];
   metric: PriceMetric;
   productName: string;
+  categoryName?: string;
 }
 
-export const PriceChart: React.FC<PriceChartProps> = ({ records, metric, productName }) => {
+export const PriceChart: React.FC<PriceChartProps> = ({ records, metric, productName, categoryName }) => {
   const metricLabel = metric === 'price_avg' ? 'Promedio' : metric === 'price_from' ? 'Mínimo' : 'Máximo';
 
   const chartData = records.map(r => ({
@@ -16,9 +17,11 @@ export const PriceChart: React.FC<PriceChartProps> = ({ records, metric, product
     precio: r[metric]
   }));
 
+  const titlePrefix = categoryName ? `${categoryName} / ` : '';
+
   return (
     <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
-      <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {productName} ({metricLabel})</h3>
+      <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {titlePrefix}{productName}&nbsp; — &nbsp;{metricLabel}</h3>
       <div style={{ width: '100%', height: 350 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>

@@ -11,8 +11,8 @@ const supabase = (supabaseUrl && supabaseAnonKey)
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
 
-export const ALL_CATEGORIES_OPTION: Category = { id: 0, name: 'Todas' };
-export const ALL_PRODUCTS_OPTION: Product = { id: 0, original_id: 'ALL', name: 'Todos (Promedio General)', category_id: 0 };
+export const ALL_CATEGORIES_OPTION: Category = { id: 0, name: 'Todas las categorías' };
+export const ALL_PRODUCTS_OPTION: Product = { id: 0, original_id: 'ALL', name: 'Todos los productos (Promedio General)', category_id: 0 };
 
 export async function getCategories(): Promise<Category[]> {
   if (isUsingMock || !supabase) {

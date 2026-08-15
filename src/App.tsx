@@ -12,8 +12,8 @@ export function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [records, setRecords] = useState<PriceRecord[]>([]);
   
-  const [selectedCategory, setSelectedCategory] = useState<number>(0); // 0 = 'Todas'
-  const [selectedProduct, setSelectedProduct] = useState<number>(0);   // 0 = 'Todos'
+  const [selectedCategory, setSelectedCategory] = useState<number>(0); // 0 = 'Todas las categorías'
+  const [selectedProduct, setSelectedProduct] = useState<number>(0);   // 0 = 'Todos los productos'
   const [selectedMetric, setSelectedMetric] = useState<PriceMetric>('price_avg');
 
   useEffect(() => {
@@ -35,7 +35,8 @@ export function App() {
     getPriceHistory(selectedProduct, selectedCategory).then(recs => setRecords(recs));
   }, [selectedProduct, selectedCategory]);
 
-  const activeProduct = products.find(p => p.id === selectedProduct) || { name: 'Todos los Productos (Promedio Canasta)' };
+  const activeCategory = categories.find(c => c.id === selectedCategory);
+  const activeProduct = products.find(p => p.id === selectedProduct) || { name: 'Todos los productos (Promedio General)' };
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
 
   return (
@@ -53,7 +54,12 @@ export function App() {
       />
       {records.length > 0 ? (
         <>
-          <PriceChart records={records} metric={selectedMetric} productName={activeProduct.name} />
+          <PriceChart 
+            records={records} 
+            metric={selectedMetric} 
+            productName={activeProduct.name}
+            categoryName={activeCategory?.name}
+          />
           <PriceTable records={records} selectedMetric={selectedMetric} />
         </>
       ) : (

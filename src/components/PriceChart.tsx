@@ -24,6 +24,12 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   const metricLabel = metric === 'price_avg' ? 'Promedio' : metric === 'price_from' ? 'Mínimo' : 'Máximo';
   const titlePrefix = categoryName ? `${categoryName} / ` : '';
 
+  // Check if active product is pinned to match its assigned system color instead of green
+  const mainPinnedObj = pinnedProducts.find(
+    p => p.productId === activeProductId || p.productName === productName
+  );
+  const mainLineColor = mainPinnedObj ? mainPinnedObj.color : '#10b981';
+
   // Exclude the active product from the pinned lines list to prevent rendering duplicate lines on the chart
   const activePinnedProducts = pinnedProducts.filter(
     p => p.productId !== activeProductId && p.productName !== productName
@@ -70,7 +76,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
               formatter={(val: any, name: string) => [val !== null ? `$${val.toLocaleString()}` : '-', name]}
             />
             {pinnedProducts.length > 0 && <Legend wrapperStyle={{ paddingTop: '10px' }} />}
-            <Line type="monotone" dataKey={productName} stroke="#10b981" strokeWidth={3} dot={{ r: 5 }} connectNulls />
+            <Line type="monotone" dataKey={productName} stroke={mainLineColor} strokeWidth={3} dot={{ r: 5 }} connectNulls />
             {activePinnedProducts.map(p => (
               <Line
                 key={p.productId}

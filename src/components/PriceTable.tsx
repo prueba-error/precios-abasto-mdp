@@ -58,14 +58,18 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     });
   };
 
-  // 1. Process active product records
-  const activeRows = processProductRecords(records, activeProductName, '#10b981');
+  // 1. Process active product records (use pinned color if active product is currently pinned)
+  const activePinnedObj = pinnedProducts.find(p => p.productName === activeProductName);
+  const activeColor = activePinnedObj ? activePinnedObj.color : '#10b981';
+  const activeRows = processProductRecords(records, activeProductName, activeColor);
 
-  // 2. Process pinned products records
+  // 2. Process pinned products records (excluding active product to avoid duplicate rows)
   const pinnedRows: CombinedRow[] = [];
   pinnedProducts.forEach(p => {
-    const list = pinnedHistories[p.productId] || [];
-    pinnedRows.push(...processProductRecords(list, p.productName, p.color));
+    if (p.productName !== activeProductName) {
+      const list = pinnedHistories[p.productId] || [];
+      pinnedRows.push(...processProductRecords(list, p.productName, p.color));
+    }
   });
 
   // 3. Combine and sort by date DESC, then product name

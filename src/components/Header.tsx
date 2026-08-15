@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({ isMock, lastUpdated }) => {
             }}
           >
             <Database size={13} color={isMock ? '#f59e0b' : '#94a3b8'} />
-            <span>{isMock ? 'Modo Demo (Mock Data)' : `Última actualización: ${lastUpdated || 'Hoy'}`}</span>
+            <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
           </div>
         </div>
 

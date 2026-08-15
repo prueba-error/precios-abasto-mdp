@@ -55,7 +55,7 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
   };
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', marginBottom: '16px', width: '100%' }}>
+    <div ref={containerRef} style={{ position: 'relative', marginBottom: '16px', width: '100%', maxWidth: '50%' }}>
       <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>
         Buscar producto
       </label>

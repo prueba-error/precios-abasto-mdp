@@ -37,8 +37,8 @@ export const Filters: React.FC<FiltersProps> = ({
 }) => {
   return (
     <div style={{ marginBottom: '24px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', alignItems: 'end' }}>
-        <div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
+        <div style={{ flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Categoría</label>
           <select 
             value={selectedCategory} 
@@ -48,7 +48,7 @@ export const Filters: React.FC<FiltersProps> = ({
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
-        <div>
+        <div style={{ flex: '1.2 1 260px' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Producto</label>
           <div style={{ display: 'flex', gap: '8px' }}>
             <select 
@@ -80,7 +80,7 @@ export const Filters: React.FC<FiltersProps> = ({
             </button>
           </div>
         </div>
-        <div>
+        <div style={{ flex: '1 1 180px' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Métrica de Precio</label>
           <select 
             value={selectedMetric} 
@@ -92,28 +92,29 @@ export const Filters: React.FC<FiltersProps> = ({
             <option value="price_to">Precio Hasta</option>
           </select>
         </div>
-        <div>
+        <div style={{ flex: '0 0 auto' }}>
           <button
             onClick={onResetChart}
             title="Restablecer gráfico a la vista por defecto"
             style={{
-              width: '100%',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              padding: '8px 14px',
+              gap: '6px',
+              height: '38px',
+              padding: '0 14px',
               borderRadius: '6px',
-              border: '1px solid var(--border-color)',
-              background: 'var(--bg-card)',
-              color: 'var(--text-primary)',
+              border: '1px solid rgba(56, 189, 248, 0.4)',
+              background: 'rgba(56, 189, 248, 0.1)',
+              color: '#38bdf8',
               fontWeight: 500,
-              fontSize: '0.875rem',
+              fontSize: '0.8125rem',
+              whiteSpace: 'nowrap',
               cursor: 'pointer',
               transition: 'all 0.2s'
             }}
           >
-            <RotateCcw size={16} />
+            <RotateCcw size={14} />
             <span>Restablecer gráfico</span>
           </button>
         </div>

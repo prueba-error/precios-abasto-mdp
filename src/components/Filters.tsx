@@ -1,10 +1,12 @@
 import React from 'react';
 import { Category, Product, PriceMetric, PinnedProduct } from '../types';
 import { Pin, X, Trash2, RotateCcw } from 'lucide-react';
+import { ProductSearch } from './ProductSearch';
 
 interface FiltersProps {
   categories: Category[];
   products: Product[];
+  allProducts: Product[];
   selectedCategory: number;
   selectedProduct: number;
   selectedMetric: PriceMetric;
@@ -17,11 +19,13 @@ interface FiltersProps {
   onUnpinProduct: (pinnedId: string) => void;
   onClearPinned: () => void;
   onResetChart: () => void;
+  onSelectProductFromSearch: (product: Product) => void;
 }
 
 export const Filters: React.FC<FiltersProps> = ({
   categories,
   products,
+  allProducts,
   selectedCategory,
   selectedProduct,
   selectedMetric,
@@ -33,7 +37,8 @@ export const Filters: React.FC<FiltersProps> = ({
   onTogglePin,
   onUnpinProduct,
   onClearPinned,
-  onResetChart
+  onResetChart,
+  onSelectProductFromSearch
 }) => {
   const [isPinHovered, setIsPinHovered] = React.useState(false);
   const [isPinPressed, setIsPinPressed] = React.useState(false);
@@ -59,7 +64,7 @@ export const Filters: React.FC<FiltersProps> = ({
     if (isPinHovered) {
       return { background: '#1e3a8a', border: '1px solid #60a5fa', color: '#93c5fd', transform: 'none' };
     }
-    return { background: '#193360', border: '1px solid #3b82f6', color: '#60a5fa', transform: 'none' };
+    return { background: '#1e293b', border: '1px solid #3b82f6', color: '#60a5fa', transform: 'none' };
   };
 
   // Compute Restablecer button styles dynamically based on state
@@ -70,7 +75,7 @@ export const Filters: React.FC<FiltersProps> = ({
     if (isResetHovered) {
       return { background: '#7f1d1d', border: '1px solid #f87171', color: '#fca5a5', transform: 'none' };
     }
-    return { background: '#572121', border: '1px solid #ef4444', color: '#f87171', transform: 'none' };
+    return { background: '#1e293b', border: '1px solid #ef4444', color: '#f87171', transform: 'none' };
   };
 
   const pinStyle = getPinStyle();
@@ -78,6 +83,11 @@ export const Filters: React.FC<FiltersProps> = ({
 
   return (
     <div style={{ marginBottom: '24px' }}>
+      <ProductSearch
+        allProducts={allProducts}
+        categories={categories}
+        onSelectProduct={onSelectProductFromSearch}
+      />
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
         <div style={{ flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Categoría</label>

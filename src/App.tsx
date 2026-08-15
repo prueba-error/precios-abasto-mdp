@@ -12,6 +12,7 @@ const COLOR_PALETTE = ['#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#
 export function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [allProductsList, setAllProductsList] = useState<Product[]>([]);
   const [records, setRecords] = useState<PriceRecord[]>([]);
   const [categoryProductsRecords, setCategoryProductsRecords] = useState<ExtendedPriceRecord[]>([]);
   
@@ -27,6 +28,12 @@ export function App() {
       setCategories(cats);
     });
   }, []);
+
+  useEffect(() => {
+    getProducts(0, categories).then(prods => {
+      setAllProductsList(prods);
+    });
+  }, [categories]);
 
   useEffect(() => {
     getProducts(selectedCategory, categories).then(prods => {
@@ -107,6 +114,11 @@ export function App() {
     }
   };
 
+  const handleSelectProductFromSearch = (product: Product) => {
+    setSelectedCategory(product.category_id);
+    setSelectedProduct(product.id);
+  };
+
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
 
   return (
@@ -115,6 +127,7 @@ export function App() {
       <Filters 
         categories={categories}
         products={products}
+        allProducts={allProductsList}
         selectedCategory={selectedCategory}
         selectedProduct={selectedProduct}
         selectedMetric={selectedMetric}
@@ -127,6 +140,7 @@ export function App() {
         onUnpinProduct={(pinnedId: string) => handleUnpinProduct(pinnedId)}
         onClearPinned={handleClearPinned}
         onResetChart={handleResetChart}
+        onSelectProductFromSearch={handleSelectProductFromSearch}
       />
       {records.length > 0 ? (
         <>

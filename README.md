@@ -1,6 +1,6 @@
 # 🥦 Precios Abasto Central MDP - Tracking & Dashboard
 
-Sistema automatizado de monitoreo, seguimiento histórico y visualización de precios mayoristas del **Mercado de Abasto Central de Mar del Plata** (`https://abastocentralmdp.com.ar/lista-precios`).
+Sistema automatizado de monitoreo, seguimiento histórico y visualización de precios mayoristas del **Mercado de Abasto Central de Mar del Plata**.
 
 ## 🛠️ Stack Tecnológico
 
@@ -13,3 +13,7 @@ Sistema automatizado de monitoreo, seguimiento histórico y visualización de pr
 ## 📄 Documentación Técnica
 
 - **Especificación Técnica Completa:** [`docs/specs/2026-08-14-abasto-precios-design.md`](docs/specs/2026-08-14-abasto-precios-design.md)
+
+## 🔗 Enlace al Sitio
+
+[precios-abasto-mdp.vercel.app](https://precios-abasto-mdp.vercel.app/)

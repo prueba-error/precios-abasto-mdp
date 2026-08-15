@@ -122,19 +122,7 @@ export function App() {
   const handlePinProductFromSearch = (product: Product) => {
     setSelectedCategory(product.category_id);
     setSelectedProduct(product.id);
-    const targetPinnedId = `cat_${product.category_id}_prod_${product.id}`;
-    const isPinned = pinnedProducts.some(p => p.pinnedId === targetPinnedId);
-    if (!isPinned) {
-      const colorIndex = pinnedProducts.length % COLOR_PALETTE.length;
-      const newPinned: PinnedProduct = {
-        pinnedId: targetPinnedId,
-        productId: product.id,
-        categoryId: product.category_id,
-        productName: product.name,
-        color: COLOR_PALETTE[colorIndex]
-      };
-      setPinnedProducts(prev => [...prev, newPinned]);
-    }
+    handleTogglePinItem(product.id, product.category_id, product.name);
   };
 
   const handleTogglePinItem = (productId: number, categoryId: number, productName: string) => {

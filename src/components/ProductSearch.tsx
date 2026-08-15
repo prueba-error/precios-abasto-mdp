@@ -6,12 +6,14 @@ interface ProductSearchProps {
   allProducts: Product[];
   categories: Category[];
   onSelectProduct: (product: Product) => void;
+  onPinProduct?: (product: Product) => void;
 }
 
 export const ProductSearch: React.FC<ProductSearchProps> = ({
   allProducts,
   categories,
-  onSelectProduct
+  onSelectProduct,
+  onPinProduct
 }) => {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -69,6 +71,17 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
     setSelectedIndex(-1);
   };
 
+  const handlePin = (prod: Product) => {
+    if (onPinProduct) {
+      onPinProduct(prod);
+    } else {
+      onSelectProduct(prod);
+    }
+    setQuery(prod.name);
+    setIsOpen(false);
+    setSelectedIndex(-1);
+  };
+
   const handleClear = () => {
     setQuery('');
     setIsOpen(false);
@@ -86,6 +99,22 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
       return;
     }
 
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const targetProd = (selectedIndex >= 0 && selectedIndex < filteredProducts.length)
+        ? filteredProducts[selectedIndex]
+        : (filteredProducts.length > 0 ? filteredProducts[0] : null);
+
+      if (targetProd) {
+        if (e.ctrlKey || e.metaKey) {
+          handlePin(targetProd);
+        } else {
+          handleSelect(targetProd);
+        }
+      }
+      return;
+    }
+
     if (!isOpen || filteredProducts.length === 0) {
       if (e.key === 'ArrowDown' && filteredProducts.length > 0) {
         setIsOpen(true);
@@ -99,13 +128,6 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelectedIndex(prev => Math.max(prev - 1, 0));
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (selectedIndex >= 0 && selectedIndex < filteredProducts.length) {
-        handleSelect(filteredProducts[selectedIndex]);
-      } else if (filteredProducts.length > 0) {
-        handleSelect(filteredProducts[0]);
-      }
     }
   };
 

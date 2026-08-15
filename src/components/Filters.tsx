@@ -20,6 +20,7 @@ interface FiltersProps {
   onClearPinned: () => void;
   onResetChart: () => void;
   onSelectProductFromSearch: (product: Product) => void;
+  onPinProductFromSearch?: (product: Product) => void;
 }
 
 export const Filters: React.FC<FiltersProps> = ({
@@ -38,7 +39,8 @@ export const Filters: React.FC<FiltersProps> = ({
   onUnpinProduct,
   onClearPinned,
   onResetChart,
-  onSelectProductFromSearch
+  onSelectProductFromSearch,
+  onPinProductFromSearch
 }) => {
   const [isPinHovered, setIsPinHovered] = React.useState(false);
   const [isPinPressed, setIsPinPressed] = React.useState(false);
@@ -87,6 +89,7 @@ export const Filters: React.FC<FiltersProps> = ({
         allProducts={allProducts}
         categories={categories}
         onSelectProduct={onSelectProductFromSearch}
+        onPinProduct={onPinProductFromSearch}
       />
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
         <div style={{ flex: '1 1 200px' }}>

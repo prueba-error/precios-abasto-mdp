@@ -12,7 +12,15 @@ const supabase = (supabaseUrl && supabaseAnonKey)
   : null;
 
 export const ALL_CATEGORIES_OPTION: Category = { id: 0, name: 'Todas las categorías' };
-export const ALL_PRODUCTS_OPTION: Product = { id: 0, original_id: 'ALL', name: 'Todos los productos (Promedio General)', category_id: 0 };
+
+export function getBasketOptionForCategory(categoryId: number, categories: Category[] = []): Product {
+  const cat = categories.find(c => c.id === categoryId);
+  const catName = cat ? cat.name : (categoryId === 1 ? 'Frutas' : categoryId === 2 ? 'Verduras' : categoryId === 3 ? 'Hortalizas' : categoryId === 4 ? 'Otros' : '');
+  const name = categoryId === 0
+    ? 'Promedio Canasta (Todas las categorías)'
+    : `Promedio ${catName}`;
+  return { id: 0, original_id: `ALL_${categoryId}`, name, category_id: categoryId };
+}
 
 export interface ExtendedPriceRecord extends PriceRecord {
   product_name?: string;
@@ -27,7 +35,7 @@ export async function getCategories(): Promise<Category[]> {
   return [ALL_CATEGORIES_OPTION, ...data];
 }
 
-export async function getProducts(categoryId: number): Promise<Product[]> {
+export async function getProducts(categoryId: number, categories: Category[] = []): Promise<Product[]> {
   let list: Product[] = [];
   if (isUsingMock || !supabase) {
     if (categoryId === 0) {
@@ -47,7 +55,8 @@ export async function getProducts(categoryId: number): Promise<Product[]> {
       list = data;
     }
   }
-  return [ALL_PRODUCTS_OPTION, ...list];
+  const basketOption = getBasketOptionForCategory(categoryId, categories);
+  return [basketOption, ...list];
 }
 
 export async function getPriceHistory(productId: number, categoryId: number): Promise<PriceRecord[]> {

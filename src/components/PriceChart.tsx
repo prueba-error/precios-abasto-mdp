@@ -7,16 +7,17 @@ interface PriceChartProps {
   metric: PriceMetric;
   productName: string;
   activeProductId?: number;
+  activePinnedId?: string;
   categoryName?: string;
   pinnedProducts?: PinnedProduct[];
-  pinnedHistories?: { [productId: number]: PriceRecord[] };
+  pinnedHistories?: { [pinnedId: string]: PriceRecord[] };
 }
 
 export const PriceChart: React.FC<PriceChartProps> = ({
   records,
   metric,
   productName,
-  activeProductId,
+  activePinnedId,
   categoryName,
   pinnedProducts = [],
   pinnedHistories = {}
@@ -26,20 +27,20 @@ export const PriceChart: React.FC<PriceChartProps> = ({
 
   // Check if active product is pinned to match its assigned system color instead of green
   const mainPinnedObj = pinnedProducts.find(
-    p => p.productId === activeProductId || p.productName === productName
+    p => p.pinnedId === activePinnedId
   );
   const mainLineColor = mainPinnedObj ? mainPinnedObj.color : '#10b981';
 
   // Exclude the active product from the pinned lines list to prevent rendering duplicate lines on the chart
   const activePinnedProducts = pinnedProducts.filter(
-    p => p.productId !== activeProductId && p.productName !== productName
+    p => p.pinnedId !== activePinnedId
   );
 
   // Merge all dates across active product & pinned products
   const datesSet = new Set<string>();
   records.forEach(r => datesSet.add(r.snapshot_date));
   activePinnedProducts.forEach(p => {
-    const list = pinnedHistories[p.productId] || [];
+    const list = pinnedHistories[p.pinnedId] || [];
     list.forEach(r => datesSet.add(r.snapshot_date));
   });
 
@@ -47,16 +48,16 @@ export const PriceChart: React.FC<PriceChartProps> = ({
 
   const activeMap = new Map(records.map(r => [r.snapshot_date, r[metric]]));
   
-  const pinnedMaps = new Map<number, Map<string, number | null>>();
+  const pinnedMaps = new Map<string, Map<string, number | null>>();
   activePinnedProducts.forEach(p => {
-    const list = pinnedHistories[p.productId] || [];
-    pinnedMaps.set(p.productId, new Map(list.map(r => [r.snapshot_date, r[metric]])));
+    const list = pinnedHistories[p.pinnedId] || [];
+    pinnedMaps.set(p.pinnedId, new Map(list.map(r => [r.snapshot_date, r[metric]])));
   });
 
   const chartData = sortedDates.map(date => {
     const item: any = { date, [productName]: activeMap.get(date) ?? null };
     activePinnedProducts.forEach(p => {
-      const pMap = pinnedMaps.get(p.productId);
+      const pMap = pinnedMaps.get(p.pinnedId);
       item[p.productName] = pMap?.get(date) ?? null;
     });
     return item;
@@ -79,7 +80,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
             <Line type="monotone" dataKey={productName} stroke={mainLineColor} strokeWidth={3} dot={{ r: 5 }} connectNulls />
             {activePinnedProducts.map(p => (
               <Line
-                key={p.productId}
+                key={p.pinnedId}
                 type="monotone"
                 dataKey={p.productName}
                 stroke={p.color}

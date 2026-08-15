@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { PriceRecord, PriceMetric, PinnedProduct } from '../types';
 import { ExtendedPriceRecord } from '../services/dataService';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Table, Calendar } from 'lucide-react';
 
 interface PriceTableProps {
   records: PriceRecord[];
   selectedMetric: PriceMetric;
   activeProductName: string;
+  activePinnedId?: string;
   isAllProducts?: boolean;
   categoryProductsRecords?: ExtendedPriceRecord[];
   pinnedProducts?: PinnedProduct[];
-  pinnedHistories?: { [productId: number]: PriceRecord[] };
+  pinnedHistories?: { [pinnedId: string]: PriceRecord[] };
 }
 
 interface CombinedRow extends PriceRecord {
@@ -25,11 +26,13 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   records,
   selectedMetric,
   activeProductName,
+  activePinnedId,
   isAllProducts = false,
   categoryProductsRecords = [],
   pinnedProducts = [],
   pinnedHistories = {}
 }) => {
+  const [viewMode, setViewMode] = useState<'detailed' | 'historical'>('detailed');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 25;
 
@@ -83,7 +86,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   };
 
   // 1. Process active product records (Row 1)
-  const activePinnedObj = pinnedProducts.find(p => p.productName === activeProductName);
+  const activePinnedObj = pinnedProducts.find(p => p.pinnedId === activePinnedId);
   const activeColor = activePinnedObj ? activePinnedObj.color : '#10b981';
   const activeRows = processProductRecords(records, activeProductName, activeColor, true, false);
 
@@ -100,8 +103,8 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   // 2. Process pinned products records (Rows 2..N, placed right below Active Product)
   const pinnedRows: CombinedRow[] = [];
   pinnedProducts.forEach(p => {
-    if (p.productName !== activeProductName) {
-      const list = pinnedHistories[p.productId] || individualMap.get(p.productName) || [];
+    if (p.pinnedId !== activePinnedId) {
+      const list = pinnedHistories[p.pinnedId] || individualMap.get(p.productName) || [];
       if (list.length > 0) {
         pinnedRows.push(...processProductRecords(list, p.productName, p.color, false, true));
       }
@@ -132,116 +135,234 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     ? individualRows.slice((currentPage - 1) * pageSize, currentPage * pageSize)
     : individualRows;
 
-  // Final Row Order: [ Active Product (Row 1) ] -> [ Pinned Products (Rows 2..N) ] -> [ Remaining Individual Products ]
+  // Final Row Order for Detailed View: [ Active Product (Row 1) ] -> [ Pinned Products ] -> [ Remaining Individual Products ]
   const combinedRows = [...activeRows, ...pinnedRows, ...displayedIndividualRows];
 
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : '';
 
+  // Prepare Historical View Data (Columns: [Fecha | ActiveProduct | PinnedProduct1 | PinnedProduct2 ...])
+  const activePinnedProducts = pinnedProducts.filter(p => p.pinnedId !== activePinnedId);
+  
+  const historicalDatesSet = new Set<string>();
+  records.forEach(r => historicalDatesSet.add(r.snapshot_date));
+  activePinnedProducts.forEach(p => {
+    const list = pinnedHistories[p.pinnedId] || [];
+    list.forEach(r => historicalDatesSet.add(r.snapshot_date));
+  });
+
+  const sortedHistoricalDates = Array.from(historicalDatesSet).sort((a, b) => b.localeCompare(a)); // DESC
+
+  const activeDateValueMap = new Map(records.map(r => [r.snapshot_date, r[selectedMetric]]));
+  
+  const pinnedDateValueMaps = new Map<string, Map<string, number | null>>();
+  activePinnedProducts.forEach(p => {
+    const list = pinnedHistories[p.pinnedId] || [];
+    pinnedDateValueMaps.set(p.pinnedId, new Map(list.map(r => [r.snapshot_date, r[selectedMetric]])));
+  });
+
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-      <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
-        {latestDate && (
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-            — Semana del {latestDate}
-          </span>
-        )}
+      <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
+          {latestDate && viewMode === 'detailed' && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              — Semana del {latestDate}
+            </span>
+          )}
+        </div>
+
+        {/* View Mode Toggle Switch */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+          <button
+            onClick={() => setViewMode('detailed')}
+            title="Vista de detalle actual"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              fontSize: '0.75rem',
+              borderRadius: '4px',
+              border: 'none',
+              background: viewMode === 'detailed' ? 'var(--accent-primary)' : 'transparent',
+              color: viewMode === 'detailed' ? '#000' : 'var(--text-secondary)',
+              fontWeight: viewMode === 'detailed' ? 600 : 400,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Table size={14} />
+            <span>Detalle</span>
+          </button>
+          <button
+            onClick={() => setViewMode('historical')}
+            title="Vista de serie temporal histórica"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              fontSize: '0.75rem',
+              borderRadius: '4px',
+              border: 'none',
+              background: viewMode === 'historical' ? 'var(--accent-primary)' : 'transparent',
+              color: viewMode === 'historical' ? '#000' : 'var(--text-secondary)',
+              fontWeight: viewMode === 'historical' ? 600 : 400,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Calendar size={14} />
+            <span>Histórico</span>
+          </button>
+        </div>
       </div>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
-            <th style={{ padding: '12px' }}>Producto</th>
-            <th style={{ padding: '12px' }}>Desde</th>
-            <th style={{ padding: '12px' }}>Hasta</th>
-            <th style={{ padding: '12px' }}>Promedio</th>
-            <th style={{ padding: '12px' }}>Variación Semanal</th>
-            <th style={{ padding: '12px' }}>Origen</th>
-            <th style={{ padding: '12px' }}>Presentación</th>
-          </tr>
-        </thead>
-        <tbody>
-          {combinedRows.map((r, i) => {
-            const isPos = r.changeStr.startsWith('+');
-            const isNeg = r.changeStr.startsWith('-');
-            const changeColor = isPos ? '#ef4444' : isNeg ? '#10b981' : 'var(--text-secondary)';
-
-            return (
-              <tr 
-                key={`${r.productName}-${r.snapshot_date}-${i}`} 
-                style={{ 
-                  borderBottom: '1px solid var(--border-color)',
-                  background: r.isBasketAverage 
-                    ? 'rgba(16, 185, 129, 0.08)' 
-                    : r.isPinnedRow 
-                    ? 'rgba(51, 65, 85, 0.3)' 
-                    : 'transparent'
-                }}
-              >
-                <td style={{ padding: '12px', fontWeight: (r.isBasketAverage || r.isPinnedRow) ? 700 : 500 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: r.color, flexShrink: 0 }}></span>
-                    <span>{r.productName}</span>
-                  </div>
-                </td>
-                <td style={{ padding: '12px' }}>{r.price_from ? `$${r.price_from.toLocaleString()}` : '-'}</td>
-                <td style={{ padding: '12px' }}>{r.price_to ? `$${r.price_to.toLocaleString()}` : '-'}</td>
-                <td style={{ padding: '12px', fontWeight: 600, color: '#10b981' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
-                <td style={{ padding: '12px', fontWeight: 600, color: changeColor }}>{r.changeStr}</td>
-                <td style={{ padding: '12px' }}>{r.origin || '-'}</td>
-                <td style={{ padding: '12px' }}>{formatPresentation(r.presentation, r.quantity_raw)}</td>
+      {viewMode === 'detailed' ? (
+        <>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
+                <th style={{ padding: '12px' }}>Producto</th>
+                <th style={{ padding: '12px' }}>Desde</th>
+                <th style={{ padding: '12px' }}>Hasta</th>
+                <th style={{ padding: '12px' }}>Promedio</th>
+                <th style={{ padding: '12px' }}>Variación Semanal</th>
+                <th style={{ padding: '12px' }}>Origen</th>
+                <th style={{ padding: '12px' }}>Presentación</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {combinedRows.map((r, i) => {
+                const isPos = r.changeStr.startsWith('+');
+                const isNeg = r.changeStr.startsWith('-');
+                const changeColor = isPos ? '#ef4444' : isNeg ? '#10b981' : 'var(--text-secondary)';
 
-      {isAllProducts && totalPages > 1 && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-          <div>
-            Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                border: '1px solid var(--border-color)',
-                background: currentPage === 1 ? 'transparent' : 'var(--bg-card)',
-                color: currentPage === 1 ? 'var(--text-secondary)' : 'var(--text-primary)',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                opacity: currentPage === 1 ? 0.5 : 1
-              }}
-            >
-              <ChevronLeft size={16} />
-              <span>Anterior</span>
-            </button>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                border: '1px solid var(--border-color)',
-                background: currentPage === totalPages ? 'transparent' : 'var(--bg-card)',
-                color: currentPage === totalPages ? 'var(--text-secondary)' : 'var(--text-primary)',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                opacity: currentPage === totalPages ? 0.5 : 1
-              }}
-            >
-              <span>Siguiente</span>
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
+                return (
+                  <tr 
+                    key={`${r.productName}-${r.snapshot_date}-${i}`} 
+                    style={{ 
+                      borderBottom: '1px solid var(--border-color)',
+                      background: r.isBasketAverage 
+                        ? 'rgba(16, 185, 129, 0.08)' 
+                        : r.isPinnedRow 
+                        ? 'rgba(51, 65, 85, 0.3)' 
+                        : 'transparent'
+                    }}
+                  >
+                    <td style={{ padding: '12px', fontWeight: (r.isBasketAverage || r.isPinnedRow) ? 700 : 500 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: r.color, flexShrink: 0 }}></span>
+                        <span>{r.productName}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '12px' }}>{r.price_from ? `$${r.price_from.toLocaleString()}` : '-'}</td>
+                    <td style={{ padding: '12px' }}>{r.price_to ? `$${r.price_to.toLocaleString()}` : '-'}</td>
+                    <td style={{ padding: '12px', fontWeight: 600, color: '#10b981' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
+                    <td style={{ padding: '12px', fontWeight: 600, color: changeColor }}>{r.changeStr}</td>
+                    <td style={{ padding: '12px' }}>{r.origin || '-'}</td>
+                    <td style={{ padding: '12px' }}>{formatPresentation(r.presentation, r.quantity_raw)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          {isAllProducts && totalPages > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+              <div>
+                Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    background: currentPage === 1 ? 'transparent' : 'var(--bg-card)',
+                    color: currentPage === 1 ? 'var(--text-secondary)' : 'var(--text-primary)',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === 1 ? 0.5 : 1
+                  }}
+                >
+                  <ChevronLeft size={16} />
+                  <span>Anterior</span>
+                </button>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    background: currentPage === totalPages ? 'transparent' : 'var(--bg-card)',
+                    color: currentPage === totalPages ? 'var(--text-secondary)' : 'var(--text-primary)',
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === totalPages ? 0.5 : 1
+                  }}
+                >
+                  <span>Siguiente</span>
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        /* HISTORICAL VIEW MATRIX: Columns = [Fecha, ActiveProduct, PinnedProduct1, PinnedProduct2...] */
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
+              <th style={{ padding: '12px' }}>Fecha</th>
+              <th style={{ padding: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: activeColor, flexShrink: 0 }}></span>
+                  <span>{activeProductName}</span>
+                </div>
+              </th>
+              {activePinnedProducts.map(p => (
+                <th key={p.pinnedId} style={{ padding: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.color, flexShrink: 0 }}></span>
+                    <span>{p.productName}</span>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sortedHistoricalDates.map((date) => {
+              const activeVal = activeDateValueMap.get(date);
+
+              return (
+                <tr key={date} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>{date}</td>
+                  <td style={{ padding: '12px', fontWeight: 600, color: activeColor }}>
+                    {activeVal !== undefined && activeVal !== null ? `$${activeVal.toLocaleString()}` : '-'}
+                  </td>
+                  {activePinnedProducts.map(p => {
+                    const pMap = pinnedDateValueMaps.get(p.pinnedId);
+                    const val = pMap?.get(date);
+                    return (
+                      <td key={p.pinnedId} style={{ padding: '12px', fontWeight: 600, color: p.color }}>
+                        {val !== undefined && val !== null ? `$${val.toLocaleString()}` : '-'}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       )}
     </div>
   );

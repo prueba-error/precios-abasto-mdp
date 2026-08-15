@@ -5,7 +5,7 @@ import { PriceChart } from './components/PriceChart';
 import { PriceTable } from './components/PriceTable';
 import { Footer } from './components/Footer';
 import { Category, Product, PriceRecord, PriceMetric, PinnedProduct } from './types';
-import { getCategories, getProducts, getPriceHistory, getCategoryAllProductsRecords, ExtendedPriceRecord, isUsingMock } from './services/dataService';
+import { getCategories, getProducts, getPriceHistory, getCategoryAllProductsRecords, getBasketOptionForCategory, ExtendedPriceRecord, isUsingMock } from './services/dataService';
 
 const COLOR_PALETTE = ['#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#eab308'];
 
@@ -20,7 +20,7 @@ export function App() {
   const [selectedMetric, setSelectedMetric] = useState<PriceMetric>('price_avg');
 
   const [pinnedProducts, setPinnedProducts] = useState<PinnedProduct[]>([]);
-  const [pinnedHistories, setPinnedHistories] = useState<{ [productId: number]: PriceRecord[] }>({});
+  const [pinnedHistories, setPinnedHistories] = useState<{ [pinnedId: string]: PriceRecord[] }>({});
 
   useEffect(() => {
     getCategories().then(cats => {
@@ -29,13 +29,13 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    getProducts(selectedCategory).then(prods => {
+    getProducts(selectedCategory, categories).then(prods => {
       setProducts(prods);
       if (!prods.some(p => p.id === selectedProduct)) {
         setSelectedProduct(0);
       }
     });
-  }, [selectedCategory]);
+  }, [selectedCategory, categories]);
 
   useEffect(() => {
     getPriceHistory(selectedProduct, selectedCategory).then(recs => setRecords(recs));
@@ -47,27 +47,30 @@ export function App() {
     }
   }, [selectedProduct, selectedCategory]);
 
-  // Fetch histories for all pinned products
+  // Fetch histories for all pinned products using pinnedId
   useEffect(() => {
     pinnedProducts.forEach(pinned => {
-      if (!pinnedHistories[pinned.productId]) {
+      if (!pinnedHistories[pinned.pinnedId]) {
         getPriceHistory(pinned.productId, pinned.categoryId).then(recs => {
-          setPinnedHistories(prev => ({ ...prev, [pinned.productId]: recs }));
+          setPinnedHistories(prev => ({ ...prev, [pinned.pinnedId]: recs }));
         });
       }
     });
   }, [pinnedProducts]);
 
   const activeCategory = categories.find(c => c.id === selectedCategory);
-  const activeProduct = products.find(p => p.id === selectedProduct) || { id: 0, name: 'Todos los productos (Promedio General)', category_id: 0 };
-  const isCurrentPinned = pinnedProducts.some(p => p.productId === selectedProduct);
+  const activeProduct = products.find(p => p.id === selectedProduct) || getBasketOptionForCategory(selectedCategory, categories);
+  
+  const currentPinnedId = `cat_${selectedCategory}_prod_${selectedProduct}`;
+  const isCurrentPinned = pinnedProducts.some(p => p.pinnedId === currentPinnedId);
 
   const handleTogglePin = () => {
     if (isCurrentPinned) {
-      handleUnpinProduct(selectedProduct);
+      handleUnpinProduct(currentPinnedId);
     } else {
       const colorIndex = pinnedProducts.length % COLOR_PALETTE.length;
       const newPinned: PinnedProduct = {
+        pinnedId: currentPinnedId,
         productId: selectedProduct,
         categoryId: selectedCategory,
         productName: activeProduct.name,
@@ -77,11 +80,11 @@ export function App() {
     }
   };
 
-  const handleUnpinProduct = (prodId: number) => {
-    setPinnedProducts(prev => prev.filter(p => p.productId !== prodId));
+  const handleUnpinProduct = (pinnedId: string) => {
+    setPinnedProducts(prev => prev.filter(p => p.pinnedId !== pinnedId));
     setPinnedHistories(prev => {
       const copy = { ...prev };
-      delete copy[prodId];
+      delete copy[pinnedId];
       return copy;
     });
   };
@@ -108,7 +111,12 @@ export function App() {
         onProductChange={setSelectedProduct}
         onMetricChange={setSelectedMetric}
         onTogglePin={handleTogglePin}
-        onUnpinProduct={handleUnpinProduct}
+        onUnpinProduct={(prodIdOrPinnedId: string | number) => {
+          const targetPinnedId = typeof prodIdOrPinnedId === 'string'
+            ? prodIdOrPinnedId
+            : `cat_${selectedCategory}_prod_${prodIdOrPinnedId}`;
+          handleUnpinProduct(targetPinnedId);
+        }}
         onClearPinned={handleClearPinned}
       />
       {records.length > 0 ? (
@@ -118,6 +126,7 @@ export function App() {
             metric={selectedMetric} 
             productName={activeProduct.name}
             activeProductId={selectedProduct}
+            activePinnedId={currentPinnedId}
             categoryName={activeCategory?.name}
             pinnedProducts={pinnedProducts}
             pinnedHistories={pinnedHistories}
@@ -126,6 +135,7 @@ export function App() {
             records={records} 
             selectedMetric={selectedMetric}
             activeProductName={activeProduct.name}
+            activePinnedId={currentPinnedId}
             isAllProducts={selectedProduct === 0}
             categoryProductsRecords={categoryProductsRecords}
             pinnedProducts={pinnedProducts}

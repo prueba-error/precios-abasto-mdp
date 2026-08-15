@@ -23,6 +23,7 @@ export interface PriceRecord {
 }
 
 export interface PinnedProduct {
+  pinnedId: string;
   productId: number;
   categoryId: number;
   productName: string;

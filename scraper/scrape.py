@@ -5,7 +5,11 @@ import json
 import logging
 import requests
 from typing import List, Dict, Any
+from dotenv import load_dotenv
 from scraper.normalizer import normalize_record, get_argentina_date, is_valid_contract
+
+# Load environment variables from .env file if present
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 

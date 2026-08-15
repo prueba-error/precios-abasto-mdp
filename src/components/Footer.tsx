@@ -7,15 +7,15 @@ export const Footer: React.FC = () => {
         width: '100%',
         background: 'var(--bg-card)',
         borderTop: '1px solid var(--border-color)',
-        marginTop: '40px',
-        padding: '28px 0 32px 0'
+        marginTop: '24px',
+        padding: '14px 0 16px 0'
       }}
     >
       <div
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '0 16px',
+          padding: '0 10px',
           textAlign: 'center',
           color: 'var(--text-secondary)',
           fontSize: '0.75rem',

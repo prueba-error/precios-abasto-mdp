@@ -35,6 +35,8 @@ export const Filters: React.FC<FiltersProps> = ({
   onClearPinned,
   onResetChart
 }) => {
+  const [isResetHovered, setIsResetHovered] = React.useState(false);
+
   return (
     <div style={{ marginBottom: '24px' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
@@ -97,6 +99,8 @@ export const Filters: React.FC<FiltersProps> = ({
         <div style={{ flex: '0 0 auto' }}>
           <button
             onClick={onResetChart}
+            onMouseEnter={() => setIsResetHovered(true)}
+            onMouseLeave={() => setIsResetHovered(false)}
             title="Restablecer gráfico a la vista por defecto"
             style={{
               display: 'inline-flex',
@@ -106,9 +110,9 @@ export const Filters: React.FC<FiltersProps> = ({
               height: '38px',
               padding: '0 14px',
               borderRadius: '6px',
-              border: '1px solid #f87171',
-              background: 'rgba(220, 38, 38, 0.25)',
-              color: '#fca5a5',
+              border: isResetHovered ? '1px solid #ef4444' : '1px solid #f87171',
+              background: isResetHovered ? 'rgba(220, 38, 38, 0.75)' : 'rgba(220, 38, 38, 0.25)',
+              color: isResetHovered ? '#ffffff' : '#fca5a5',
               fontWeight: 600,
               fontSize: '0.8125rem',
               whiteSpace: 'nowrap',

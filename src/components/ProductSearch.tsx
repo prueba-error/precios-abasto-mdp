@@ -15,7 +15,9 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
 }) => {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -38,6 +40,21 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
         return nameNorm.includes(normalizedQuery);
       });
 
+  // Reset selected index when search list changes
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [query]);
+
+  // Scroll active item into view
+  useEffect(() => {
+    if (selectedIndex >= 0 && listRef.current) {
+      const activeEl = listRef.current.children[selectedIndex] as HTMLElement;
+      if (activeEl) {
+        activeEl.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [selectedIndex]);
+
   const getCategoryName = (catId: number) => {
     const cat = categories.find(c => c.id === catId);
     return cat ? cat.name : '';
@@ -47,11 +64,39 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
     onSelectProduct(prod);
     setQuery(prod.name);
     setIsOpen(false);
+    setSelectedIndex(-1);
   };
 
   const handleClear = () => {
     setQuery('');
     setIsOpen(false);
+    setSelectedIndex(-1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isOpen || filteredProducts.length === 0) {
+      if (e.key === 'ArrowDown' && filteredProducts.length > 0) {
+        setIsOpen(true);
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => Math.min(prev + 1, filteredProducts.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => Math.max(prev - 1, 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex < filteredProducts.length) {
+        handleSelect(filteredProducts[selectedIndex]);
+      } else if (filteredProducts.length > 0) {
+        handleSelect(filteredProducts[0]);
+      }
+    } else if (e.key === 'Escape') {
+      setIsOpen(false);
+    }
   };
 
   return (
@@ -71,6 +116,7 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
           onFocus={() => {
             if (query.trim()) setIsOpen(true);
           }}
+          onKeyDown={handleKeyDown}
           placeholder="Escribe el nombre de un producto..."
           style={{
             width: '100%',
@@ -104,6 +150,7 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
 
       {isOpen && filteredProducts.length > 0 && (
         <div
+          ref={listRef}
           style={{
             position: 'absolute',
             top: '100%',
@@ -119,8 +166,9 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
             boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
           }}
         >
-          {filteredProducts.map(p => {
+          {filteredProducts.map((p, idx) => {
             const catName = getCategoryName(p.category_id);
+            const isHighlighted = idx === selectedIndex;
             return (
               <div
                 key={p.id}
@@ -133,10 +181,10 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  background: isHighlighted ? '#334155' : 'transparent',
                   transition: 'background 0.15s'
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#334155')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                onMouseEnter={() => setSelectedIndex(idx)}
               >
                 <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{p.name}</span>
                 {catName && (

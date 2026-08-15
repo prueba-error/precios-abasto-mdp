@@ -65,17 +65,19 @@ export const Filters: React.FC<FiltersProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '8px 12px',
+                padding: '8px 14px',
                 borderRadius: '6px',
-                border: '1px solid var(--border-color)',
-                background: isCurrentPinned ? 'var(--accent-primary)' : 'var(--bg-card)',
-                color: isCurrentPinned ? '#000' : 'var(--text-primary)',
+                border: isCurrentPinned ? '1px solid #10b981' : '1px solid rgba(16, 185, 129, 0.4)',
+                background: isCurrentPinned ? '#10b981' : 'rgba(16, 185, 129, 0.12)',
+                color: isCurrentPinned ? '#0f172a' : '#10b981',
                 fontWeight: 600,
+                fontSize: '0.8125rem',
+                whiteSpace: 'nowrap',
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
             >
-              <Pin size={16} fill={isCurrentPinned ? '#000' : 'none'} />
+              <Pin size={15} fill={isCurrentPinned ? '#0f172a' : 'none'} />
               <span>{isCurrentPinned ? 'Fijado' : 'Fijar'}</span>
             </button>
           </div>

@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { Filters } from './components/Filters';
 import { PriceChart } from './components/PriceChart';
 import { PriceTable } from './components/PriceTable';
+import { Footer } from './components/Footer';
 import { Category, Product, PriceRecord, PriceMetric } from './types';
 import { getCategories, getProducts, getPriceHistory, isUsingMock } from './services/dataService';
 
@@ -24,7 +25,6 @@ export function App() {
   useEffect(() => {
     getProducts(selectedCategory).then(prods => {
       setProducts(prods);
-      // Keep selected product 0 (Todos) or fallback if product no longer exists
       if (!prods.some(p => p.id === selectedProduct)) {
         setSelectedProduct(0);
       }
@@ -61,6 +61,7 @@ export function App() {
           No hay datos de precios disponibles para la selección actual.
         </div>
       )}
+      <Footer />
     </div>
   );
 }

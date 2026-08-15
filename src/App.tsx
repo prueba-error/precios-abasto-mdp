@@ -11,37 +11,31 @@ export function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [records, setRecords] = useState<PriceRecord[]>([]);
   
-  const [selectedCategory, setSelectedCategory] = useState<number>(1);
-  const [selectedProduct, setSelectedProduct] = useState<number>(101);
+  const [selectedCategory, setSelectedCategory] = useState<number>(0); // 0 = 'Todas'
+  const [selectedProduct, setSelectedProduct] = useState<number>(0);   // 0 = 'Todos'
   const [selectedMetric, setSelectedMetric] = useState<PriceMetric>('price_avg');
 
   useEffect(() => {
     getCategories().then(cats => {
       setCategories(cats);
-      if (cats.length > 0) setSelectedCategory(cats[0].id);
     });
   }, []);
 
   useEffect(() => {
-    if (selectedCategory) {
-      getProducts(selectedCategory).then(prods => {
-        setProducts(prods);
-        if (prods.length > 0) {
-          setSelectedProduct(prods[0].id);
-        } else {
-          setRecords([]);
-        }
-      });
-    }
+    getProducts(selectedCategory).then(prods => {
+      setProducts(prods);
+      // Keep selected product 0 (Todos) or fallback if product no longer exists
+      if (!prods.some(p => p.id === selectedProduct)) {
+        setSelectedProduct(0);
+      }
+    });
   }, [selectedCategory]);
 
   useEffect(() => {
-    if (selectedProduct) {
-      getPriceHistory(selectedProduct).then(recs => setRecords(recs));
-    }
-  }, [selectedProduct]);
+    getPriceHistory(selectedProduct, selectedCategory).then(recs => setRecords(recs));
+  }, [selectedProduct, selectedCategory]);
 
-  const activeProduct = products.find(p => p.id === selectedProduct);
+  const activeProduct = products.find(p => p.id === selectedProduct) || { name: 'Todos los Productos (Promedio Canasta)' };
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
 
   return (
@@ -57,7 +51,7 @@ export function App() {
         onProductChange={setSelectedProduct}
         onMetricChange={setSelectedMetric}
       />
-      {records.length > 0 && activeProduct ? (
+      {records.length > 0 ? (
         <>
           <PriceChart records={records} metric={selectedMetric} productName={activeProduct.name} />
           <PriceTable records={records} selectedMetric={selectedMetric} />

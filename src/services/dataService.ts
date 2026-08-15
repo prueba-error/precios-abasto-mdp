@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { Category, Product, PriceRecord } from '../types';
+import { Category, Product, PriceRecord, PriceMetric } from '../types';
 import { MOCK_CATEGORIES, MOCK_PRODUCTS, MOCK_PRICE_RECORDS } from '../data/mockData';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -12,6 +12,23 @@ const supabase = (supabaseUrl && supabaseAnonKey)
   : null;
 
 export const ALL_CATEGORIES_OPTION: Category = { id: 0, name: 'Todas las categorías' };
+
+export interface DefaultViewConfig {
+  categoryId: number;
+  productId: number;
+  metric: PriceMetric;
+  clearPinned: boolean;
+}
+
+export function getDefaultViewConfig(): DefaultViewConfig {
+  // Configurable helper: currently defaults to All Categories / All Products, price_avg metric, clear pinned
+  return {
+    categoryId: 0,
+    productId: 0,
+    metric: 'price_avg',
+    clearPinned: true
+  };
+}
 
 export function getBasketOptionForCategory(categoryId: number, categories: Category[] = []): Product {
   const cat = categories.find(c => c.id === categoryId);

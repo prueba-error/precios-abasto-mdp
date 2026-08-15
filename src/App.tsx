@@ -5,7 +5,7 @@ import { PriceChart } from './components/PriceChart';
 import { PriceTable } from './components/PriceTable';
 import { Footer } from './components/Footer';
 import { Category, Product, PriceRecord, PriceMetric, PinnedProduct } from './types';
-import { getCategories, getProducts, getPriceHistory, getCategoryAllProductsRecords, getBasketOptionForCategory, ExtendedPriceRecord, isUsingMock } from './services/dataService';
+import { getCategories, getProducts, getPriceHistory, getCategoryAllProductsRecords, getBasketOptionForCategory, getDefaultViewConfig, ExtendedPriceRecord, isUsingMock } from './services/dataService';
 
 const COLOR_PALETTE = ['#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#eab308'];
 
@@ -97,6 +97,16 @@ export function App() {
     setPinnedHistories({});
   };
 
+  const handleResetChart = () => {
+    const defaultConfig = getDefaultViewConfig();
+    setSelectedCategory(defaultConfig.categoryId);
+    setSelectedProduct(defaultConfig.productId);
+    setSelectedMetric(defaultConfig.metric);
+    if (defaultConfig.clearPinned) {
+      handleClearPinned();
+    }
+  };
+
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
 
   return (
@@ -116,6 +126,7 @@ export function App() {
         onTogglePin={handleTogglePin}
         onUnpinProduct={(pinnedId: string) => handleUnpinProduct(pinnedId)}
         onClearPinned={handleClearPinned}
+        onResetChart={handleResetChart}
       />
       {records.length > 0 ? (
         <>

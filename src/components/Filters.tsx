@@ -1,6 +1,6 @@
 import React from 'react';
 import { Category, Product, PriceMetric, PinnedProduct } from '../types';
-import { Pin, X, Trash2 } from 'lucide-react';
+import { Pin, X, Trash2, RotateCcw } from 'lucide-react';
 
 interface FiltersProps {
   categories: Category[];
@@ -16,6 +16,7 @@ interface FiltersProps {
   onTogglePin: () => void;
   onUnpinProduct: (pinnedId: string) => void;
   onClearPinned: () => void;
+  onResetChart: () => void;
 }
 
 export const Filters: React.FC<FiltersProps> = ({
@@ -31,11 +32,12 @@ export const Filters: React.FC<FiltersProps> = ({
   onMetricChange,
   onTogglePin,
   onUnpinProduct,
-  onClearPinned
+  onClearPinned,
+  onResetChart
 }) => {
   return (
     <div style={{ marginBottom: '24px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignItems: 'end' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', alignItems: 'end' }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Categoría</label>
           <select 
@@ -89,6 +91,31 @@ export const Filters: React.FC<FiltersProps> = ({
             <option value="price_from">Precio Desde</option>
             <option value="price_to">Precio Hasta</option>
           </select>
+        </div>
+        <div>
+          <button
+            onClick={onResetChart}
+            title="Restablecer gráfico a la vista por defecto"
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '8px 14px',
+              borderRadius: '6px',
+              border: '1px solid var(--border-color)',
+              background: 'var(--bg-card)',
+              color: 'var(--text-primary)',
+              fontWeight: 500,
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <RotateCcw size={16} />
+            <span>Restablecer gráfico</span>
+          </button>
         </div>
       </div>
 

@@ -59,7 +59,10 @@ export function App() {
   }, [pinnedProducts]);
 
   const activeCategory = categories.find(c => c.id === selectedCategory);
-  const activeProduct = products.find(p => p.id === selectedProduct) || getBasketOptionForCategory(selectedCategory, categories);
+  const basketOption = getBasketOptionForCategory(selectedCategory, categories);
+  const activeProduct = selectedProduct === 0
+    ? basketOption
+    : (products.find(p => p.id === selectedProduct) || basketOption);
   
   const currentPinnedId = `cat_${selectedCategory}_prod_${selectedProduct}`;
   const isCurrentPinned = pinnedProducts.some(p => p.pinnedId === currentPinnedId);
@@ -111,12 +114,7 @@ export function App() {
         onProductChange={setSelectedProduct}
         onMetricChange={setSelectedMetric}
         onTogglePin={handleTogglePin}
-        onUnpinProduct={(prodIdOrPinnedId: string | number) => {
-          const targetPinnedId = typeof prodIdOrPinnedId === 'string'
-            ? prodIdOrPinnedId
-            : `cat_${selectedCategory}_prod_${prodIdOrPinnedId}`;
-          handleUnpinProduct(targetPinnedId);
-        }}
+        onUnpinProduct={(pinnedId: string) => handleUnpinProduct(pinnedId)}
         onClearPinned={handleClearPinned}
       />
       {records.length > 0 ? (

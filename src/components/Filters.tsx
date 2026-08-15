@@ -14,7 +14,7 @@ interface FiltersProps {
   onProductChange: (prodId: number) => void;
   onMetricChange: (metric: PriceMetric) => void;
   onTogglePin: () => void;
-  onUnpinProduct: (productId: number) => void;
+  onUnpinProduct: (pinnedId: string) => void;
   onClearPinned: () => void;
 }
 
@@ -114,7 +114,7 @@ export const Filters: React.FC<FiltersProps> = ({
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.color }}></span>
               <span>{p.productName}</span>
               <button
-                onClick={() => onUnpinProduct(p.pinnedId as any)}
+                onClick={() => onUnpinProduct(p.pinnedId)}
                 style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
                 title="Desfijar"
               >

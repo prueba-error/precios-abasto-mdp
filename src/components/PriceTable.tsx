@@ -85,10 +85,13 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     });
   };
 
-  // 1. Process active product records (Row 1)
+  const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : '';
+
+  // 1. Process active product records (Row 1: Latest snapshot)
   const activePinnedObj = pinnedProducts.find(p => p.pinnedId === activePinnedId);
   const activeColor = activePinnedObj ? activePinnedObj.color : '#10b981';
-  const activeRows = processProductRecords(records, activeProductName, activeColor, true, false);
+  const allActiveRows = processProductRecords(records, activeProductName, activeColor, true, false);
+  const activeRows = allActiveRows.length > 0 ? [allActiveRows[allActiveRows.length - 1]] : [];
 
   // Map category individual products by product name
   const individualMap = new Map<string, ExtendedPriceRecord[]>();
@@ -100,13 +103,17 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     individualMap.get(pName)!.push(r);
   });
 
-  // 2. Process pinned products records (Rows 2..N, placed right below Active Product)
+  // 2. Process pinned products records (Rows 2..N, placed right below Active Product: Latest snapshot per pinned item)
   const pinnedRows: CombinedRow[] = [];
   pinnedProducts.forEach(p => {
     if (p.pinnedId !== activePinnedId) {
       const list = pinnedHistories[p.pinnedId] || individualMap.get(p.productName) || [];
       if (list.length > 0) {
-        pinnedRows.push(...processProductRecords(list, p.productName, p.color, false, true));
+        const processed = processProductRecords(list, p.productName, p.color, false, true);
+        if (processed.length > 0) {
+          const latestPinnedRow = (latestDate ? processed.find(r => r.snapshot_date === latestDate) : null) || processed[processed.length - 1];
+          pinnedRows.push(latestPinnedRow);
+        }
       }
     }
   });
@@ -137,8 +144,6 @@ export const PriceTable: React.FC<PriceTableProps> = ({
 
   // Final Row Order for Detailed View: [ Active Product (Row 1) ] -> [ Pinned Products ] -> [ Remaining Individual Products ]
   const combinedRows = [...activeRows, ...pinnedRows, ...displayedIndividualRows];
-
-  const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : '';
 
   // Prepare Historical View Data (Columns: [Fecha | ActiveProduct | PinnedProduct1 | PinnedProduct2 ...])
   const activePinnedProducts = pinnedProducts.filter(p => p.pinnedId !== activePinnedId);

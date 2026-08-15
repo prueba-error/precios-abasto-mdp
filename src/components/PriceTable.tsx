@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PriceRecord, PriceMetric, PinnedProduct } from '../types';
 import { ExtendedPriceRecord } from '../services/dataService';
-import { ChevronLeft, ChevronRight, Table, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Table, Calendar, Database } from 'lucide-react';
 
 interface PriceTableProps {
   records: PriceRecord[];
@@ -12,6 +12,8 @@ interface PriceTableProps {
   categoryProductsRecords?: ExtendedPriceRecord[];
   pinnedProducts?: PinnedProduct[];
   pinnedHistories?: { [pinnedId: string]: PriceRecord[] };
+  isMock?: boolean;
+  lastUpdated?: string;
 }
 
 interface CombinedRow extends PriceRecord {
@@ -30,7 +32,9 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   isAllProducts = false,
   categoryProductsRecords = [],
   pinnedProducts = [],
-  pinnedHistories = {}
+  pinnedHistories = {},
+  isMock = false,
+  lastUpdated
 }) => {
   const [viewMode, setViewMode] = useState<'detailed' | 'historical'>('detailed');
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -373,6 +377,12 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           </table>
         </div>
       )}
+
+      {/* Bottom Right Last Updated Indicator */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', padding: '10px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.8125rem', color: isMock ? '#f59e0b' : 'var(--text-secondary)' }}>
+        <Database size={13} color={isMock ? '#f59e0b' : 'var(--text-secondary)'} />
+        <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
+      </div>
     </div>
   );
 };

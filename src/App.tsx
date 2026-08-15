@@ -164,6 +164,8 @@ export function App() {
             categoryProductsRecords={categoryProductsRecords}
             pinnedProducts={pinnedProducts}
             pinnedHistories={pinnedHistories}
+            isMock={isUsingMock}
+            lastUpdated={latestDate}
           />
         </>
       ) : (

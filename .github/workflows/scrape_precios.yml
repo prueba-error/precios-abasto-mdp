@@ -20,13 +20,13 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
-          enable-cache: false
+          enable-cache: true
 
       - name: Set up Python 3.10
         run: uv python install 3.10
 
       - name: Install Dependencies
-        run: uv pip install -r requirements.txt
+        run: uv sync
 
       - name: Run Unit & Parser Tests
         run: uv run python -m pytest tests/

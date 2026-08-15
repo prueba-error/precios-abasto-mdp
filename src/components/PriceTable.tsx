@@ -463,8 +463,8 @@ export const PriceTable: React.FC<PriceTableProps> = ({
       </div>
 
       {/* Bottom Right Last Updated Indicator (Outside Table Container) */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', marginTop: '8px', fontSize: '0.8125rem', color: isMock ? '#f59e0b' : 'var(--text-secondary)' }}>
-        <Database size={13} color={isMock ? '#f59e0b' : 'var(--text-secondary)'} />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '5px', marginTop: '8px', fontSize: '0.75rem', color: isMock ? '#f59e0b' : 'var(--text-secondary)' }}>
+        <Database size={12} color={isMock ? '#f59e0b' : 'var(--text-secondary)'} />
         <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
       </div>
     </div>

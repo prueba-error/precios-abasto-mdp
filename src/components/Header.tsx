@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({ isMock, lastUpdated }) => {
         {/* Left Column: Title & Subtitle */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Abasto Central MDP</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Visualizador de Precios Mayoristas</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', fontWeight: 500 }}>Visualizador de Precios Mayoristas</p>
         </div>
 
         {/* Right Column: Icons (Top) + Last Updated (Bottom) */}
@@ -34,8 +34,8 @@ export const Header: React.FC<HeaderProps> = ({ isMock, lastUpdated }) => {
             <ChartColumn color="#108cb9" size={28} />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8125rem', color: isMock ? '#f59e0b' : 'var(--text-secondary)' }}>
-            <Database size={13} color={isMock ? '#f59e0b' : 'var(--text-secondary)'} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', color: isMock ? '#f59e0b' : 'var(--text-secondary)' }}>
+            <Database size={12} color={isMock ? '#f59e0b' : 'var(--text-secondary)'} />
             <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
           </div>
         </div>

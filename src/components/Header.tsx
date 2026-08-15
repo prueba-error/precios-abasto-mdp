@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({ isMock, lastUpdated }) => {
         {/* Left Column: Title & Subtitle */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Abasto Central MDP</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', fontWeight: 500 }}>Visualizador de Precios Mayoristas</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', fontWeight: 500 }}>Visualizador de Precios Mayoristas</p>
         </div>
 
         {/* Right Column: Icons (Top) + Last Updated (Bottom) */}

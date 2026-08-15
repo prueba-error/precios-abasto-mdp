@@ -7,7 +7,7 @@ export const Footer: React.FC = () => {
         width: '100%',
         background: 'var(--bg-card)',
         borderTop: '1px solid var(--border-color)',
-        marginTop: '24px',
+        marginTop: '16px',
         padding: '14px 0 16px 0'
       }}
     >

@@ -170,7 +170,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   });
 
   return (
-    <div style={{ marginBottom: '24px' }}>
+    <div style={{ marginBottom: '0px' }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
       <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

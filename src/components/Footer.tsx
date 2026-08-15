@@ -9,6 +9,9 @@ export const Footer: React.FC = () => {
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
         Desarrollado por <a href="https://github.com/prueba-error" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 500 }}>github.com/prueba-error</a>
       </p>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+        <a href="mailto:diegolas.code@gmail.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 500 }}>diegolas.code@gmail.com</a>
+      </p>
     </footer>
   );
 };

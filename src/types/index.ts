@@ -22,4 +22,11 @@ export interface PriceRecord {
   quantity_raw: string | null;
 }
 
+export interface PinnedProduct {
+  productId: number;
+  categoryId: number;
+  productName: string;
+  color: string;
+}
+
 export type PriceMetric = 'price_avg' | 'price_from' | 'price_to';

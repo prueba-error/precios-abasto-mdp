@@ -22,7 +22,14 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   pinnedProducts = [],
   pinnedHistories = {}
 }) => {
-  const metricLabel = metric === 'price_avg' ? 'Promedio' : metric === 'price_from' ? 'Mínimo' : 'Máximo';
+  // Exclude the active product from the pinned lines list to prevent rendering duplicate lines on the chart
+  const activePinnedProducts = pinnedProducts.filter(
+    p => p.pinnedId !== activePinnedId
+  );
+
+  const hasOtherPinned = activePinnedProducts.length > 0;
+  const titleOthers = hasOtherPinned ? ', Otros' : '';
+  const metricLabel = metric === 'price_avg' ? 'Precio Promedio' : metric === 'price_from' ? 'Precio Desde' : 'Precio Hasta';
   const titlePrefix = categoryName ? `${categoryName} / ` : '';
 
   // Check if active product is pinned to match its assigned system color instead of green
@@ -30,11 +37,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     p => p.pinnedId === activePinnedId
   );
   const mainLineColor = mainPinnedObj ? mainPinnedObj.color : '#10b981';
-
-  // Exclude the active product from the pinned lines list to prevent rendering duplicate lines on the chart
-  const activePinnedProducts = pinnedProducts.filter(
-    p => p.pinnedId !== activePinnedId
-  );
 
   // Merge all dates across active product & pinned products
   const datesSet = new Set<string>();
@@ -65,7 +67,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
 
   return (
     <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
-      <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {titlePrefix}{productName}&nbsp; — &nbsp;{metricLabel}</h3>
+      <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {titlePrefix}{productName}{titleOthers}&nbsp; — &nbsp;{metricLabel}</h3>
       <div style={{ width: '100%', height: 380 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>

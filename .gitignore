@@ -1,16 +1,20 @@
 # Python
 __pycache__/
+/**/__pycache__/
 *.py[cod]
 *$py.class
 .venv/
 env/
 venv/
 .pytest_cache/
+*.egg-info/
+.coverage
 
 # Node / Vite
 node_modules/
 dist/
 .vite/
+*.log
 
 # Environment Variables & Secrets
 .env

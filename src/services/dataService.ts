@@ -14,6 +14,10 @@ const supabase = (supabaseUrl && supabaseAnonKey)
 export const ALL_CATEGORIES_OPTION: Category = { id: 0, name: 'Todas las categorías' };
 export const ALL_PRODUCTS_OPTION: Product = { id: 0, original_id: 'ALL', name: 'Todos los productos (Promedio General)', category_id: 0 };
 
+export interface ExtendedPriceRecord extends PriceRecord {
+  product_name?: string;
+}
+
 export async function getCategories(): Promise<Category[]> {
   if (isUsingMock || !supabase) {
     return [ALL_CATEGORIES_OPTION, ...MOCK_CATEGORIES];
@@ -63,6 +67,40 @@ export async function getPriceHistory(productId: number, categoryId: number): Pr
     .order('snapshot_date', { ascending: true });
   if (error || !data) return MOCK_PRICE_RECORDS.filter(r => r.product_id === productId);
   return data;
+}
+
+export async function getCategoryAllProductsRecords(categoryId: number): Promise<ExtendedPriceRecord[]> {
+  if (isUsingMock || !supabase) {
+    let validProducts = MOCK_PRODUCTS;
+    if (categoryId !== 0) {
+      validProducts = MOCK_PRODUCTS.filter(p => p.category_id === categoryId);
+    }
+    const prodMap = new Map(validProducts.map(p => [p.id, p.name]));
+    return MOCK_PRICE_RECORDS
+      .filter(r => prodMap.has(r.product_id))
+      .map(r => ({ ...r, product_name: prodMap.get(r.product_id) }));
+  }
+
+  let prodQuery = supabase.from('products').select('id, name');
+  if (categoryId !== 0) {
+    prodQuery = prodQuery.eq('category_id', categoryId);
+  }
+  const { data: prods } = await prodQuery;
+  const prodMap = new Map((prods || []).map(p => [p.id, p.name]));
+  const prodIds = Array.from(prodMap.keys());
+
+  if (prodIds.length === 0) return [];
+
+  const { data: recs } = await supabase
+    .from('price_records')
+    .select('*')
+    .in('product_id', prodIds)
+    .order('snapshot_date', { ascending: false });
+
+  return (recs || []).map(r => ({
+    ...r,
+    product_name: prodMap.get(r.product_id)
+  }));
 }
 
 async function getAggregatedPriceHistory(categoryId: number): Promise<PriceRecord[]> {

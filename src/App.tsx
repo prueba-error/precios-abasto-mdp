@@ -5,7 +5,7 @@ import { PriceChart } from './components/PriceChart';
 import { PriceTable } from './components/PriceTable';
 import { Footer } from './components/Footer';
 import { Category, Product, PriceRecord, PriceMetric, PinnedProduct } from './types';
-import { getCategories, getProducts, getPriceHistory, isUsingMock } from './services/dataService';
+import { getCategories, getProducts, getPriceHistory, getCategoryAllProductsRecords, ExtendedPriceRecord, isUsingMock } from './services/dataService';
 
 const COLOR_PALETTE = ['#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#eab308'];
 
@@ -13,6 +13,7 @@ export function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [records, setRecords] = useState<PriceRecord[]>([]);
+  const [categoryProductsRecords, setCategoryProductsRecords] = useState<ExtendedPriceRecord[]>([]);
   
   const [selectedCategory, setSelectedCategory] = useState<number>(0); // 0 = 'Todas las categorías'
   const [selectedProduct, setSelectedProduct] = useState<number>(0);   // 0 = 'Todos los productos'
@@ -38,6 +39,12 @@ export function App() {
 
   useEffect(() => {
     getPriceHistory(selectedProduct, selectedCategory).then(recs => setRecords(recs));
+    
+    if (selectedProduct === 0) {
+      getCategoryAllProductsRecords(selectedCategory).then(recs => setCategoryProductsRecords(recs));
+    } else {
+      setCategoryProductsRecords([]);
+    }
   }, [selectedProduct, selectedCategory]);
 
   // Fetch histories for all pinned products
@@ -119,6 +126,8 @@ export function App() {
             records={records} 
             selectedMetric={selectedMetric}
             activeProductName={activeProduct.name}
+            isAllProducts={selectedProduct === 0}
+            categoryProductsRecords={categoryProductsRecords}
             pinnedProducts={pinnedProducts}
             pinnedHistories={pinnedHistories}
           />

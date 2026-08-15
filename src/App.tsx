@@ -119,6 +119,31 @@ export function App() {
     setSelectedProduct(product.id);
   };
 
+  const handleTogglePinItem = (productId: number, categoryId: number, productName: string) => {
+    const targetPinnedId = `cat_${categoryId}_prod_${productId}`;
+    const isPinned = pinnedProducts.some(p => p.pinnedId === targetPinnedId);
+    if (isPinned) {
+      handleUnpinProduct(targetPinnedId);
+    } else {
+      const colorIndex = pinnedProducts.length % COLOR_PALETTE.length;
+      const newPinned: PinnedProduct = {
+        pinnedId: targetPinnedId,
+        productId,
+        categoryId,
+        productName,
+        color: COLOR_PALETTE[colorIndex]
+      };
+      setPinnedProducts(prev => [...prev, newPinned]);
+    }
+  };
+
+  const handleSelectProductItem = (productId: number, categoryId: number) => {
+    if (categoryId !== selectedCategory) {
+      setSelectedCategory(categoryId);
+    }
+    setSelectedProduct(productId);
+  };
+
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
 
   return (
@@ -160,12 +185,16 @@ export function App() {
             selectedMetric={selectedMetric}
             activeProductName={activeProduct.name}
             activePinnedId={currentPinnedId}
+            selectedCategory={selectedCategory}
+            selectedProduct={selectedProduct}
             isAllProducts={selectedProduct === 0}
             categoryProductsRecords={categoryProductsRecords}
             pinnedProducts={pinnedProducts}
             pinnedHistories={pinnedHistories}
             isMock={isUsingMock}
             lastUpdated={latestDate}
+            onTogglePinItem={handleTogglePinItem}
+            onSelectProductItem={handleSelectProductItem}
           />
         </>
       ) : (

@@ -1,23 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { PriceRecord, PriceMetric, PinnedProduct } from '../types';
 import { ExtendedPriceRecord } from '../services/dataService';
-import { ChevronLeft, ChevronRight, Table, Calendar, Database } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Table, Calendar, Database, Pin } from 'lucide-react';
 
 interface PriceTableProps {
   records: PriceRecord[];
   selectedMetric: PriceMetric;
   activeProductName: string;
   activePinnedId?: string;
+  selectedCategory?: number;
+  selectedProduct?: number;
   isAllProducts?: boolean;
   categoryProductsRecords?: ExtendedPriceRecord[];
   pinnedProducts?: PinnedProduct[];
   pinnedHistories?: { [pinnedId: string]: PriceRecord[] };
   isMock?: boolean;
   lastUpdated?: string;
+  onTogglePinItem?: (productId: number, categoryId: number, productName: string) => void;
+  onSelectProductItem?: (productId: number, categoryId: number) => void;
 }
 
 interface CombinedRow extends PriceRecord {
   productName: string;
+  categoryId: number;
+  productId: number;
+  pinnedId: string;
   color: string;
   changeStr: string;
   isBasketAverage?: boolean;
@@ -29,12 +36,16 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   selectedMetric,
   activeProductName,
   activePinnedId,
+  selectedCategory = 0,
+  selectedProduct = 0,
   isAllProducts = false,
   categoryProductsRecords = [],
   pinnedProducts = [],
   pinnedHistories = {},
   isMock = false,
-  lastUpdated
+  lastUpdated,
+  onTogglePinItem,
+  onSelectProductItem
 }) => {
   const [viewMode, setViewMode] = useState<'detailed' | 'historical'>('detailed');
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -68,18 +79,24 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     prodName: string,
     color: string,
     isBasketAverage = false,
-    isPinnedRow = false
+    isPinnedRow = false,
+    forcedProdId?: number,
+    forcedCatId?: number
   ): CombinedRow[] => {
     const sorted = [...recs].sort((a, b) => a.snapshot_date.localeCompare(b.snapshot_date));
     return sorted.map((r, idx) => {
-      // Only calculate variation if there is a record from a strictly earlier snapshot_date
       let prevVal: number | null = null;
       if (idx > 0 && sorted[idx - 1].snapshot_date < r.snapshot_date) {
         prevVal = sorted[idx - 1][selectedMetric];
       }
       const changeStr = calculateChange(r[selectedMetric], prevVal);
+      const prodId = forcedProdId !== undefined ? forcedProdId : r.product_id;
+      const catId = forcedCatId !== undefined ? forcedCatId : ((r as any).category_id ?? selectedCategory);
       return {
         ...r,
+        productId: prodId,
+        categoryId: catId,
+        pinnedId: `cat_${catId}_prod_${prodId}`,
         productName: prodName,
         color,
         changeStr,
@@ -94,7 +111,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   // 1. Process active product records (Row 1: Latest snapshot)
   const activePinnedObj = pinnedProducts.find(p => p.pinnedId === activePinnedId);
   const activeColor = activePinnedObj ? activePinnedObj.color : '#10b981';
-  const allActiveRows = processProductRecords(records, activeProductName, activeColor, true, false);
+  const allActiveRows = processProductRecords(records, activeProductName, activeColor, true, false, selectedProduct, selectedCategory);
   const activeRows = allActiveRows.length > 0 ? [allActiveRows[allActiveRows.length - 1]] : [];
 
   // Map category individual products by product name
@@ -113,7 +130,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     if (p.pinnedId !== activePinnedId) {
       const list = pinnedHistories[p.pinnedId] || individualMap.get(p.productName) || [];
       if (list.length > 0) {
-        const processed = processProductRecords(list, p.productName, p.color, false, true);
+        const processed = processProductRecords(list, p.productName, p.color, false, true, p.productId, p.categoryId);
         if (processed.length > 0) {
           const latestPinnedRow = (latestDate ? processed.find(r => r.snapshot_date === latestDate) : null) || processed[processed.length - 1];
           pinnedRows.push(latestPinnedRow);
@@ -127,7 +144,10 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   individualMap.forEach((list, pName) => {
     const isPinned = pinnedProducts.some(p => p.productName === pName);
     if (!isPinned && pName !== activeProductName) {
-      individualRows.push(...processProductRecords(list, pName, '#64748b', false, false));
+      const firstRec = list[0];
+      const pId = firstRec.product_id;
+      const cId = (firstRec as any).category_id ?? selectedCategory;
+      individualRows.push(...processProductRecords(list, pName, '#64748b', false, false, pId, cId));
     }
   });
 
@@ -149,7 +169,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   // Final Row Order for Detailed View: [ Active Product (Row 1) ] -> [ Pinned Products ] -> [ Remaining Individual Products ]
   const combinedRows = [...activeRows, ...pinnedRows, ...displayedIndividualRows];
 
-  // Prepare Historical View Data (Columns: [Fecha | ActiveProduct | PinnedProduct1 | PinnedProduct2 ...])
+  // Prepare Historical View Data (Columns: [Fecha | ActiveProduct | PinnedProduct1 | PinnedProduct2...])
   const activePinnedProducts = pinnedProducts.filter(p => p.pinnedId !== activePinnedId);
   
   const historicalDatesSet = new Set<string>();
@@ -249,6 +269,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                   const isPos = r.changeStr.startsWith('+');
                   const isNeg = r.changeStr.startsWith('-');
                   const changeColor = isPos ? '#ef4444' : isNeg ? '#10b981' : 'var(--text-secondary)';
+                  const isRowPinned = pinnedProducts.some(p => p.pinnedId === r.pinnedId);
 
                   return (
                     <tr 
@@ -264,8 +285,41 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                     >
                       <td style={{ padding: '12px', fontWeight: (r.isBasketAverage || r.isPinnedRow) ? 700 : 500 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {onTogglePinItem && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onTogglePinItem(r.productId, r.categoryId, r.productName);
+                              }}
+                              title={isRowPinned ? 'Desfijar del gráfico' : 'Fijar en el gráfico'}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '2px 4px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: '4px',
+                                color: isRowPinned ? (r.color || '#3b82f6') : '#64748b',
+                                transition: 'all 0.15s'
+                              }}
+                            >
+                              <Pin size={13} fill={isRowPinned ? (r.color || '#3b82f6') : 'none'} color={isRowPinned ? (r.color || '#3b82f6') : '#64748b'} />
+                            </button>
+                          )}
                           <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: r.color, flexShrink: 0 }}></span>
-                          <span>{r.productName}</span>
+                          {onSelectProductItem ? (
+                            <button
+                              onClick={() => onSelectProductItem(r.productId, r.categoryId)}
+                              title="Seleccionar este producto en la gráfica"
+                              className="table-product-link"
+                            >
+                              {r.productName}
+                            </button>
+                          ) : (
+                            <span>{r.productName}</span>
+                          )}
                         </div>
                       </td>
                       <td style={{ padding: '12px' }}>{r.price_from ? `$${r.price_from.toLocaleString()}` : '-'}</td>
@@ -338,6 +392,15 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 <th style={{ padding: '12px' }}>Fecha</th>
                 <th style={{ padding: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {onTogglePinItem && activePinnedId && (
+                      <button
+                        onClick={() => onTogglePinItem(selectedProduct, selectedCategory, activeProductName)}
+                        title="Fijar / desfijar este producto"
+                        style={{ background: 'none', border: 'none', padding: '2px 4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                      >
+                        <Pin size={13} fill={activePinnedObj ? activeColor : 'none'} color={activePinnedObj ? activeColor : '#64748b'} />
+                      </button>
+                    )}
                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: activeColor, flexShrink: 0 }}></span>
                     <span>{activeProductName}</span>
                   </div>
@@ -345,8 +408,27 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 {activePinnedProducts.map(p => (
                   <th key={p.pinnedId} style={{ padding: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {onTogglePinItem && (
+                        <button
+                          onClick={() => onTogglePinItem(p.productId, p.categoryId, p.productName)}
+                          title="Desfijar del gráfico"
+                          style={{ background: 'none', border: 'none', padding: '2px 4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        >
+                          <Pin size={13} fill={p.color} color={p.color} />
+                        </button>
+                      )}
                       <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.color, flexShrink: 0 }}></span>
-                      <span>{p.productName}</span>
+                      {onSelectProductItem ? (
+                        <button
+                          onClick={() => onSelectProductItem(p.productId, p.categoryId)}
+                          title="Seleccionar este producto en la gráfica"
+                          className="table-product-link"
+                        >
+                          {p.productName}
+                        </button>
+                      ) : (
+                        <span>{p.productName}</span>
+                      )}
                     </div>
                   </th>
                 ))}

@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ isMock, lastUpdated }) => {
         background: 'var(--bg-card)',
         borderBottom: '1px solid var(--border-color)',
         padding: '16px 0',
-        marginBottom: '24px'
+        marginBottom: '20px'
       }}
     >
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>

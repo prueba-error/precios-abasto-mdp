@@ -74,6 +74,16 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (isOpen && filteredProducts.length > 0) {
+        setIsOpen(false);
+      } else {
+        handleClear();
+      }
+      return;
+    }
+
     if (!isOpen || filteredProducts.length === 0) {
       if (e.key === 'ArrowDown' && filteredProducts.length > 0) {
         setIsOpen(true);
@@ -94,8 +104,6 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
       } else if (filteredProducts.length > 0) {
         handleSelect(filteredProducts[0]);
       }
-    } else if (e.key === 'Escape') {
-      setIsOpen(false);
     }
   };
 

@@ -13,8 +13,23 @@ export const Header: React.FC<HeaderProps> = ({ isMock, lastUpdated }) => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Abasto Central MDP</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Visualizador de Precios Mayoristas</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8125rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            <Database size={14} />
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '9999px',
+              background: isMock ? 'rgba(245, 158, 11, 0.12)' : '#1e293b',
+              border: isMock ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid #334155',
+              color: isMock ? '#f59e0b' : '#94a3b8',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              marginTop: '6px',
+              width: 'fit-content'
+            }}
+          >
+            <Database size={13} color={isMock ? '#f59e0b' : '#94a3b8'} />
             <span>{isMock ? 'Modo Demo (Mock Data)' : `Última actualización: ${lastUpdated || 'Hoy'}`}</span>
           </div>
         </div>

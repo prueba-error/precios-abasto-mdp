@@ -82,7 +82,7 @@ export const Filters: React.FC<FiltersProps> = ({
   const resetStyle = getResetStyle();
 
   return (
-    <div style={{ marginBottom: '24px' }}>
+    <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
       <ProductSearch
         allProducts={allProducts}
         categories={categories}
@@ -94,7 +94,7 @@ export const Filters: React.FC<FiltersProps> = ({
           <select 
             value={selectedCategory} 
             onChange={(e) => onCategoryChange(Number(e.target.value))}
-            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: '#0f172a', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
           >
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
@@ -105,7 +105,7 @@ export const Filters: React.FC<FiltersProps> = ({
             <select 
               value={selectedProduct} 
               onChange={(e) => onProductChange(Number(e.target.value))}
-              style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+              style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', background: '#0f172a', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
             >
               {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -145,7 +145,7 @@ export const Filters: React.FC<FiltersProps> = ({
           <select 
             value={selectedMetric} 
             onChange={(e) => onMetricChange(e.target.value as PriceMetric)}
-            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: '#0f172a', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
           >
             <option value="price_avg">Precio Promedio</option>
             <option value="price_from">Precio Desde</option>

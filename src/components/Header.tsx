@@ -26,22 +26,8 @@ export const Header: React.FC<HeaderProps> = ({ isMock, lastUpdated }) => {
             <ChartColumn color="#108cb9" size={30} />
           </div>
 
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              borderRadius: '9999px',
-              background: isMock ? 'rgba(245, 158, 11, 0.12)' : '#1e293b',
-              border: isMock ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid #334155',
-              color: isMock ? '#f59e0b' : '#94a3b8',
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              width: 'fit-content'
-            }}
-          >
-            <Database size={13} color={isMock ? '#f59e0b' : '#94a3b8'} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8125rem', color: isMock ? '#f59e0b' : 'var(--text-secondary)' }}>
+            <Database size={14} color={isMock ? '#f59e0b' : 'var(--text-secondary)'} />
             <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
           </div>
         </div>

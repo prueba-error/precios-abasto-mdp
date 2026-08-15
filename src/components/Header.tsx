@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ isMock, lastUpdated }) => {
   return (
-    <header style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '24px' }}>
+    <header style={{ marginBottom: '24px' }}> {/* borderBottom: '1px solid var(--border-color)', paddingBottom: '16px',  */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         

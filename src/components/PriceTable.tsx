@@ -226,53 +226,55 @@ export const PriceTable: React.FC<PriceTableProps> = ({
 
       {viewMode === 'detailed' ? (
         <>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
-                <th style={{ padding: '12px' }}>Producto</th>
-                <th style={{ padding: '12px' }}>Desde</th>
-                <th style={{ padding: '12px' }}>Hasta</th>
-                <th style={{ padding: '12px' }}>Promedio</th>
-                <th style={{ padding: '12px' }}>Variación Semanal</th>
-                <th style={{ padding: '12px' }}>Origen</th>
-                <th style={{ padding: '12px' }}>Presentación</th>
-              </tr>
-            </thead>
-            <tbody>
-              {combinedRows.map((r, i) => {
-                const isPos = r.changeStr.startsWith('+');
-                const isNeg = r.changeStr.startsWith('-');
-                const changeColor = isPos ? '#ef4444' : isNeg ? '#10b981' : 'var(--text-secondary)';
+          <div style={{ overflowX: 'auto', width: '100%' }}>
+            <table style={{ width: '100%', minWidth: '720px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
+                  <th style={{ padding: '12px' }}>Producto</th>
+                  <th style={{ padding: '12px' }}>Desde</th>
+                  <th style={{ padding: '12px' }}>Hasta</th>
+                  <th style={{ padding: '12px' }}>Promedio</th>
+                  <th style={{ padding: '12px' }}>Variación Semanal</th>
+                  <th style={{ padding: '12px' }}>Origen</th>
+                  <th style={{ padding: '12px' }}>Presentación</th>
+                </tr>
+              </thead>
+              <tbody>
+                {combinedRows.map((r, i) => {
+                  const isPos = r.changeStr.startsWith('+');
+                  const isNeg = r.changeStr.startsWith('-');
+                  const changeColor = isPos ? '#ef4444' : isNeg ? '#10b981' : 'var(--text-secondary)';
 
-                return (
-                  <tr 
-                    key={`${r.productName}-${r.snapshot_date}-${i}`} 
-                    style={{ 
-                      borderBottom: '1px solid var(--border-color)',
-                      background: r.isBasketAverage 
-                        ? 'rgba(16, 185, 129, 0.08)' 
-                        : r.isPinnedRow 
-                        ? 'rgba(51, 65, 85, 0.3)' 
-                        : 'transparent'
-                    }}
-                  >
-                    <td style={{ padding: '12px', fontWeight: (r.isBasketAverage || r.isPinnedRow) ? 700 : 500 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: r.color, flexShrink: 0 }}></span>
-                        <span>{r.productName}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px' }}>{r.price_from ? `$${r.price_from.toLocaleString()}` : '-'}</td>
-                    <td style={{ padding: '12px' }}>{r.price_to ? `$${r.price_to.toLocaleString()}` : '-'}</td>
-                    <td style={{ padding: '12px', fontWeight: 600, color: '#10b981' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
-                    <td style={{ padding: '12px', fontWeight: 600, color: changeColor }}>{r.changeStr}</td>
-                    <td style={{ padding: '12px' }}>{r.origin || '-'}</td>
-                    <td style={{ padding: '12px' }}>{formatPresentation(r.presentation, r.quantity_raw)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr 
+                      key={`${r.productName}-${r.snapshot_date}-${i}`} 
+                      style={{ 
+                        borderBottom: '1px solid var(--border-color)',
+                        background: r.isBasketAverage 
+                          ? 'rgba(16, 185, 129, 0.08)' 
+                          : r.isPinnedRow 
+                          ? 'rgba(51, 65, 85, 0.3)' 
+                          : 'transparent'
+                      }}
+                    >
+                      <td style={{ padding: '12px', fontWeight: (r.isBasketAverage || r.isPinnedRow) ? 700 : 500 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: r.color, flexShrink: 0 }}></span>
+                          <span>{r.productName}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px' }}>{r.price_from ? `$${r.price_from.toLocaleString()}` : '-'}</td>
+                      <td style={{ padding: '12px' }}>{r.price_to ? `$${r.price_to.toLocaleString()}` : '-'}</td>
+                      <td style={{ padding: '12px', fontWeight: 600, color: '#10b981' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
+                      <td style={{ padding: '12px', fontWeight: 600, color: changeColor }}>{r.changeStr}</td>
+                      <td style={{ padding: '12px' }}>{r.origin || '-'}</td>
+                      <td style={{ padding: '12px' }}>{formatPresentation(r.presentation, r.quantity_raw)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
           {isAllProducts && totalPages > 1 && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
@@ -324,50 +326,52 @@ export const PriceTable: React.FC<PriceTableProps> = ({
         </>
       ) : (
         /* HISTORICAL VIEW MATRIX: Columns = [Fecha, ActiveProduct, PinnedProduct1, PinnedProduct2...] */
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
-              <th style={{ padding: '12px' }}>Fecha</th>
-              <th style={{ padding: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: activeColor, flexShrink: 0 }}></span>
-                  <span>{activeProductName}</span>
-                </div>
-              </th>
-              {activePinnedProducts.map(p => (
-                <th key={p.pinnedId} style={{ padding: '12px' }}>
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
+                <th style={{ padding: '12px' }}>Fecha</th>
+                <th style={{ padding: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.color, flexShrink: 0 }}></span>
-                    <span>{p.productName}</span>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: activeColor, flexShrink: 0 }}></span>
+                    <span>{activeProductName}</span>
                   </div>
                 </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {sortedHistoricalDates.map((date) => {
-              const activeVal = activeDateValueMap.get(date);
+                {activePinnedProducts.map(p => (
+                  <th key={p.pinnedId} style={{ padding: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.color, flexShrink: 0 }}></span>
+                      <span>{p.productName}</span>
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedHistoricalDates.map((date) => {
+                const activeVal = activeDateValueMap.get(date);
 
-              return (
-                <tr key={date} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>{date}</td>
-                  <td style={{ padding: '12px', fontWeight: 600, color: activeColor }}>
-                    {activeVal !== undefined && activeVal !== null ? `$${activeVal.toLocaleString()}` : '-'}
-                  </td>
-                  {activePinnedProducts.map(p => {
-                    const pMap = pinnedDateValueMaps.get(p.pinnedId);
-                    const val = pMap?.get(date);
-                    return (
-                      <td key={p.pinnedId} style={{ padding: '12px', fontWeight: 600, color: p.color }}>
-                        {val !== undefined && val !== null ? `$${val.toLocaleString()}` : '-'}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                return (
+                  <tr key={date} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>{date}</td>
+                    <td style={{ padding: '12px', fontWeight: 600, color: activeColor }}>
+                      {activeVal !== undefined && activeVal !== null ? `$${activeVal.toLocaleString()}` : '-'}
+                    </td>
+                    {activePinnedProducts.map(p => {
+                      const pMap = pinnedDateValueMaps.get(p.pinnedId);
+                      const val = pMap?.get(date);
+                      return (
+                        <td key={p.pinnedId} style={{ padding: '12px', fontWeight: 600, color: p.color }}>
+                          {val !== undefined && val !== null ? `$${val.toLocaleString()}` : '-'}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

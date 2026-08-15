@@ -10,17 +10,11 @@ export const Header: React.FC<HeaderProps> = ({ isMock, lastUpdated }) => {
   return (
     <header
       style={{
-        width: '100vw',
-        position: 'relative',
-        left: '50%',
-        right: '50%',
-        marginLeft: '-50vw',
-        marginRight: '-50vw',
+        width: '100%',
         background: 'var(--bg-card)',
         borderBottom: '1px solid var(--border-color)',
         padding: '16px 0',
-        marginBottom: '24px',
-        marginTop: '-24px'
+        marginBottom: '24px'
       }}
     >
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>

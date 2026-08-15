@@ -122,12 +122,13 @@ export function App() {
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
 
   return (
-    <div className="container">
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header isMock={isUsingMock} lastUpdated={latestDate} />
-      <Filters 
-        categories={categories}
-        products={products}
-        allProducts={allProductsList}
+      <div className="container">
+        <Filters 
+          categories={categories}
+          products={products}
+          allProducts={allProductsList}
         selectedCategory={selectedCategory}
         selectedProduct={selectedProduct}
         selectedMetric={selectedMetric}
@@ -170,6 +171,7 @@ export function App() {
           No hay datos de precios disponibles para la selección actual.
         </div>
       )}
+      </div>
       <Footer />
     </div>
   );

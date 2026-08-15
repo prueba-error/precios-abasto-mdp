@@ -170,7 +170,8 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   });
 
   return (
-    <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+    <div style={{ marginBottom: '24px' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
       <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
@@ -377,9 +378,10 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           </table>
         </div>
       )}
+      </div>
 
-      {/* Bottom Right Last Updated Indicator */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', padding: '10px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.8125rem', color: isMock ? '#f59e0b' : 'var(--text-secondary)' }}>
+      {/* Bottom Right Last Updated Indicator (Outside Table Container) */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', marginTop: '8px', fontSize: '0.8125rem', color: isMock ? '#f59e0b' : 'var(--text-secondary)' }}>
         <Database size={13} color={isMock ? '#f59e0b' : 'var(--text-secondary)'} />
         <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
       </div>

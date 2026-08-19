@@ -126,7 +126,8 @@ body {
 
 .header-search-wrapper {
   flex: 1 1 240px;
-  max-width: 420px;
+  max-width: 450px;
+  width: 100%;
 }
 
 .header-right-group {
@@ -169,6 +170,7 @@ body {
   }
 
   .header-left-group {
+    flex: 0 0 auto;
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
@@ -179,11 +181,13 @@ body {
   }
 
   .header-search-wrapper {
+    flex: 0 0 auto;
     width: 100%;
     max-width: 100%;
   }
 
   .header-right-group {
+    flex: 0 0 auto;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;

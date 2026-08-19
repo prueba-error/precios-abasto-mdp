@@ -157,16 +157,21 @@ body {
 
 /* Mobile & Small Viewports (< 868px) */
 @media (max-width: 868px) {
+  .header-root {
+    padding: 12px 0;
+    margin-bottom: 16px;
+  }
+
   .header-container {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 8px;
   }
 
   .header-left-group {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 8px;
   }
 
   .header-divider {
@@ -183,7 +188,8 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    margin-top: 4px;
+    margin-top: 0;
+    padding-top: 2px;
   }
 
   .header-icon-item {

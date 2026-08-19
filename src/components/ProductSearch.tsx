@@ -159,7 +159,7 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
               width: '100%',
               padding: '9px 36px 9px 36px',
               borderRadius: '6px',
-              background: 'var(--bg-card)',
+              background: '#0f172a',
               color: 'var(--text-primary)',
               border: hasNoMatches ? '1px solid #f87171' : '1px solid var(--border-color)',
               fontSize: '0.875rem',

@@ -118,10 +118,11 @@ body {
 }
 
 .header-divider {
-  width: 1px;
-  height: 32px;
-  background-color: var(--border-color);
+  width: 1.5px;
+  height: 36px;
+  background-color: #475569;
   flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .header-search-wrapper {

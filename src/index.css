@@ -343,26 +343,24 @@ body {
 .banner-inline-paragraph {
   margin: 0;
   font-size: 0.8125rem;
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--text-secondary);
 }
 
-.banner-inline-header {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  vertical-align: text-bottom;
-  margin-right: 4px;
+.banner-inline-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 6px;
 }
 
 .banner-title {
   font-weight: 600;
   color: var(--text-primary);
+  margin-right: 4px;
 }
 
 .banner-inline-content {
   color: var(--text-secondary);
-  display: inline;
 }
 
 .banner-green {

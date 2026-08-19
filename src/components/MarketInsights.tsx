@@ -121,10 +121,8 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
         {/* Banner 1: Mínimos Promedio */}
         <div className="status-banner banner-green">
           <p className="banner-inline-paragraph">
-            <span className="banner-inline-header">
-              <TrendingDown size={15} className="banner-icon-green" style={{ flexShrink: 0 }} />
-              <strong className="banner-title">Productos cerca de su mínimo histórico: </strong>
-            </span>
+            <TrendingDown size={15} className="banner-icon-green banner-inline-icon" />
+            <strong className="banner-title">Productos cerca de su mínimo histórico: </strong>
             <span className="banner-inline-content">{nearMinText}</span>
           </p>
         </div>
@@ -132,10 +130,8 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
         {/* Banner 2: Máximos Promedio */}
         <div className="status-banner banner-red">
           <p className="banner-inline-paragraph">
-            <span className="banner-inline-header">
-              <TrendingUp size={15} className="banner-icon-red" style={{ flexShrink: 0 }} />
-              <strong className="banner-title">Productos cerca de su máximo histórico: </strong>
-            </span>
+            <TrendingUp size={15} className="banner-icon-red banner-inline-icon" />
+            <strong className="banner-title">Productos cerca de su máximo histórico: </strong>
             <span className="banner-inline-content">{nearMaxText}</span>
           </p>
         </div>
@@ -143,10 +139,8 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
         {/* Banner 3: Alerta de Anomalías */}
         <div className="status-banner banner-amber">
           <p className="banner-inline-paragraph">
-            <span className="banner-inline-header">
-              <AlertTriangle size={15} className="banner-icon-amber" style={{ flexShrink: 0 }} />
-              <strong className="banner-title">Precios atípicos: </strong>
-            </span>
+            <AlertTriangle size={15} className="banner-icon-amber banner-inline-icon" />
+            <strong className="banner-title">Precios atípicos: </strong>
             <span className="banner-inline-content">{atypicalText}</span>
           </p>
         </div>

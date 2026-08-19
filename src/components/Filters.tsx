@@ -84,7 +84,7 @@ export const Filters: React.FC<FiltersProps> = ({
   const resetStyle = getResetStyle();
 
   return (
-    <div style={{ background: 'transparent', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
+    <div style={{ marginBottom: '24px' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
         <div style={{ flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Categoría</label>

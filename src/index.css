@@ -398,8 +398,8 @@ body {
 }
 
 .view-in-chart-link {
-  background: none;
-  border: none;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
   color: var(--accent-primary);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -407,15 +407,16 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 6px;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .view-in-chart-link:hover {
   color: #34d399;
   background-color: rgba(16, 185, 129, 0.1);
-  text-decoration: underline;
+  border-color: rgba(16, 185, 129, 0.3);
+  text-decoration: none;
 }
 
 /* Responsive Breakpoints for Market Insights */

@@ -343,9 +343,11 @@ body {
 .banner-inline-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
   line-height: 1.4;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .banner-inline-header {
@@ -353,15 +355,20 @@ body {
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .banner-title {
   font-weight: 600;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .banner-inline-content {
   color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .banner-green {

@@ -122,7 +122,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
         <div className="status-banner banner-green banner-inline-row">
           <div className="banner-inline-header">
             <TrendingDown size={15} className="banner-icon-green" style={{ flexShrink: 0 }} />
-            <strong className="banner-title">Productos Cerca de su Mínimo Promedio Histórico:</strong>
+            <strong className="banner-title">Productos cerca de su mínimo histórico:</strong>
           </div>
           <span className="banner-inline-content">{nearMinText}</span>
         </div>
@@ -131,7 +131,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
         <div className="status-banner banner-red banner-inline-row">
           <div className="banner-inline-header">
             <TrendingUp size={15} className="banner-icon-red" style={{ flexShrink: 0 }} />
-            <strong className="banner-title">Productos Cerca de su Máximo Promedio Histórico:</strong>
+            <strong className="banner-title">Productos cerca de su máximo histórico:</strong>
           </div>
           <span className="banner-inline-content">{nearMaxText}</span>
         </div>

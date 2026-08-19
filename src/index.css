@@ -308,7 +308,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  max-width: 75%;
+  flex: 1 1 auto;
 }
 
 .kpi-item-index {

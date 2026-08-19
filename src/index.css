@@ -246,7 +246,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 4px;
+  gap: 8px;
   min-height: 100px;
   flex: 1 1 0;
 }
@@ -285,7 +285,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 3px;
+  margin-bottom: 0;
 }
 
 .kpi-list {

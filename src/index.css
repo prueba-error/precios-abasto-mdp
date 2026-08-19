@@ -221,7 +221,7 @@ body {
 /* 1. Header KPI Grid */
 .kpi-grid-container {
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr;
+  grid-template-columns: 1.4fr 2.3fr 1.3fr;
   gap: 20px;
   width: 100%;
 }

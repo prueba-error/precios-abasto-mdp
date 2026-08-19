@@ -57,8 +57,9 @@ export const Header: React.FC<HeaderProps> = ({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px',
-              padding: '2px 8px',
+              gap: '5px',
+              padding: '4px 10px',
+              marginTop: '4px',
               borderRadius: '9999px',
               background: isMock ? 'rgba(245, 158, 11, 0.12)' : 'rgba(30, 41, 59, 0.7)',
               border: isMock ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid var(--border-color)',

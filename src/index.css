@@ -234,6 +234,12 @@ body {
   gap: 16px;
 }
 
+.kpi-group-col1-2,
+.kpi-group-col3-4 {
+  border-right: 1.5px solid var(--border-color);
+  padding-right: 20px;
+}
+
 .kpi-card-transparent {
   background: transparent;
   border: none;
@@ -418,6 +424,12 @@ body {
   .kpi-grid-container {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+
+  .kpi-group-col1-2,
+  .kpi-group-col3-4 {
+    border-right: none;
+    padding-right: 0;
   }
 }
 

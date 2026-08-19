@@ -1,7 +1,7 @@
 import React from 'react';
 import { Product } from '../types';
 import { ProductInsightsData } from '../utils/insightsUtils';
-import { TrendingUp, TrendingDown, BarChart2, Ruler, Carrot, Apple, Banana, Broccoli, Sparkles } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart2, Ruler, Sparkles } from 'lucide-react';
 
 interface ProductInsightsProps {
   selectedProduct: Product | undefined;
@@ -16,22 +16,10 @@ export const ProductInsights: React.FC<ProductInsightsProps> = ({ selectedProduc
 
   const isVariationPositive = (data.variationPercent || 0) >= 0;
 
-  // Icon helper based on category/name
-  const getProductAvatarIcon = (name: string) => {
-    const lower = name.toLowerCase();
-    if (lower.includes('manzana') || lower.includes('mango')) return <Apple size={22} color="#3b82f6" />;
-    if (lower.includes('banana')) return <Banana size={22} color="#3b82f6" />;
-    if (lower.includes('acelga') || lower.includes('lechuga')) return <Broccoli size={22} color="#3b82f6" />;
-    return <Carrot size={22} color="#3b82f6" />;
-  };
-
   return (
     <section className="product-insights-card">
-      {/* 1. Cabecera del Producto (Product Header) */}
+      {/* 1. Cabecera del Producto (Product Header - Sin icono) */}
       <div className="product-insights-header">
-        <div className="product-avatar">
-          {getProductAvatarIcon(selectedProduct.name)}
-        </div>
         <div className="product-title-block">
           <h3 className="product-name">{selectedProduct.name}</h3>
           <span className="product-subtitle">producto seleccionado</span>
@@ -75,8 +63,8 @@ export const ProductInsights: React.FC<ProductInsightsProps> = ({ selectedProduc
           <span className="metric-subtext">{data.maxDate || 'N/D'}</span>
         </div>
 
-        {/* Columna 5: Lista de Insights Contextuales */}
-        <div className="product-contextual-col">
+        {/* Columna 5: Lista de Insights Contextuales (Fondo transparente, sin padding) */}
+        <div className="product-contextual-col-clean">
           <div className="contextual-item">
             {data.consecutiveTrendType === 'up' ? (
               <TrendingUp size={15} color="#ef4444" style={{ flexShrink: 0 }} />
@@ -109,7 +97,7 @@ export const ProductInsights: React.FC<ProductInsightsProps> = ({ selectedProduc
             <Ruler size={15} color="#94a3b8" style={{ flexShrink: 0 }} />
             <span>
               {data.relationToMaxPercent !== null
-                ? `A ${data.relationToMaxPercent}% de su máximo histórico ($${(data.maxPrice || 0).toLocaleString('es-AR')})`
+                ? `A ${data.relationToMaxPercent}% del máximo histórico ($${(data.maxPrice || 0).toLocaleString('es-AR')})`
                 : 'Sin suficientes datos de máximos'}
             </span>
           </div>

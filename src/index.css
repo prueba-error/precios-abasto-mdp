@@ -207,23 +207,42 @@ body {
    Market Insights Component Styles (_aux-prompt-UI.md)
    ========================================================================== */
 
+.market-insights-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 /* 1. Header KPI Grid */
 .kpi-grid-container {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
+  grid-template-columns: 2fr 2fr 1fr;
+  gap: 20px;
   width: 100%;
 }
 
-.kpi-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 14px 16px;
+.kpi-subcontainer {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  gap: 16px;
+}
+
+.kpi-card-transparent {
+  background: transparent;
+  border: none;
+  padding: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 110px;
+  min-height: 100px;
+  flex: 1 1 0;
 }
 
 .kpi-label {
@@ -305,17 +324,38 @@ body {
 .banners-stack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
 }
 
 .status-banner {
-  border-radius: 10px;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  border-radius: 8px;
+  padding: 10px 14px;
   font-size: 0.8125rem;
+}
+
+.banner-inline-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.banner-inline-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.banner-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.banner-inline-content {
+  color: var(--text-secondary);
 }
 
 .banner-green {
@@ -333,17 +373,6 @@ body {
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
-.banner-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.banner-title {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
 .banner-icon-green {
   color: #34d399;
 }
@@ -356,27 +385,39 @@ body {
   color: #fbbf24;
 }
 
-.banner-body {
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
-  padding-left: 25px;
-  line-height: 1.4;
+/* 3. Market Insights Footer Action */
+.market-insights-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
 }
 
-.banner-tag {
-  display: inline;
+.view-in-chart-link {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.view-in-chart-link:hover {
+  color: #34d399;
+  background-color: rgba(16, 185, 129, 0.1);
+  text-decoration: underline;
 }
 
 /* Responsive Breakpoints for Market Insights */
 @media (max-width: 992px) {
   .kpi-grid-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .kpi-grid-container {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 
@@ -399,18 +440,6 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.product-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 9999px;
-  background: rgba(59, 130, 246, 0.14);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
 }
 
 .product-title-block {
@@ -482,14 +511,13 @@ body {
   color: var(--text-secondary);
 }
 
-.product-contextual-col {
+.product-contextual-col-clean {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .contextual-item {
@@ -508,7 +536,7 @@ body {
     gap: 16px;
   }
 
-  .product-contextual-col {
+  .product-contextual-col-clean {
     grid-column: 1 / -1;
     width: 100%;
   }

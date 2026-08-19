@@ -163,6 +163,32 @@ export function App() {
     return computeProductInsights(activeProduct, records, null);
   }, [activeProduct, records]);
 
+  const handleViewInsightsInChart = () => {
+    const highlightItems = [...marketInsightsData.topSubas, ...marketInsightsData.topBajas];
+    highlightItems.forEach(item => {
+      const prod = allProductsList.find(p => p.id === item.product_id || p.name === item.product_name);
+      if (prod) {
+        const targetPinnedId = `cat_${prod.category_id}_prod_${prod.id}`;
+        if (!pinnedProducts.some(p => p.pinnedId === targetPinnedId)) {
+          const colorIndex = pinnedProducts.length % COLOR_PALETTE.length;
+          const newPinned: PinnedProduct = {
+            pinnedId: targetPinnedId,
+            productId: prod.id,
+            categoryId: prod.category_id,
+            productName: prod.name,
+            color: COLOR_PALETTE[colorIndex]
+          };
+          setPinnedProducts(prev => [...prev, newPinned]);
+        }
+      }
+    });
+
+    const chartElem = document.querySelector('.price-chart-card') || document.querySelector('.recharts-responsive-container');
+    if (chartElem) {
+      chartElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header
@@ -175,7 +201,7 @@ export function App() {
       />
       <div className="container">
         {/* 1. Componente Insights Generales (Ubicado antes de los filtros) */}
-        <MarketInsights data={marketInsightsData} />
+        <MarketInsights data={marketInsightsData} onViewInChart={handleViewInsightsInChart} />
 
         <Filters 
           categories={categories}

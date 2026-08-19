@@ -44,9 +44,11 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
 
           <div className="kpi-card-transparent">
             <span className="kpi-label">Productos Indexados</span>
-            <span className="kpi-value-large" style={{ color: 'var(--text-primary)' }}>
-              {data.indexedProductsCount}
-            </span>
+            <div className="kpi-value-group">
+              <span className="kpi-value-large" style={{ color: 'var(--text-primary)' }}>
+                {data.indexedProductsCount}
+              </span>
+            </div>
             <span className="kpi-subtext">
               {data.newProductsCount > 0 ? `${data.newProductsCount} nuevos desde último registro` : 'Sin nuevos ingresos'}
             </span>

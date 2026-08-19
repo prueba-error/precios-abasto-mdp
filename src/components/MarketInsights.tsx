@@ -23,7 +23,8 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
     .join('; ');
 
   return (
-    <section className="market-insights-card">
+    <div style={{ marginBottom: '28px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <section className="market-insights-card">
       {/* 1. Fila de Métricas Generales (Header KPI Grid) */}
       <div className="kpi-grid-container">
         {/* Contenedor 1 (Fondo invisible): Columna 1 (Índice) + Columna 2 (Volumen) */}
@@ -138,14 +139,15 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
           <span className="banner-inline-content">{atypicalText}</span>
         </div>
       </div>
-
-      {/* 3. Enlace inferior: Ver en el gráfico */}
-      <div className="market-insights-footer">
-        <button className="view-in-chart-link" onClick={onViewInChart}>
-          <LineChart size={14} />
-          <span>Ver en el gráfico</span>
-        </button>
-      </div>
     </section>
-  );
+
+    {/* 3. Enlace inferior: Ver en el gráfico (A continuación del contenedor) */}
+    <div className="market-insights-footer">
+      <button className="view-in-chart-link" onClick={onViewInChart}>
+        <LineChart size={14} />
+        <span>Ver en el gráfico</span>
+      </button>
+    </div>
+  </div>
+);
 };

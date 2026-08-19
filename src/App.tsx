@@ -18,6 +18,7 @@ export function App() {
   const [allProductsList, setAllProductsList] = useState<Product[]>([]);
   const [records, setRecords] = useState<PriceRecord[]>([]);
   const [categoryProductsRecords, setCategoryProductsRecords] = useState<ExtendedPriceRecord[]>([]);
+  const [globalMarketRecords, setGlobalMarketRecords] = useState<PriceRecord[]>([]);
   
   const [selectedCategory, setSelectedCategory] = useState<number>(0); // 0 = 'Todas las categorías'
   const [selectedProduct, setSelectedProduct] = useState<number>(0);   // 0 = 'Todos los productos'
@@ -30,6 +31,7 @@ export function App() {
     getCategories().then(cats => {
       setCategories(cats);
     });
+    getCategoryAllProductsRecords(0).then(recs => setGlobalMarketRecords(recs));
   }, []);
 
   useEffect(() => {
@@ -156,8 +158,11 @@ export function App() {
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
 
   const marketInsightsData = useMemo(() => {
-    return computeMarketInsights(allProductsList, categoryProductsRecords.length > 0 ? categoryProductsRecords : records);
-  }, [allProductsList, categoryProductsRecords, records]);
+    const dataset = globalMarketRecords.length > 0 
+      ? globalMarketRecords 
+      : (categoryProductsRecords.length > 0 ? categoryProductsRecords : records);
+    return computeMarketInsights(allProductsList, dataset);
+  }, [allProductsList, globalMarketRecords, categoryProductsRecords, records]);
 
   const productInsightsData = useMemo(() => {
     return computeProductInsights(activeProduct, records, null);

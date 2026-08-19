@@ -11,14 +11,17 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
   const isIndexPositive = data.indexChangePercent >= 0;
 
   const nearMinText = data.nearMinProducts
+    .slice(0, 10)
     .map(p => `${p.product_name} (${p.percent_from_bound}% del mín.${p.price ? ` - $${p.price.toLocaleString('es-AR')}` : ''})`)
     .join('; ');
 
   const nearMaxText = data.nearMaxProducts
+    .slice(0, 10)
     .map(p => `${p.product_name} (${p.percent_from_bound}% del máx.)`)
     .join('; ');
 
   const atypicalText = data.atypicalProducts
+    .slice(0, 10)
     .map(p => `${p.product_name}: ${p.text}`)
     .join('; ');
 

@@ -222,9 +222,9 @@ export function computeMarketInsights(
     topSubas: finalTopSubas,
     topBajas: finalTopBajas,
     rachasActivas: finalRachas,
-    nearMinProducts: finalNearMin,
-    nearMaxProducts: finalNearMax,
-    atypicalProducts: finalAtypical
+    nearMinProducts: finalNearMin.slice(0, 10),
+    nearMaxProducts: finalNearMax.slice(0, 10),
+    atypicalProducts: finalAtypical.slice(0, 10)
   };
 }
 

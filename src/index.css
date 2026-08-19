@@ -246,7 +246,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 8px;
+  gap: 2px;
   min-height: 100px;
   flex: 1 1 0;
 }
@@ -267,8 +267,7 @@ body {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  margin: 4px 0;
-  min-height: 32px;
+  margin: 2px 0 0 0;
 }
 
 .kpi-value-large {
@@ -286,7 +285,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 0;
+  margin-bottom: 6px;
 }
 
 .kpi-list {

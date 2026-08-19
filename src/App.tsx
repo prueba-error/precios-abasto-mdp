@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Header } from './components/Header';
+import { MarketInsights } from './components/MarketInsights';
 import { Filters } from './components/Filters';
 import { PriceChart } from './components/PriceChart';
+import { ProductInsights } from './components/ProductInsights';
 import { PriceTable } from './components/PriceTable';
 import { Footer } from './components/Footer';
 import { Category, Product, PriceRecord, PriceMetric, PinnedProduct } from './types';
 import { getCategories, getProducts, getPriceHistory, getCategoryAllProductsRecords, getBasketOptionForCategory, getDefaultViewConfig, ExtendedPriceRecord, isUsingMock } from './services/dataService';
+import { computeMarketInsights, computeProductInsights } from './utils/insightsUtils';
 
 const COLOR_PALETTE = ['#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#eab308'];
 
@@ -152,6 +155,14 @@ export function App() {
 
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
 
+  const marketInsightsData = useMemo(() => {
+    return computeMarketInsights(allProductsList, categoryProductsRecords.length > 0 ? categoryProductsRecords : records);
+  }, [allProductsList, categoryProductsRecords, records]);
+
+  const productInsightsData = useMemo(() => {
+    return computeProductInsights(activeProduct, records, null);
+  }, [activeProduct, records]);
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header
@@ -163,53 +174,60 @@ export function App() {
         onPinProductFromSearch={handlePinProductFromSearch}
       />
       <div className="container">
+        {/* 1. Componente Insights Generales (Ubicado antes de los filtros) */}
+        <MarketInsights data={marketInsightsData} />
+
         <Filters 
           categories={categories}
           products={products}
           allProducts={allProductsList}
-        selectedCategory={selectedCategory}
-        selectedProduct={selectedProduct}
-        selectedMetric={selectedMetric}
-        pinnedProducts={pinnedProducts}
-        isCurrentPinned={isCurrentPinned}
-        onCategoryChange={setSelectedCategory}
-        onProductChange={setSelectedProduct}
-        onMetricChange={setSelectedMetric}
-        onTogglePin={handleTogglePin}
-        onUnpinProduct={(pinnedId: string) => handleUnpinProduct(pinnedId)}
-        onClearPinned={handleClearPinned}
-        onResetChart={handleResetChart}
-        onSelectProductFromSearch={handleSelectProductFromSearch}
-        onPinProductFromSearch={handlePinProductFromSearch}
-      />
-      {records.length > 0 ? (
-        <>
-          <PriceChart 
-            records={records} 
-            metric={selectedMetric} 
-            productName={activeProduct.name}
-            activeProductId={selectedProduct}
-            activePinnedId={currentPinnedId}
-            categoryName={activeCategory?.name}
-            pinnedProducts={pinnedProducts}
-            pinnedHistories={pinnedHistories}
-          />
-          <PriceTable 
-            records={records} 
-            selectedMetric={selectedMetric}
-            activeProductName={activeProduct.name}
-            activePinnedId={currentPinnedId}
-            selectedCategory={selectedCategory}
-            selectedProduct={selectedProduct}
-            isAllProducts={selectedProduct === 0}
-            categoryProductsRecords={categoryProductsRecords}
-            pinnedProducts={pinnedProducts}
-            pinnedHistories={pinnedHistories}
-            isMock={isUsingMock}
-            lastUpdated={latestDate}
-            onTogglePinItem={handleTogglePinItem}
-            onSelectProductItem={handleSelectProductItem}
-          />
+          selectedCategory={selectedCategory}
+          selectedProduct={selectedProduct}
+          selectedMetric={selectedMetric}
+          pinnedProducts={pinnedProducts}
+          isCurrentPinned={isCurrentPinned}
+          onCategoryChange={setSelectedCategory}
+          onProductChange={setSelectedProduct}
+          onMetricChange={setSelectedMetric}
+          onTogglePin={handleTogglePin}
+          onUnpinProduct={(pinnedId: string) => handleUnpinProduct(pinnedId)}
+          onClearPinned={handleClearPinned}
+          onResetChart={handleResetChart}
+          onSelectProductFromSearch={handleSelectProductFromSearch}
+          onPinProductFromSearch={handlePinProductFromSearch}
+        />
+        {records.length > 0 ? (
+          <>
+            <PriceChart 
+              records={records} 
+              metric={selectedMetric} 
+              productName={activeProduct.name}
+              activeProductId={selectedProduct}
+              activePinnedId={currentPinnedId}
+              categoryName={activeCategory?.name}
+              pinnedProducts={pinnedProducts}
+              pinnedHistories={pinnedHistories}
+            />
+
+            {/* 2. Componente Insights Producto (Ubicado a continuación del gráfico) */}
+            <ProductInsights selectedProduct={activeProduct} data={productInsightsData} />
+
+            <PriceTable 
+              records={records} 
+              selectedMetric={selectedMetric}
+              activeProductName={activeProduct.name}
+              activePinnedId={currentPinnedId}
+              selectedCategory={selectedCategory}
+              selectedProduct={selectedProduct}
+              isAllProducts={selectedProduct === 0}
+              categoryProductsRecords={categoryProductsRecords}
+              pinnedProducts={pinnedProducts}
+              pinnedHistories={pinnedHistories}
+              isMock={isUsingMock}
+              lastUpdated={latestDate}
+              onTogglePinItem={handleTogglePinItem}
+              onSelectProductItem={handleSelectProductItem}
+            />
         </>
       ) : (
         <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-secondary)' }}>

@@ -7,13 +7,15 @@ interface ProductSearchProps {
   categories: Category[];
   onSelectProduct: (product: Product) => void;
   onPinProduct?: (product: Product) => void;
+  hideLabel?: boolean;
 }
 
 export const ProductSearch: React.FC<ProductSearchProps> = ({
   allProducts,
   categories,
   onSelectProduct,
-  onPinProduct
+  onPinProduct,
+  hideLabel = false
 }) => {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -132,10 +134,12 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
   };
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', marginBottom: '16px', width: '100%' }}>
-      <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>
-        Buscar producto
-      </label>
+    <div ref={containerRef} style={{ position: 'relative', marginBottom: hideLabel ? '0' : '16px', width: '100%' }}>
+      {!hideLabel && (
+        <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>
+          Buscar producto
+        </label>
+      )}
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', width: '100%' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '1 1 280px', maxWidth: '500px' }}>
           <Search size={16} style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)', pointerEvents: 'none' }} />

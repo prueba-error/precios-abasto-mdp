@@ -119,30 +119,36 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
       {/* 2. Cintas de Estado y Alertas (Status Banners Stack - Single Line with Semicolon) */}
       <div className="banners-stack">
         {/* Banner 1: Mínimos Promedio */}
-        <div className="status-banner banner-green banner-inline-row">
-          <div className="banner-inline-header">
-            <TrendingDown size={15} className="banner-icon-green" style={{ flexShrink: 0 }} />
-            <strong className="banner-title">Productos cerca de su mínimo histórico:</strong>
-          </div>
-          <span className="banner-inline-content">{nearMinText}</span>
+        <div className="status-banner banner-green">
+          <p className="banner-inline-paragraph">
+            <span className="banner-inline-header">
+              <TrendingDown size={15} className="banner-icon-green" style={{ flexShrink: 0 }} />
+              <strong className="banner-title">Productos cerca de su mínimo histórico: </strong>
+            </span>
+            <span className="banner-inline-content">{nearMinText}</span>
+          </p>
         </div>
 
         {/* Banner 2: Máximos Promedio */}
-        <div className="status-banner banner-red banner-inline-row">
-          <div className="banner-inline-header">
-            <TrendingUp size={15} className="banner-icon-red" style={{ flexShrink: 0 }} />
-            <strong className="banner-title">Productos cerca de su máximo histórico:</strong>
-          </div>
-          <span className="banner-inline-content">{nearMaxText}</span>
+        <div className="status-banner banner-red">
+          <p className="banner-inline-paragraph">
+            <span className="banner-inline-header">
+              <TrendingUp size={15} className="banner-icon-red" style={{ flexShrink: 0 }} />
+              <strong className="banner-title">Productos cerca de su máximo histórico: </strong>
+            </span>
+            <span className="banner-inline-content">{nearMaxText}</span>
+          </p>
         </div>
 
         {/* Banner 3: Alerta de Anomalías */}
-        <div className="status-banner banner-amber banner-inline-row">
-          <div className="banner-inline-header">
-            <AlertTriangle size={15} className="banner-icon-amber" style={{ flexShrink: 0 }} />
-            <strong className="banner-title">Precios atípicos:</strong>
-          </div>
-          <span className="banner-inline-content">{atypicalText}</span>
+        <div className="status-banner banner-amber">
+          <p className="banner-inline-paragraph">
+            <span className="banner-inline-header">
+              <AlertTriangle size={15} className="banner-icon-amber" style={{ flexShrink: 0 }} />
+              <strong className="banner-title">Precios atípicos: </strong>
+            </span>
+            <span className="banner-inline-content">{atypicalText}</span>
+          </p>
         </div>
       </div>
     </section>

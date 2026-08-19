@@ -102,8 +102,9 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
                 <div key={item.product_id || idx} className="kpi-list-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <span className="kpi-item-name">{item.product_name}</span>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 400, color: item.type === 'up' ? '#f87171' : '#34d399' }}>
-                      {item.type === 'up' ? `subiendo x${item.weeks} sem` : `bajando x${item.weeks} sem`}
+                    <span style={{ fontSize: '0.75rem', fontWeight: 400, color: item.type === 'up' ? '#f87171' : '#34d399', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                      {item.type === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                      <span>x{item.weeks} sem</span>
                     </span>
                   </div>
                 </div>

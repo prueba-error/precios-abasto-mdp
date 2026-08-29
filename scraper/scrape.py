@@ -4,8 +4,8 @@ import time
 import json
 import logging
 import requests
-from datetime import date
-from typing import List, Dict, Any, Optional
+from datetime import date, datetime
+from typing import List, Dict, Any, Optional, Tuple
 from dotenv import load_dotenv
 from scraper.normalizer import normalize_record, get_argentina_date, is_valid_contract, parse_market_date
 
@@ -30,6 +30,54 @@ def fetch_market_date(session: requests.Session) -> Optional[date]:
     except Exception as e:
         logging.warning(f"Could not fetch market date from fecha.php: {e}")
         return None
+
+def get_latest_db_snapshot(supabase) -> Tuple[Optional[date], List[Dict[str, Any]]]:
+    try:
+        res = supabase.table("price_records").select("snapshot_date").order("snapshot_date", desc=True).limit(1).execute()
+        if not res.data:
+            return None, []
+        latest_date_str = res.data[0]["snapshot_date"]
+        latest_date = datetime.strptime(latest_date_str, "%Y-%m-%d").date()
+        
+        recs_res = supabase.table("price_records").select("product_id, price_from, price_to, price_avg").eq("snapshot_date", latest_date_str).execute()
+        return latest_date, recs_res.data or []
+    except Exception as e:
+        logging.warning(f"Could not fetch latest database snapshot: {e}")
+        return None, []
+
+def is_price_list_identical(
+    scraped_records: List[Dict[str, Any]],
+    db_records: List[Dict[str, Any]],
+    prod_id_lookup: Dict[Tuple[str, int], int]
+) -> bool:
+    if not scraped_records or not db_records:
+        return False
+    
+    db_map = {r["product_id"]: (r["price_from"], r["price_to"], r["price_avg"]) for r in db_records}
+    
+    matched_count = 0
+    for rec in scraped_records:
+        pid = prod_id_lookup.get((rec["original_id"], rec["category_id"]))
+        if not pid or pid not in db_map:
+            return False
+        
+        scraped_prices = (
+            float(rec["price_from"]) if rec["price_from"] is not None else None,
+            float(rec["price_to"]) if rec["price_to"] is not None else None,
+            float(rec["price_avg"]) if rec["price_avg"] is not None else None
+        )
+        db_prices = (
+            float(db_map[pid][0]) if db_map[pid][0] is not None else None,
+            float(db_map[pid][1]) if db_map[pid][1] is not None else None,
+            float(db_map[pid][2]) if db_map[pid][2] is not None else None
+        )
+        
+        if scraped_prices != db_prices:
+            return False
+        matched_count += 1
+        
+    return matched_count > 0
+
 
 def fetch_category_data(category_id: int) -> List[Dict[str, Any]]:
     session = requests.Session()

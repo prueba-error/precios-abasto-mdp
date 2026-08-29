@@ -7,6 +7,7 @@ import requests
 from datetime import date, datetime
 from typing import List, Dict, Any, Optional, Tuple
 from dotenv import load_dotenv
+from supabase import create_client
 from scraper.normalizer import normalize_record, get_argentina_date, is_valid_contract, parse_market_date
 
 # Load environment variables from .env file if present
@@ -79,11 +80,12 @@ def is_price_list_identical(
     return matched_count > 0
 
 
-def fetch_category_data(category_id: int) -> List[Dict[str, Any]]:
-    session = requests.Session()
-    session.headers.update({"User-Agent": USER_AGENT})
-    adapter = requests.adapters.HTTPAdapter(max_retries=3)
-    session.mount("https://", adapter)
+def fetch_category_data(category_id: int, session: Optional[requests.Session] = None) -> List[Dict[str, Any]]:
+    if session is None:
+        session = requests.Session()
+        session.headers.update({"User-Agent": USER_AGENT})
+        adapter = requests.adapters.HTTPAdapter(max_retries=3)
+        session.mount("https://", adapter)
     
     response = session.post(API_URL, data={"idcat": category_id}, timeout=15)
     response.raise_for_status()
@@ -101,11 +103,22 @@ def run_scraper(dry_run: bool = False) -> None:
     total_valid_contract = 0
     errors = []
 
+    session = requests.Session()
+    session.headers.update({"User-Agent": USER_AGENT})
+    adapter = requests.adapters.HTTPAdapter(max_retries=3)
+    session.mount("https://", adapter)
+
+    market_date = fetch_market_date(session)
+    if market_date:
+        logging.info(f"Market date fetched from fecha.php: {market_date}")
+    else:
+        logging.info(f"Market date could not be determined from fecha.php, using today: {today}")
+
     for cat_id in CATEGORIES:
         try:
             if cat_id > 1:
                 time.sleep(1.0)  # Rate limiting delay
-            raw_items = fetch_category_data(cat_id)
+            raw_items = fetch_category_data(cat_id, session=session)
             category_raw_counts[cat_id] = len(raw_items)
             total_raw_fetched += len(raw_items)
             valid_in_cat = 0
@@ -143,7 +156,7 @@ def run_scraper(dry_run: bool = False) -> None:
         sys.exit(1)
 
     if dry_run:
-        logging.info(f"DRY RUN complete. Processed {len(all_normalized)} valid price records.")
+        logging.info(f"DRY RUN complete. Processed {len(all_normalized)} valid price records. Market date: {market_date}")
         logging.info(f"Sample record: {all_normalized[0] if all_normalized else None}")
         return
 
@@ -155,7 +168,6 @@ def run_scraper(dry_run: bool = False) -> None:
         logging.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables.")
         sys.exit(1)
 
-    from supabase import create_client
     supabase = create_client(supabase_url, supabase_key)
 
     # 1. Upsert products
@@ -175,6 +187,27 @@ def run_scraper(dry_run: bool = False) -> None:
     # Fetch product IDs mapping
     db_prods = supabase.table("products").select("id, original_id, category_id").execute().data
     prod_id_lookup = {(p["original_id"], p["category_id"]): p["id"] for p in db_prods}
+
+    # Stale detection check
+    latest_db_date, latest_db_records = get_latest_db_snapshot(supabase)
+    
+    is_stale_by_date = (market_date is not None and latest_db_date is not None and market_date <= latest_db_date)
+    is_stale_by_prices = is_price_list_identical(all_normalized, latest_db_records, prod_id_lookup)
+    
+    if is_stale_by_date or is_stale_by_prices:
+        reason = "fecha del mercado no ha cambiado" if is_stale_by_date else "precios idénticos al snapshot anterior"
+        msg = f"WARNING: La lista de precios no se actualizó ({reason}). Fecha mercado: {market_date}, último snapshot: {latest_db_date}."
+        logging.warning(msg)
+        print(f"::warning title=Lista de Precios No Actualizada::{msg}")
+        
+        log_entry = {
+            "snapshot_date": (market_date or today).isoformat(),
+            "status": "WARNING",
+            "records_inserted": 0,
+            "error_message": msg
+        }
+        supabase.table("scraping_logs").insert(log_entry).execute()
+        sys.exit(0)
 
     # 2. Build price records with product_id
     price_records = []

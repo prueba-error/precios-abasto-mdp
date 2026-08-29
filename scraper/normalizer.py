@@ -71,3 +71,17 @@ def normalize_record(raw: Dict[str, Any], category_id: int, snapshot_date: date)
         "quantity_raw": normalize_text(raw.get("cantidad")),
         "snapshot_date": snapshot_date.isoformat()
     }
+
+def parse_market_date(raw_text: Optional[str]) -> Optional[date]:
+    if not raw_text:
+        return None
+    cleaned = str(raw_text).strip()
+    match = re.search(r'(\d{1,2}/\d{1,2}/\d{4})', cleaned)
+    if not match:
+        return None
+    date_str = match.group(1)
+    try:
+        return datetime.strptime(date_str, "%d/%m/%Y").date()
+    except ValueError:
+        return None
+

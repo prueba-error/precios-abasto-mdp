@@ -4,9 +4,10 @@ import time
 import json
 import logging
 import requests
-from typing import List, Dict, Any
+from datetime import date
+from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
-from scraper.normalizer import normalize_record, get_argentina_date, is_valid_contract
+from scraper.normalizer import normalize_record, get_argentina_date, is_valid_contract, parse_market_date
 
 # Load environment variables from .env file if present
 load_dotenv()
@@ -14,11 +15,21 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 API_URL = "https://abastocentralmdp.com.ar/dws/dws-app/pages/precios/back/precios.php"
+FECHA_API_URL = "https://abastocentralmdp.com.ar/dws/dws-app/pages/precios/back/fecha.php"
 USER_AGENT = "AbastoPreciosBot/1.0 (+https://github.com/Diegolas/scraping-verduras)"
 CATEGORIES = [1, 2, 3, 4]
 MIN_TOTAL_RECORDS = 20
 MIN_GLOBAL_VALID_RATIO = 0.70
 MIN_CAT_VALID_RATIO = 0.60
+
+def fetch_market_date(session: requests.Session) -> Optional[date]:
+    try:
+        response = session.post(FECHA_API_URL, timeout=15)
+        response.raise_for_status()
+        return parse_market_date(response.text)
+    except Exception as e:
+        logging.warning(f"Could not fetch market date from fecha.php: {e}")
+        return None
 
 def fetch_category_data(category_id: int) -> List[Dict[str, Any]]:
     session = requests.Session()

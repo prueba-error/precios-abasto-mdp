@@ -1,6 +1,6 @@
 import pytest
 from datetime import date
-from scraper.normalizer import is_valid_contract, clean_price_val, calculate_avg, normalize_record, get_argentina_date
+from scraper.normalizer import is_valid_contract, clean_price_val, calculate_avg, normalize_record, get_argentina_date, parse_market_date
 
 def test_is_valid_contract():
     valid_item = {"id": "198", "producto": "MANDARINA", "categoria": "Frutas", "precio_hasta": "12000"}
@@ -52,3 +52,11 @@ def test_normalize_record():
     assert normalized["presentation"] == "CAJON"
     assert normalized["quantity_raw"] == "18 KG."
     assert normalized["snapshot_date"] == "2026-08-14"
+
+def test_parse_market_date():
+    assert parse_market_date("FECHA: 19/08/2026") == date(2026, 8, 19)
+    assert parse_market_date("19/08/2026") == date(2026, 8, 19)
+    assert parse_market_date("  FECHA: 05/09/2026  \n") == date(2026, 9, 5)
+    assert parse_market_date(None) is None
+    assert parse_market_date("invalid date") is None
+

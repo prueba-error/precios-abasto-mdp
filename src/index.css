@@ -19,6 +19,8 @@
   --btn-pin-hover: #1b8054;
   --btn-reset-bg: #d97736;
   --btn-reset-hover: #c46218;
+  --kpi-card-bg: #1e293b;
+  --kpi-card-border: #334155;
 }
 
 [data-theme="light"] {
@@ -40,6 +42,8 @@
   --btn-pin-hover: #388e3c;
   --btn-reset-bg: #f59e0b;
   --btn-reset-hover: #d97706;
+  --kpi-card-bg: #fdf6ed;
+  --kpi-card-border: #ebd7c5;
 }
 
 * {
@@ -150,7 +154,7 @@ body {
 .header-divider {
   width: 1.5px;
   height: 36px;
-  background-color: #475569;
+  background-color: var(--border-color);
   flex-shrink: 0;
   opacity: 0.85;
 }
@@ -238,8 +242,8 @@ body {
    ========================================================================== */
 
 .market-insights-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: var(--kpi-card-bg);
+  border: 1px solid var(--kpi-card-border);
   border-radius: 12px;
   padding: 20px;
   display: flex;

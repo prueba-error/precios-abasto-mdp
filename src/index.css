@@ -345,6 +345,16 @@ body {
   flex: 1 1 auto;
 }
 
+.kpi-item-link {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.kpi-item-link:hover {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
 .kpi-item-index {
   color: var(--text-secondary);
   margin-right: 4px;

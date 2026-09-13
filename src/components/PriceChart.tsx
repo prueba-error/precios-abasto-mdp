@@ -124,6 +124,12 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   const renderCustomLegend = (props: any) => {
     const { payload } = props;
     if (!payload || !payload.length) return null;
+
+    // Filter out duplicates by product name
+    const uniquePayload = payload.filter((entry: any, index: number, self: any[]) =>
+      index === self.findIndex((t: any) => t.value === entry.value)
+    );
+
     return (
       <div style={{
         display: 'flex',
@@ -133,7 +139,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         gap: '8px 16px',
         paddingTop: '16px'
       }}>
-        {payload.map((entry: any, index: number) => {
+        {uniquePayload.map((entry: any, index: number) => {
           const isHovered = hoveredSeries === entry.value;
           return (
             <div

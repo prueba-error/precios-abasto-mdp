@@ -224,6 +224,19 @@ export function App() {
     handleViewSectionInChart('all');
   };
 
+  const handleSelectProductFromList = (productId?: number, productName?: string) => {
+    const prod = allProductsList.find(p => (productId && p.id === productId) || p.name === productName);
+    if (prod) {
+      setSelectedCategory(prod.category_id);
+      setSelectedProduct(prod.id);
+      setChartTitleOverride(null);
+      const chartElem = document.querySelector('.price-chart-card') || document.querySelector('.recharts-responsive-container');
+      if (chartElem) {
+        chartElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header
@@ -240,6 +253,7 @@ export function App() {
           data={marketInsightsData} 
           onViewInChart={handleViewInsightsInChart} 
           onViewSectionInChart={(sec) => handleViewSectionInChart(sec)}
+          onSelectProductItem={handleSelectProductFromList}
         />
 
         <Filters 

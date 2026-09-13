@@ -6,9 +6,10 @@ interface MarketInsightsProps {
   data: MarketInsightsData;
   onViewInChart?: () => void;
   onViewSectionInChart?: (section: 'subas' | 'bajas' | 'rachas') => void;
+  onSelectProductItem?: (productId?: number, productName?: string) => void;
 }
 
-export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInChart, onViewSectionInChart }) => {
+export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInChart, onViewSectionInChart, onSelectProductItem }) => {
   const isIndexPositive = data.indexChangePercent >= 0;
 
   const nearMinText = data.nearMinProducts
@@ -79,7 +80,11 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
             <div className="kpi-list">
               {data.topSubas.map((item, idx) => (
                 <div key={item.product_id || idx} className="kpi-list-item">
-                  <span className="kpi-item-name">
+                  <span 
+                    className="kpi-item-name kpi-item-link"
+                    onClick={() => onSelectProductItem && onSelectProductItem(item.product_id, item.product_name)}
+                    title={`Ver producto ${item.product_name}`}
+                  >
                     <span className="kpi-item-index">{idx + 1}.</span> {item.product_name}
                   </span>
                   <span className="kpi-item-badge-danger">+{item.percent}%</span>
@@ -109,7 +114,11 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
             <div className="kpi-list">
               {data.topBajas.map((item, idx) => (
                 <div key={item.product_id || idx} className="kpi-list-item">
-                  <span className="kpi-item-name">
+                  <span 
+                    className="kpi-item-name kpi-item-link"
+                    onClick={() => onSelectProductItem && onSelectProductItem(item.product_id, item.product_name)}
+                    title={`Ver producto ${item.product_name}`}
+                  >
                     <span className="kpi-item-index">{idx + 1}.</span> {item.product_name}
                   </span>
                   <span className="kpi-item-badge-success">{item.percent}%</span>
@@ -143,7 +152,13 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
               {data.rachasActivas.map((item, idx) => (
                 <div key={item.product_id || idx} className="kpi-list-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    <span className="kpi-item-name">{item.product_name}</span>
+                    <span 
+                      className="kpi-item-name kpi-item-link"
+                      onClick={() => onSelectProductItem && onSelectProductItem(item.product_id, item.product_name)}
+                      title={`Ver producto ${item.product_name}`}
+                    >
+                      {item.product_name}
+                    </span>
                     <span style={{ fontSize: '0.75rem', fontWeight: 400, color: item.type === 'up' ? '#f87171' : '#34d399', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
                       <span>x{item.weeks} sem</span>
                       {item.type === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}

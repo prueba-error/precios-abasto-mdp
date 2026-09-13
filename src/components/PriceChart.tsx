@@ -68,8 +68,8 @@ export const PriceChart: React.FC<PriceChartProps> = ({
 }) => {
   const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
 
-  // Hide main average line (e.g. "Promedio Canasta") when activeProductId is 0 (all products/basket) and there are pinned products to show
-  const hideMainLine = (activeProductId === 0 && pinnedProducts.length > 0);
+  // Hide main average line (e.g. "Promedio Canasta") when activeProductId is 0 or -1 (all products/basket/list view) and there are pinned products to show
+  const hideMainLine = (activeProductId <= 0 && pinnedProducts.length > 0);
 
   const activePinnedProducts = hideMainLine
     ? pinnedProducts

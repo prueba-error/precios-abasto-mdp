@@ -108,7 +108,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
 
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : '';
 
-  const hideMainLine = (selectedProduct === 0 && pinnedProducts.length > 0);
+  const hideMainLine = (selectedProduct <= 0 && pinnedProducts.length > 0);
 
   // 1. Process active product records (Row 1: Latest snapshot)
   const activePinnedObj = pinnedProducts.find(p => p.pinnedId === activePinnedId);
@@ -116,7 +116,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     ? '#64748b'
     : (activePinnedObj ? activePinnedObj.color : '#38bdf8');
   const allActiveRows = processProductRecords(records, activeProductName, activeColor, true, false, selectedProduct, selectedCategory);
-  const activeRows = allActiveRows.length > 0 ? [allActiveRows[allActiveRows.length - 1]] : [];
+  const activeRows = (!hideMainLine && allActiveRows.length > 0) ? [allActiveRows[allActiveRows.length - 1]] : [];
 
   // Map category individual products by product name
   const individualMap = new Map<string, ExtendedPriceRecord[]>();

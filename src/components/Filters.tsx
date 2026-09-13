@@ -9,18 +9,19 @@ interface FiltersProps {
   allProducts: Product[];
   selectedCategory: number;
   selectedProduct: number;
-  selectedMetric: PriceMetric;
   pinnedProducts: PinnedProduct[];
   isCurrentPinned: boolean;
+  hoveredSeries?: string | null;
   onCategoryChange: (catId: number) => void;
   onProductChange: (prodId: number) => void;
-  onMetricChange: (metric: PriceMetric) => void;
   onTogglePin: () => void;
   onUnpinProduct: (pinnedId: string) => void;
   onClearPinned: () => void;
   onResetChart: () => void;
   onSelectProductFromSearch: (product: Product) => void;
   onPinProductFromSearch?: (product: Product) => void;
+  onHoverSeries?: (seriesName: string | null) => void;
+  onSelectProductItem?: (productId?: number, productName?: string) => void;
 }
 
 export const Filters: React.FC<FiltersProps> = ({
@@ -29,18 +30,19 @@ export const Filters: React.FC<FiltersProps> = ({
   allProducts,
   selectedCategory,
   selectedProduct,
-  selectedMetric,
   pinnedProducts,
   isCurrentPinned,
+  hoveredSeries,
   onCategoryChange,
   onProductChange,
-  onMetricChange,
   onTogglePin,
   onUnpinProduct,
   onClearPinned,
   onResetChart,
   onSelectProductFromSearch,
-  onPinProductFromSearch
+  onPinProductFromSearch,
+  onHoverSeries,
+  onSelectProductItem
 }) => {
   const [isPinHovered, setIsPinHovered] = React.useState(false);
   const [isPinPressed, setIsPinPressed] = React.useState(false);
@@ -91,8 +93,9 @@ export const Filters: React.FC<FiltersProps> = ({
           <select 
             value={selectedCategory} 
             onChange={(e) => onCategoryChange(Number(e.target.value))}
-            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: selectedCategory === -1 ? 'var(--text-secondary)' : 'var(--text-primary)', border: '1px solid var(--border-color)' }}
           >
+            <option value={-1}>— Seleccionar categoría —</option>
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
@@ -102,10 +105,49 @@ export const Filters: React.FC<FiltersProps> = ({
             <select 
               value={selectedProduct} 
               onChange={(e) => onProductChange(Number(e.target.value))}
-              style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+              style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: selectedProduct === -1 ? 'var(--text-secondary)' : 'var(--text-primary)', border: '1px solid var(--border-color)' }}
             >
+              <option value={-1}>— Seleccionar producto —</option>
               {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
+            {(() => {
+              const isCleared = pinnedProducts.length === 0 
+                ? ((selectedCategory === 0 || selectedCategory === -1) && (selectedProduct === 0 || selectedProduct === -1))
+                : (selectedCategory === -1 && selectedProduct === -1);
+              return (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (pinnedProducts.length === 0) {
+                      onCategoryChange(0);
+                      onProductChange(0);
+                    } else {
+                      onCategoryChange(-1);
+                      onProductChange(-1);
+                    }
+                  }}
+                  disabled={isCleared}
+                  title={isCleared ? 'Sin selección' : 'Eliminar selección de categoría y producto'}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    background: 'var(--bg-card)',
+                    color: isCleared ? 'var(--text-secondary)' : '#f87171',
+                    opacity: isCleared ? 0.35 : 1,
+                    cursor: isCleared ? 'not-allowed' : 'pointer',
+                    flexShrink: 0,
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <X size={15} />
+                </button>
+              );
+            })()}
             <button
               onClick={onTogglePin}
               onMouseEnter={() => setIsPinHovered(true)}
@@ -136,18 +178,6 @@ export const Filters: React.FC<FiltersProps> = ({
               <span>{isCurrentPinned ? 'Fijado' : 'Fijar'}</span>
             </button>
           </div>
-        </div>
-        <div style={{ flex: '1 1 180px' }}>
-          <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Métrica de Precio</label>
-          <select 
-            value={selectedMetric} 
-            onChange={(e) => onMetricChange(e.target.value as PriceMetric)}
-            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
-          >
-            <option value="price_avg">Precio Promedio</option>
-            <option value="price_from">Precio Desde</option>
-            <option value="price_to">Precio Hasta</option>
-          </select>
         </div>
         <div style={{ flex: '0 0 auto' }}>
           <button
@@ -185,33 +215,47 @@ export const Filters: React.FC<FiltersProps> = ({
       {pinnedProducts.length > 0 && (
         <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Fijados en gráfico:</span>
-          {pinnedProducts.map(p => (
-            <div
-              key={p.pinnedId}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 10px',
-                borderRadius: '16px',
-                background: 'var(--bg-card)',
-                border: `1px solid ${p.color}`,
-                color: 'var(--text-primary)',
-                fontSize: '0.75rem',
-                fontWeight: 500
-              }}
-            >
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.color }}></span>
-              <span>{p.productName}</span>
-              <button
-                onClick={() => onUnpinProduct(p.pinnedId)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
-                title="Desfijar"
+          {pinnedProducts.map(p => {
+            const isHovered = hoveredSeries === p.productName;
+            const isAnyHovered = !!hoveredSeries;
+            return (
+              <div
+                key={p.pinnedId}
+                onMouseEnter={() => onHoverSeries?.(p.productName)}
+                onMouseLeave={() => onHoverSeries?.(null)}
+                onClick={() => onSelectProductItem?.(p.productId, p.productName)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 10px',
+                  borderRadius: '16px',
+                  background: isHovered ? 'rgba(255, 255, 255, 0.12)' : 'var(--bg-card)',
+                  border: isHovered ? `1px solid ${p.color}` : `1px solid ${p.color}`,
+                  boxShadow: isHovered ? `0 0 8px ${p.color}60` : 'none',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.75rem',
+                  fontWeight: isHovered ? 600 : 500,
+                  opacity: isAnyHovered ? (isHovered ? 1 : 0.4) : 1,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
               >
-                <X size={14} />
-              </button>
-            </div>
-          ))}
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.color }}></span>
+                <span>{p.productName}</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUnpinProduct(p.pinnedId);
+                  }}
+                  style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
+                  title="Desfijar"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            );
+          })}
           <button
             onClick={onClearPinned}
             style={{ background: 'none', border: 'none', color: '#f87171', fontSize: '0.75rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px' }}

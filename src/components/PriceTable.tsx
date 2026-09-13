@@ -54,7 +54,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   // Reset to page 1 whenever active selection or records change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeProductName, isAllProducts, categoryProductsRecords.length]);
+  }, [activeProductName, isAllProducts, categoryProductsRecords.length, selectedCategory, selectedProduct]);
 
   const calculateChange = (current: number | null, prev: number | null): string => {
     if (current === null || prev === null || prev <= 0) return 'N/A';
@@ -108,46 +108,51 @@ export const PriceTable: React.FC<PriceTableProps> = ({
 
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : '';
 
+  const hideMainLine = (selectedProduct <= 0 && pinnedProducts.length > 0);
+
   // 1. Process active product records (Row 1: Latest snapshot)
   const activePinnedObj = pinnedProducts.find(p => p.pinnedId === activePinnedId);
-  const activeColor = activePinnedObj ? activePinnedObj.color : '#10b981';
+  const activeColor = hideMainLine
+    ? '#64748b'
+    : (activePinnedObj ? activePinnedObj.color : '#10b981');
   const allActiveRows = processProductRecords(records, activeProductName, activeColor, true, false, selectedProduct, selectedCategory);
-  const activeRows = allActiveRows.length > 0 ? [allActiveRows[allActiveRows.length - 1]] : [];
+  const activeRows = (!hideMainLine && allActiveRows.length > 0) ? [allActiveRows[allActiveRows.length - 1]] : [];
 
-  // Map category individual products by product name
-  const individualMap = new Map<string, ExtendedPriceRecord[]>();
+  // Map category individual products by product_id
+  const individualMap = new Map<number, ExtendedPriceRecord[]>();
   categoryProductsRecords.forEach(r => {
-    const pName = r.product_name || `Producto ${r.product_id}`;
-    if (!individualMap.has(pName)) {
-      individualMap.set(pName, []);
+    if (!individualMap.has(r.product_id)) {
+      individualMap.set(r.product_id, []);
     }
-    individualMap.get(pName)!.push(r);
+    individualMap.get(r.product_id)!.push(r);
   });
 
   // 2. Process pinned products records (Rows 2..N, placed right below Active Product: Latest snapshot per pinned item)
   const pinnedRows: CombinedRow[] = [];
-  pinnedProducts.forEach(p => {
-    if (p.pinnedId !== activePinnedId) {
-      const list = pinnedHistories[p.pinnedId] || individualMap.get(p.productName) || [];
-      if (list.length > 0) {
-        const processed = processProductRecords(list, p.productName, p.color, false, true, p.productId, p.categoryId);
-        if (processed.length > 0) {
-          const latestPinnedRow = (latestDate ? processed.find(r => r.snapshot_date === latestDate) : null) || processed[processed.length - 1];
-          pinnedRows.push(latestPinnedRow);
-        }
+  const targetPinnedProducts = hideMainLine
+    ? pinnedProducts
+    : pinnedProducts.filter(p => p.pinnedId !== activePinnedId);
+
+  targetPinnedProducts.forEach(p => {
+    const list = pinnedHistories[p.pinnedId] || (p.productId === 0 ? records : (individualMap.get(p.productId) || []));
+    if (list.length > 0) {
+      const processed = processProductRecords(list, p.productName, p.color, p.productId === 0, true, p.productId, p.categoryId);
+      if (processed.length > 0) {
+        const latestPinnedRow = (latestDate ? processed.find(r => r.snapshot_date === latestDate) : null) || processed[processed.length - 1];
+        pinnedRows.push(latestPinnedRow);
       }
     }
   });
 
   // 3. Process remaining category individual products records (excluding active & pinned)
   const individualRows: CombinedRow[] = [];
-  individualMap.forEach((list, pName) => {
-    const isPinned = pinnedProducts.some(p => p.productName === pName);
-    if (!isPinned && pName !== activeProductName) {
+  individualMap.forEach((list, prodId) => {
+    const isPinned = pinnedProducts.some(p => p.productId === prodId);
+    if (!isPinned && prodId !== selectedProduct) {
       const firstRec = list[0];
-      const pId = firstRec.product_id;
+      const pName = firstRec.product_name || `Producto ${prodId}`;
       const cId = (firstRec as any).category_id ?? selectedCategory;
-      individualRows.push(...processProductRecords(list, pName, '#64748b', false, false, pId, cId));
+      individualRows.push(...processProductRecords(list, pName, '#64748b', false, false, prodId, cId));
     }
   });
 
@@ -170,12 +175,16 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   const combinedRows = [...activeRows, ...pinnedRows, ...displayedIndividualRows];
 
   // Prepare Historical View Data (Columns: [Fecha | ActiveProduct | PinnedProduct1 | PinnedProduct2...])
-  const activePinnedProducts = pinnedProducts.filter(p => p.pinnedId !== activePinnedId);
+  const activePinnedProducts = hideMainLine
+    ? pinnedProducts
+    : pinnedProducts.filter(p => p.pinnedId !== activePinnedId);
   
   const historicalDatesSet = new Set<string>();
-  records.forEach(r => historicalDatesSet.add(r.snapshot_date));
+  if (!hideMainLine) {
+    records.forEach(r => historicalDatesSet.add(r.snapshot_date));
+  }
   activePinnedProducts.forEach(p => {
-    const list = pinnedHistories[p.pinnedId] || [];
+    const list = pinnedHistories[p.pinnedId] || (p.productId === 0 ? records : []);
     list.forEach(r => historicalDatesSet.add(r.snapshot_date));
   });
 
@@ -185,68 +194,120 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   
   const pinnedDateValueMaps = new Map<string, Map<string, number | null>>();
   activePinnedProducts.forEach(p => {
-    const list = pinnedHistories[p.pinnedId] || [];
+    const list = pinnedHistories[p.pinnedId] || (p.productId === 0 ? records : []);
     pinnedDateValueMaps.set(p.pinnedId, new Map(list.map(r => [r.snapshot_date, r[selectedMetric]])));
   });
 
   return (
     <div style={{ marginBottom: '0px' }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-      <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
-          {latestDate && viewMode === 'detailed' && (
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              — Semana del {latestDate}
-            </span>
-          )}
+      <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          {/* View Mode Toggle Switch (Far Left) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+            <button
+              onClick={() => setViewMode('detailed')}
+              title="Vista de detalle actual"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                fontSize: '0.75rem',
+                borderRadius: '4px',
+                border: 'none',
+                background: viewMode === 'detailed' ? 'var(--accent-primary)' : 'transparent',
+                color: viewMode === 'detailed' ? '#000' : 'var(--text-secondary)',
+                fontWeight: viewMode === 'detailed' ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Table size={14} />
+              <span>Detalle</span>
+            </button>
+            <button
+              onClick={() => setViewMode('historical')}
+              title="Vista de serie temporal histórica"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                fontSize: '0.75rem',
+                borderRadius: '4px',
+                border: 'none',
+                background: viewMode === 'historical' ? 'var(--accent-primary)' : 'transparent',
+                color: viewMode === 'historical' ? '#000' : 'var(--text-secondary)',
+                fontWeight: viewMode === 'historical' ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Calendar size={14} />
+              <span>Histórico</span>
+            </button>
+          </div>
+
+          {/* Title & Date (Right of toggle switch) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
+            {latestDate && viewMode === 'detailed' && (
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                — Semana del {latestDate}
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* View Mode Toggle Switch */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-          <button
-            onClick={() => setViewMode('detailed')}
-            title="Vista de detalle actual"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              fontSize: '0.75rem',
-              borderRadius: '4px',
-              border: 'none',
-              background: viewMode === 'detailed' ? 'var(--accent-primary)' : 'transparent',
-              color: viewMode === 'detailed' ? '#000' : 'var(--text-secondary)',
-              fontWeight: viewMode === 'detailed' ? 600 : 400,
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Table size={14} />
-            <span>Detalle</span>
-          </button>
-          <button
-            onClick={() => setViewMode('historical')}
-            title="Vista de serie temporal histórica"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              fontSize: '0.75rem',
-              borderRadius: '4px',
-              border: 'none',
-              background: viewMode === 'historical' ? 'var(--accent-primary)' : 'transparent',
-              color: viewMode === 'historical' ? '#000' : 'var(--text-secondary)',
-              fontWeight: viewMode === 'historical' ? 600 : 400,
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Calendar size={14} />
-            <span>Histórico</span>
-          </button>
-        </div>
+        {/* Top Paginator */}
+        {viewMode === 'detailed' && isAllProducts && totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <div>
+              Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  background: currentPage === 1 ? 'transparent' : 'var(--bg-card)',
+                  color: currentPage === 1 ? 'var(--text-secondary)' : 'var(--text-primary)',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === 1 ? 0.5 : 1
+                }}
+              >
+                <ChevronLeft size={16} />
+                <span>Anterior</span>
+              </button>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  background: currentPage === totalPages ? 'transparent' : 'var(--bg-card)',
+                  color: currentPage === totalPages ? 'var(--text-secondary)' : 'var(--text-primary)',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === totalPages ? 0.5 : 1
+                }}
+              >
+                <span>Siguiente</span>
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {viewMode === 'detailed' ? (
@@ -276,8 +337,8 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                       key={`${r.productName}-${r.snapshot_date}-${i}`} 
                       style={{ 
                         borderBottom: '1px solid var(--border-color)',
-                        background: r.isBasketAverage 
-                          ? 'rgba(16, 185, 129, 0.08)' 
+                        background: (r.isBasketAverage && !hideMainLine) 
+                          ? 'rgba(56, 189, 248, 0.08)' 
                           : r.isPinnedRow 
                           ? 'rgba(51, 65, 85, 0.3)' 
                           : 'transparent'
@@ -308,7 +369,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                               <Pin size={13} fill={isRowPinned ? (r.color || '#3b82f6') : 'none'} color={isRowPinned ? (r.color || '#3b82f6') : '#64748b'} />
                             </button>
                           )}
-                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: r.color, flexShrink: 0 }}></span>
+                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: (r.isBasketAverage && hideMainLine) ? '#64748b' : r.color, flexShrink: 0 }}></span>
                           {onSelectProductItem ? (
                             <button
                               onClick={() => onSelectProductItem(r.productId, r.categoryId)}
@@ -324,7 +385,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                       </td>
                       <td style={{ padding: '12px' }}>{r.price_from ? `$${r.price_from.toLocaleString()}` : '-'}</td>
                       <td style={{ padding: '12px' }}>{r.price_to ? `$${r.price_to.toLocaleString()}` : '-'}</td>
-                      <td style={{ padding: '12px', fontWeight: 600, color: '#10b981' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
+                      <td style={{ padding: '12px', fontWeight: 600, color: (r.isBasketAverage && hideMainLine) ? 'var(--text-primary)' : '#38bdf8' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
                       <td style={{ padding: '12px', fontWeight: 600, color: changeColor }}>{r.changeStr}</td>
                       <td style={{ padding: '12px' }}>{r.origin || '-'}</td>
                       <td style={{ padding: '12px' }}>{formatPresentation(r.presentation, r.quantity_raw)}</td>
@@ -336,7 +397,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           </div>
 
           {isAllProducts && totalPages > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', padding: '12px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
               <div>
                 Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
               </div>
@@ -384,27 +445,29 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           )}
         </>
       ) : (
-        /* HISTORICAL VIEW MATRIX: Columns = [Fecha, ActiveProduct, PinnedProduct1, PinnedProduct2...] */
+        /* HISTORICAL VIEW MATRIX: Columns = [Fecha, ActiveProduct (if !hideMainLine), PinnedProduct1, PinnedProduct2...] */
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
                 <th style={{ padding: '12px' }}>Fecha</th>
-                <th style={{ padding: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {onTogglePinItem && activePinnedId && (
-                      <button
-                        onClick={() => onTogglePinItem(selectedProduct, selectedCategory, activeProductName)}
-                        title="Fijar / desfijar este producto"
-                        style={{ background: 'none', border: 'none', padding: '2px 4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                      >
-                        <Pin size={13} fill={activePinnedObj ? activeColor : 'none'} color={activePinnedObj ? activeColor : '#64748b'} />
-                      </button>
-                    )}
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: activeColor, flexShrink: 0 }}></span>
-                    <span>{activeProductName}</span>
-                  </div>
-                </th>
+                {!hideMainLine && (
+                  <th style={{ padding: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {onTogglePinItem && activePinnedId && (
+                        <button
+                          onClick={() => onTogglePinItem(selectedProduct, selectedCategory, activeProductName)}
+                          title="Fijar / desfijar este producto"
+                          style={{ background: 'none', border: 'none', padding: '2px 4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        >
+                          <Pin size={13} fill={activePinnedObj ? activeColor : 'none'} color={activePinnedObj ? activeColor : '#64748b'} />
+                        </button>
+                      )}
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: activeColor, flexShrink: 0 }}></span>
+                      <span>{activeProductName}</span>
+                    </div>
+                  </th>
+                )}
                 {activePinnedProducts.map(p => (
                   <th key={p.pinnedId} style={{ padding: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -441,9 +504,11 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 return (
                   <tr key={date} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ padding: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>{date}</td>
-                    <td style={{ padding: '12px', fontWeight: 600, color: activeColor }}>
-                      {activeVal !== undefined && activeVal !== null ? `$${activeVal.toLocaleString()}` : '-'}
-                    </td>
+                    {!hideMainLine && (
+                      <td style={{ padding: '12px', fontWeight: 600, color: activeColor }}>
+                        {activeVal !== undefined && activeVal !== null ? `$${activeVal.toLocaleString()}` : '-'}
+                      </td>
+                    )}
                     {activePinnedProducts.map(p => {
                       const pMap = pinnedDateValueMaps.get(p.pinnedId);
                       const val = pMap?.get(date);
@@ -462,7 +527,8 @@ export const PriceTable: React.FC<PriceTableProps> = ({
       )}
       </div>
 
-      {/* Bottom Right Last Updated Indicator (Outside Table Container) */}
+      {/* Bottom Right Last Updated Indicator (Outside Table Container) - Comentado */}
+      {/*
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
         <div
           style={{
@@ -482,6 +548,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
         </div>
       </div>
+      */}
     </div>
   );
 };

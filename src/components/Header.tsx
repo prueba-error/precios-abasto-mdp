@@ -10,6 +10,7 @@ interface HeaderProps {
   categories: Category[];
   onSelectProductFromSearch: (product: Product) => void;
   onPinProductFromSearch?: (product: Product) => void;
+  onResetHome?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,7 +19,8 @@ export const Header: React.FC<HeaderProps> = ({
   allProducts,
   categories,
   onSelectProductFromSearch,
-  onPinProductFromSearch
+  onPinProductFromSearch,
+  onResetHome
 }) => {
   return (
     <header className="header-root">
@@ -26,7 +28,22 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Left Column: Title, Subtitle, Divider & Search Bar */}
         <div className="header-left-group">
           <div className="header-title-block">
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Abasto Central MDP</h1>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>
+              <a
+                href="/"
+                onClick={(e) => {
+                  if (onResetHome) {
+                    e.preventDefault();
+                    onResetHome();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
+                style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }}
+                title="Ir al inicio"
+              >
+                Abasto Central MDP
+              </a>
+            </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', fontWeight: 500 }}>Visualizador de Precios Mayoristas</p>
           </div>
 

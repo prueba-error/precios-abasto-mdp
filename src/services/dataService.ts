@@ -5,7 +5,7 @@ import { MOCK_CATEGORIES, MOCK_PRODUCTS, MOCK_PRICE_RECORDS } from '../data/mock
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const isUsingMock = import.meta.env.VITE_USE_MOCK_DATA === 'true' || !supabaseUrl || !supabaseAnonKey;
+export const isUsingMock = import.meta.env.VITE_USE_MOCK_DATA === 'true' || (!supabaseUrl || !supabaseAnonKey);
 
 const supabase = (supabaseUrl && supabaseAnonKey) 
   ? createClient(supabaseUrl, supabaseAnonKey) 
@@ -34,7 +34,7 @@ export function getBasketOptionForCategory(categoryId: number, categories: Categ
   const cat = categories.find(c => c.id === categoryId);
   const catName = cat ? cat.name : (categoryId === 1 ? 'Frutas' : categoryId === 2 ? 'Verduras' : categoryId === 3 ? 'Hortalizas' : categoryId === 4 ? 'Otros' : '');
   const name = categoryId === 0
-    ? 'Promedio Canasta (Todas las categorías)'
+    ? 'Promedio Canasta'
     : `Promedio ${catName}`;
   return { id: 0, original_id: `ALL_${categoryId}`, name, category_id: categoryId };
 }
@@ -52,54 +52,95 @@ export async function getCategories(): Promise<Category[]> {
   return [ALL_CATEGORIES_OPTION, ...data];
 }
 
+async function disambiguateProductNames(list: Product[]): Promise<Product[]> {
+  if (isUsingMock || !supabase || list.length === 0) return list;
+
+  const nameCounts = new Map<string, number>();
+  list.forEach(p => nameCounts.set(p.name, (nameCounts.get(p.name) || 0) + 1));
+  
+  const duplicateProdIds = list.filter(p => (nameCounts.get(p.name) || 0) > 1).map(p => p.id);
+  if (duplicateProdIds.length === 0) return list;
+
+  const { data: detailRecs } = await supabase
+    .from('price_records')
+    .select('product_id, presentation, quantity_raw')
+    .in('product_id', duplicateProdIds);
+
+  const detailMap = new Map<number, string>();
+  (detailRecs || []).forEach(r => {
+    if (!detailMap.has(r.product_id)) {
+      const label = r.quantity_raw || r.presentation;
+      if (label) {
+        detailMap.set(r.product_id, label);
+      }
+    }
+  });
+
+  return list.map(p => {
+    if ((nameCounts.get(p.name) || 0) > 1) {
+      const suffix = detailMap.get(p.id);
+      if (suffix) {
+        return { ...p, name: `${p.name} (${suffix})` };
+      }
+    }
+    return p;
+  });
+}
+
 export async function getProducts(categoryId: number, categories: Category[] = []): Promise<Product[]> {
   let list: Product[] = [];
+  const targetCat = categoryId <= -1 ? 0 : categoryId;
   if (isUsingMock || !supabase) {
-    if (categoryId === 0) {
+    if (targetCat === 0) {
       list = [...MOCK_PRODUCTS].sort((a, b) => a.name.localeCompare(b.name));
     } else {
-      list = MOCK_PRODUCTS.filter(p => p.category_id === categoryId).sort((a, b) => a.name.localeCompare(b.name));
+      list = MOCK_PRODUCTS.filter(p => p.category_id === targetCat).sort((a, b) => a.name.localeCompare(b.name));
     }
   } else {
     let query = supabase.from('products').select('*').order('name');
-    if (categoryId !== 0) {
-      query = query.eq('category_id', categoryId);
+    if (targetCat !== 0) {
+      query = query.eq('category_id', targetCat);
     }
     const { data, error } = await query;
     if (error || !data) {
-      list = categoryId === 0 ? MOCK_PRODUCTS : MOCK_PRODUCTS.filter(p => p.category_id === categoryId);
+      list = targetCat === 0 ? MOCK_PRODUCTS : MOCK_PRODUCTS.filter(p => p.category_id === targetCat);
     } else {
       list = data;
     }
   }
-  const basketOption = getBasketOptionForCategory(categoryId, categories);
+  list = await disambiguateProductNames(list);
+  const basketOption = getBasketOptionForCategory(targetCat, categories);
   return [basketOption, ...list];
 }
 
 export async function getPriceHistory(productId: number, categoryId: number): Promise<PriceRecord[]> {
-  if (productId === 0) {
-    return getAggregatedPriceHistory(categoryId);
+  const targetProd = productId <= -1 ? 0 : productId;
+  const targetCat = categoryId <= -1 ? 0 : categoryId;
+
+  if (targetProd === 0) {
+    return getAggregatedPriceHistory(targetCat);
   }
 
   if (isUsingMock || !supabase) {
     return MOCK_PRICE_RECORDS
-      .filter(r => r.product_id === productId)
+      .filter(r => r.product_id === targetProd)
       .sort((a, b) => a.snapshot_date.localeCompare(b.snapshot_date));
   }
   const { data, error } = await supabase
     .from('price_records')
     .select('*')
-    .eq('product_id', productId)
+    .eq('product_id', targetProd)
     .order('snapshot_date', { ascending: true });
-  if (error || !data) return MOCK_PRICE_RECORDS.filter(r => r.product_id === productId);
+  if (error || !data) return MOCK_PRICE_RECORDS.filter(r => r.product_id === targetProd);
   return data;
 }
 
 export async function getCategoryAllProductsRecords(categoryId: number): Promise<ExtendedPriceRecord[]> {
+  const targetCat = categoryId <= -1 ? 0 : categoryId;
   if (isUsingMock || !supabase) {
     let validProducts = MOCK_PRODUCTS;
-    if (categoryId !== 0) {
-      validProducts = MOCK_PRODUCTS.filter(p => p.category_id === categoryId);
+    if (targetCat !== 0) {
+      validProducts = MOCK_PRODUCTS.filter(p => p.category_id === targetCat);
     }
     const prodMap = new Map(validProducts.map(p => [p.id, p.name]));
     return MOCK_PRICE_RECORDS
@@ -107,12 +148,13 @@ export async function getCategoryAllProductsRecords(categoryId: number): Promise
       .map(r => ({ ...r, product_name: prodMap.get(r.product_id) }));
   }
 
-  let prodQuery = supabase.from('products').select('id, name');
-  if (categoryId !== 0) {
-    prodQuery = prodQuery.eq('category_id', categoryId);
+  let prodQuery = supabase.from('products').select('*');
+  if (targetCat !== 0) {
+    prodQuery = prodQuery.eq('category_id', targetCat);
   }
   const { data: prods } = await prodQuery;
-  const prodMap = new Map((prods || []).map(p => [p.id, p.name]));
+  const disambiguatedProds = await disambiguateProductNames((prods || []) as Product[]);
+  const prodMap = new Map(disambiguatedProds.map(p => [p.id, p.name]));
   const prodIds = Array.from(prodMap.keys());
 
   if (prodIds.length === 0) return [];

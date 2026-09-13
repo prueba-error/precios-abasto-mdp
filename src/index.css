@@ -350,14 +350,14 @@ body {
 .kpi-item-link {
   color: var(--text-primary);
   cursor: pointer;
-  transition: color 0.15s ease, text-decoration 0.15s ease;
+  transition: text-decoration 0.15s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .kpi-item-link:hover {
-  color: #38bdf8;
+  color: var(--text-primary);
   text-decoration: underline;
 }
 

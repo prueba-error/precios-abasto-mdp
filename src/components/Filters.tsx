@@ -11,6 +11,7 @@ interface FiltersProps {
   selectedProduct: number;
   pinnedProducts: PinnedProduct[];
   isCurrentPinned: boolean;
+  hoveredSeries?: string | null;
   onCategoryChange: (catId: number) => void;
   onProductChange: (prodId: number) => void;
   onTogglePin: () => void;
@@ -19,6 +20,7 @@ interface FiltersProps {
   onResetChart: () => void;
   onSelectProductFromSearch: (product: Product) => void;
   onPinProductFromSearch?: (product: Product) => void;
+  onHoverSeries?: (seriesName: string | null) => void;
 }
 
 export const Filters: React.FC<FiltersProps> = ({
@@ -29,6 +31,7 @@ export const Filters: React.FC<FiltersProps> = ({
   selectedProduct,
   pinnedProducts,
   isCurrentPinned,
+  hoveredSeries,
   onCategoryChange,
   onProductChange,
   onTogglePin,
@@ -36,7 +39,8 @@ export const Filters: React.FC<FiltersProps> = ({
   onClearPinned,
   onResetChart,
   onSelectProductFromSearch,
-  onPinProductFromSearch
+  onPinProductFromSearch,
+  onHoverSeries
 }) => {
   const [isPinHovered, setIsPinHovered] = React.useState(false);
   const [isPinPressed, setIsPinPressed] = React.useState(false);
@@ -197,33 +201,46 @@ export const Filters: React.FC<FiltersProps> = ({
       {pinnedProducts.length > 0 && (
         <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Fijados en gráfico:</span>
-          {pinnedProducts.map(p => (
-            <div
-              key={p.pinnedId}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 10px',
-                borderRadius: '16px',
-                background: 'var(--bg-card)',
-                border: `1px solid ${p.color}`,
-                color: 'var(--text-primary)',
-                fontSize: '0.75rem',
-                fontWeight: 500
-              }}
-            >
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.color }}></span>
-              <span>{p.productName}</span>
-              <button
-                onClick={() => onUnpinProduct(p.pinnedId)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
-                title="Desfijar"
+          {pinnedProducts.map(p => {
+            const isHovered = hoveredSeries === p.productName;
+            const isAnyHovered = !!hoveredSeries;
+            return (
+              <div
+                key={p.pinnedId}
+                onMouseEnter={() => onHoverSeries?.(p.productName)}
+                onMouseLeave={() => onHoverSeries?.(null)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 10px',
+                  borderRadius: '16px',
+                  background: isHovered ? 'rgba(255, 255, 255, 0.12)' : 'var(--bg-card)',
+                  border: isHovered ? `1px solid ${p.color}` : `1px solid ${p.color}`,
+                  boxShadow: isHovered ? `0 0 8px ${p.color}60` : 'none',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.75rem',
+                  fontWeight: isHovered ? 600 : 500,
+                  opacity: isAnyHovered ? (isHovered ? 1 : 0.4) : 1,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
               >
-                <X size={14} />
-              </button>
-            </div>
-          ))}
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.color }}></span>
+                <span>{p.productName}</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUnpinProduct(p.pinnedId);
+                  }}
+                  style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
+                  title="Desfijar"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            );
+          })}
           <button
             onClick={onClearPinned}
             style={{ background: 'none', border: 'none', color: '#f87171', fontSize: '0.75rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px' }}

@@ -12,6 +12,8 @@ interface PriceChartProps {
   pinnedProducts?: PinnedProduct[];
   pinnedHistories?: { [pinnedId: string]: PriceRecord[] };
   chartTitleOverride?: string | null;
+  hoveredSeries?: string | null;
+  onHoverSeries?: (seriesName: string | null) => void;
 }
 
 interface SingleSeriesTooltipProps {
@@ -64,9 +66,20 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   categoryName,
   pinnedProducts = [],
   pinnedHistories = {},
-  chartTitleOverride
+  chartTitleOverride,
+  hoveredSeries: hoveredSeriesProp,
+  onHoverSeries
 }) => {
-  const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
+  const [internalHoveredSeries, setInternalHoveredSeries] = useState<string | null>(null);
+
+  const hoveredSeries = hoveredSeriesProp !== undefined ? hoveredSeriesProp : internalHoveredSeries;
+
+  const setHoveredSeries = (name: string | null) => {
+    if (onHoverSeries) {
+      onHoverSeries(name);
+    }
+    setInternalHoveredSeries(name);
+  };
 
   // Hide main average line (e.g. "Promedio Canasta") when activeProductId is 0 or -1 (all products/basket/list view) and there are pinned products to show
   const hideMainLine = (activeProductId <= 0 && pinnedProducts.length > 0);

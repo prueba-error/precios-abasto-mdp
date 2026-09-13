@@ -27,6 +27,8 @@ export function App() {
   const [pinnedProducts, setPinnedProducts] = useState<PinnedProduct[]>([]);
   const [pinnedHistories, setPinnedHistories] = useState<{ [pinnedId: string]: PriceRecord[] }>({});
 
+  const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
+
   useEffect(() => {
     getCategories().then(cats => {
       setCategories(cats);
@@ -279,6 +281,8 @@ export function App() {
           selectedProduct={selectedProduct}
           pinnedProducts={pinnedProducts}
           isCurrentPinned={isCurrentPinned}
+          hoveredSeries={hoveredSeries}
+          onHoverSeries={setHoveredSeries}
           onCategoryChange={(catId) => { 
             setSelectedCategory(catId); 
             if (catId === -1) {
@@ -319,6 +323,8 @@ export function App() {
               pinnedProducts={pinnedProducts}
               pinnedHistories={pinnedHistories}
               chartTitleOverride={chartTitleOverride}
+              hoveredSeries={hoveredSeries}
+              onHoverSeries={setHoveredSeries}
             />
 
             {/* 2. Componente Insights Producto (Ubicado a continuación del gráfico) */}

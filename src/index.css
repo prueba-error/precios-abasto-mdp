@@ -341,13 +341,19 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 75%;
+  max-width: 78%;
   flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
 }
 
 .kpi-item-link {
+  color: var(--text-primary);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color 0.15s ease, text-decoration 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kpi-item-link:hover {

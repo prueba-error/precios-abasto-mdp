@@ -202,16 +202,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     <div style={{ marginBottom: '0px' }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
       <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
-          {latestDate && viewMode === 'detailed' && (
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              — Semana del {latestDate}
-            </span>
-          )}
-        </div>
-
-        {/* View Mode Toggle Switch (Aligned Left) */}
+        {/* View Mode Toggle Switch (Far Left) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
           <button
             onClick={() => setViewMode('detailed')}
@@ -255,6 +246,16 @@ export const PriceTable: React.FC<PriceTableProps> = ({
             <Calendar size={14} />
             <span>Histórico</span>
           </button>
+        </div>
+
+        {/* Title & Date (Right of toggle switch) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
+          {latestDate && viewMode === 'detailed' && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              — Semana del {latestDate}
+            </span>
+          )}
         </div>
       </div>
 

@@ -68,7 +68,7 @@ export const Filters: React.FC<FiltersProps> = ({
     if (isPinHovered) {
       return { background: '#1e3a8a', border: '1px solid #60a5fa', color: '#93c5fd', transform: 'none' };
     }
-    return { background: '#1e293b', border: '1px solid #3b82f6', color: '#60a5fa', transform: 'none' };
+    return { background: 'var(--bg-card)', border: '1px solid #3b82f6', color: '#60a5fa', transform: 'none' };
   };
 
   // Compute Restablecer button styles dynamically based on state
@@ -79,7 +79,7 @@ export const Filters: React.FC<FiltersProps> = ({
     if (isResetHovered) {
       return { background: '#7f1d1d', border: '1px solid #f87171', color: '#fca5a5', transform: 'none' };
     }
-    return { background: '#1e293b', border: '1px solid #ef4444', color: '#f87171', transform: 'none' };
+    return { background: 'var(--bg-card)', border: '1px solid #ef4444', color: '#f87171', transform: 'none' };
   };
 
   const pinStyle = getPinStyle();

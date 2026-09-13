@@ -1,5 +1,7 @@
-:root {
+:root,
+[data-theme="dark"] {
   --bg-main: #0f172a;
+  --bg-header-sub: #0f172a;
   --bg-card: #1e293b;
   --bg-card-hover: #334155;
   --border-color: #334155;
@@ -10,6 +12,24 @@
   --accent-blue: #3b82f6;
   --danger: #ef4444;
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --grid-line: #334155;
+  --icon-watermark: rgba(148, 163, 184, 0.20);
+}
+
+[data-theme="light"] {
+  --bg-main: #f1f5f9;
+  --bg-header-sub: #e2e8f0;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --border-color: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent-primary: #059669;
+  --accent-hover: #047857;
+  --accent-blue: #2563eb;
+  --danger: #dc2626;
+  --grid-line: #e2e8f0;
+  --icon-watermark: rgba(71, 85, 105, 0.22);
 }
 
 * {
@@ -17,7 +37,7 @@
   margin: 0;
   padding: 0;
   scrollbar-width: thin;
-  scrollbar-color: #334155 #0f172a;
+  scrollbar-color: var(--border-color) var(--bg-main);
 }
 
 /* Custom Scrollbar styling for WebKit browsers (Chrome, Edge, Safari) */
@@ -27,18 +47,18 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: var(--bg-main);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--border-color);
   border-radius: 4px;
-  border: 1px solid #1e293b;
+  border: 1px solid var(--bg-card);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--text-secondary);
 }
 
 body {
@@ -448,7 +468,7 @@ body {
 }
 
 .view-in-chart-link {
-  background: rgba(15, 23, 42, 0.4);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   color: var(--accent-primary);
   font-size: 0.8125rem;

@@ -201,7 +201,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   return (
     <div style={{ marginBottom: '0px' }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-      <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ padding: '12px 16px', background: 'var(--bg-header-sub)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           {/* View Mode Toggle Switch (Far Left) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
@@ -315,7 +315,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           <div style={{ overflowX: 'auto', width: '100%' }}>
             <table style={{ width: '100%', minWidth: '720px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-header-sub)' }}>
                   <th style={{ padding: '12px' }}>Producto</th>
                   <th style={{ padding: '12px' }}>Desde</th>
                   <th style={{ padding: '12px' }}>Hasta</th>
@@ -340,7 +340,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                         background: (r.isBasketAverage && !hideMainLine) 
                           ? 'rgba(56, 189, 248, 0.08)' 
                           : r.isPinnedRow 
-                          ? 'rgba(51, 65, 85, 0.3)' 
+                          ? 'var(--bg-card-hover)' 
                           : 'transparent'
                       }}
                     >
@@ -397,7 +397,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           </div>
 
           {isAllProducts && totalPages > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', padding: '12px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', padding: '12px 16px', background: 'var(--bg-header-sub)', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
               <div>
                 Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
               </div>
@@ -449,7 +449,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', background: '#0f172a' }}>
+              <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-header-sub)' }}>
                 <th style={{ padding: '12px' }}>Fecha</th>
                 {!hideMainLine && (
                   <th style={{ padding: '12px' }}>

@@ -14,6 +14,20 @@ import { computeMarketInsights, computeProductInsights } from './utils/insightsU
 const COLOR_PALETTE = ['#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#eab308'];
 
 export function App() {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('theme');
+    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [allProductsList, setAllProductsList] = useState<Product[]>([]);
@@ -274,6 +288,8 @@ export function App() {
         onSelectProductFromSearch={handleSelectProductFromSearch}
         onPinProductFromSearch={handlePinProductFromSearch}
         onResetHome={handleResetChart}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
       <div className="container">
         {/* 1. Componente Insights Generales (Ubicado antes de los filtros) */}

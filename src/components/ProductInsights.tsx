@@ -94,7 +94,7 @@ export const ProductInsights: React.FC<ProductInsightsProps> = ({ selectedProduc
           </div>
 
           <div className="contextual-item">
-            <Ruler size={15} color="#94a3b8" style={{ flexShrink: 0 }} />
+            <Ruler size={15} color="var(--text-secondary)" style={{ flexShrink: 0 }} />
             <span>
               {data.relationToMaxPercent !== null
                 ? `A ${data.relationToMaxPercent}% del máximo histórico ($${(data.maxPrice || 0).toLocaleString('es-AR')})`

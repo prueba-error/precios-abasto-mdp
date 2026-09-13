@@ -159,7 +159,7 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
               width: '100%',
               padding: '9px 36px 9px 36px',
               borderRadius: '6px',
-              background: '#0f172a',
+              background: 'var(--bg-header-sub)',
               color: 'var(--text-primary)',
               border: hasNoMatches ? '1px solid #f87171' : '1px solid var(--border-color)',
               fontSize: '0.875rem',
@@ -199,7 +199,7 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 zIndex: 100,
-                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)'
               }}
             >
               {filteredProducts.map((p, idx) => {
@@ -216,15 +216,15 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      borderBottom: '1px solid rgba(255,255,255,0.05)',
-                      background: isHighlighted ? '#334155' : 'transparent',
+                      borderBottom: '1px solid var(--border-color)',
+                      background: isHighlighted ? 'var(--bg-card-hover)' : 'transparent',
                       transition: 'background 0.15s'
                     }}
                     onMouseEnter={() => setSelectedIndex(idx)}
                   >
                     <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{p.name}</span>
                     {catName && (
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', background: '#0f172a', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-header-sub)', padding: '2px 8px', borderRadius: '4px' }}>
                         {catName}
                       </span>
                     )}

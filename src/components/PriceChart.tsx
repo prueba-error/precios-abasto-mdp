@@ -46,19 +46,19 @@ const SingleSeriesTooltip: React.FC<SingleSeriesTooltipProps> = ({ active, paylo
   return (
     <div 
       style={{
-        backgroundColor: '#1e293b',
-        borderColor: '#334155',
+        backgroundColor: 'var(--bg-card)',
+        borderColor: 'var(--border-color)',
         borderWidth: '1px',
         borderStyle: 'solid',
         borderRadius: '6px',
         padding: '8px 12px',
-        color: '#f8fafc',
+        color: 'var(--text-primary)',
         fontSize: '0.8125rem',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
         pointerEvents: 'none'
       }}
     >
-      <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginBottom: '4px' }}>{formattedLabel}</div>
+      <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginBottom: '4px' }}>{formattedLabel}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
         <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: targetItem.color, display: 'inline-block' }} />
         <span>{targetItem.name}:</span>
@@ -239,14 +239,14 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       <div style={{ width: '100%', height: 380 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} onMouseLeave={() => setHoveredSeries(null)}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-line)" />
             <XAxis 
               dataKey="timestamp" 
               type="number"
               scale="time"
               domain={['dataMin', 'dataMax']}
               ticks={sortedTimestamps}
-              stroke="#94a3b8" 
+              stroke="var(--text-secondary)" 
               tick={{ fontSize: 11 }} 
               tickMargin={8} 
               tickFormatter={(ts: number) => {
@@ -257,7 +257,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                 return `${y}-${m}-${day}`;
               }}
             />
-            <YAxis stroke="#94a3b8" unit="$" tick={{ fontSize: 11 }} tickMargin={8} />
+            <YAxis stroke="var(--text-secondary)" unit="$" tick={{ fontSize: 11 }} tickMargin={8} />
             <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} isAnimationActive={false} />
             {/* Legend with product names and colors below chart hidden */}
             {!hideMainLine && (

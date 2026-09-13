@@ -14,13 +14,13 @@
   --danger: #ef4444;
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
   --grid-line: #334155;
-  --icon-watermark: rgba(148, 163, 184, 0.20);
+  --icon-watermark: rgba(167, 243, 208, 0.32);
   --btn-pin-bg: #229966;
   --btn-pin-hover: #1b8054;
   --btn-reset-bg: #d97736;
   --btn-reset-hover: #c46218;
-  --kpi-card-bg: rgba(18, 55, 48, 0.82);
-  --kpi-card-border: rgba(29, 79, 68, 0.90);
+  --kpi-card-bg: rgba(16, 52, 45, 0.52);
+  --kpi-card-border: rgba(34, 100, 85, 0.70);
   --pill-border: rgba(240, 253, 244, 0.25);
 }
 
@@ -38,13 +38,13 @@
   --accent-blue: #0284c7;
   --danger: #dc2626;
   --grid-line: #c3dac9;
-  --icon-watermark: rgba(22, 163, 74, 0.15);
+  --icon-watermark: rgba(22, 163, 74, 0.28);
   --btn-pin-bg: #43a047;
   --btn-pin-hover: #388e3c;
   --btn-reset-bg: #f59e0b;
   --btn-reset-hover: #d97706;
-  --kpi-card-bg: rgba(254, 239, 222, 0.85);
-  --kpi-card-border: rgba(240, 212, 192, 0.90);
+  --kpi-card-bg: rgba(254, 235, 215, 0.58);
+  --kpi-card-border: rgba(230, 195, 170, 0.80);
   --pill-border: #c3dac9;
 }
 
@@ -251,8 +251,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 /* 1. Header KPI Grid */

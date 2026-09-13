@@ -876,12 +876,12 @@ body {
 
 .theme-switch__track {
   position: relative;
-  width: 42px;
-  height: 22px;
+  width: 46px;
+  height: 24px;
   border-radius: 999px;
   background: var(--kpi-card-bg);
   border: 1px solid var(--kpi-card-border);
-  padding: 2px 3px;
+  padding: 3px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -897,8 +897,8 @@ body {
 }
 
 .theme-switch__icon {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -933,9 +933,9 @@ body {
 .theme-switch__thumb {
   position: absolute;
   top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #ffffff !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -945,5 +945,5 @@ body {
 }
 
 .theme-switch[aria-checked="true"] .theme-switch__thumb {
-  transform: translateX(20px);
+  transform: translateX(22px);
 }

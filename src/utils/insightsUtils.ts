@@ -12,6 +12,7 @@ export interface StreakItem {
   product_name: string;
   type: 'up' | 'down';
   weeks: number;
+  cumPercent?: number;
 }
 
 export interface BannerProductItem {
@@ -168,19 +169,35 @@ export function computeMarketInsights(
         }
       }
       if (streakUp >= 2) {
-        rachasActivas.push({ product_id: p.id, product_name: p.name, type: 'up', weeks: streakUp + 1 });
+        const weeks = streakUp + 1;
+        const latestPrice = pRecs[0].price_avg!;
+        const startPrice = pRecs[streakUp].price_avg!;
+        const cumPercent = startPrice > 0 ? Math.round(Math.abs(((latestPrice - startPrice) / startPrice) * 100) * 10) / 10 : 0;
+        rachasActivas.push({ product_id: p.id, product_name: p.name, type: 'up', weeks, cumPercent });
       } else if (streakDown >= 2) {
-        rachasActivas.push({ product_id: p.id, product_name: p.name, type: 'down', weeks: streakDown + 1 });
+        const weeks = streakDown + 1;
+        const latestPrice = pRecs[0].price_avg!;
+        const startPrice = pRecs[streakDown].price_avg!;
+        const cumPercent = startPrice > 0 ? Math.round(Math.abs(((latestPrice - startPrice) / startPrice) * 100) * 10) / 10 : 0;
+        rachasActivas.push({ product_id: p.id, product_name: p.name, type: 'down', weeks, cumPercent });
       }
     }
   });
 
+  // Sort streaks: 1st by weeks descending, 2nd by cumulative percentage change magnitude descending
+  rachasActivas.sort((a, b) => {
+    if (b.weeks !== a.weeks) {
+      return b.weeks - a.weeks;
+    }
+    return (b.cumPercent || 0) - (a.cumPercent || 0);
+  });
+
   const finalRachas = rachasActivas.length > 0 ? rachasActivas.slice(0, 5) : [
-    { product_id: 101, product_name: 'Mandarina Okitsu', type: 'up' as const, weeks: 4 },
-    { product_id: 201, product_name: 'Acelga', type: 'down' as const, weeks: 3 },
-    { product_id: 102, product_name: 'Mango', type: 'up' as const, weeks: 3 },
-    { product_id: 202, product_name: 'Lechuga Capuchina', type: 'down' as const, weeks: 2 },
-    { product_id: 103, product_name: 'Manzana Deliciosa', type: 'up' as const, weeks: 2 }
+    { product_id: 101, product_name: 'Mandarina Okitsu', type: 'up' as const, weeks: 4, cumPercent: 24.5 },
+    { product_id: 201, product_name: 'Acelga', type: 'down' as const, weeks: 3, cumPercent: 18.2 },
+    { product_id: 102, product_name: 'Mango', type: 'up' as const, weeks: 3, cumPercent: 15.0 },
+    { product_id: 202, product_name: 'Lechuga Capuchina', type: 'down' as const, weeks: 2, cumPercent: 12.8 },
+    { product_id: 103, product_name: 'Manzana Deliciosa', type: 'up' as const, weeks: 2, cumPercent: 9.4 }
   ];
 
   // Banners bounds calculation

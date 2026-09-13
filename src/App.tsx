@@ -259,6 +259,7 @@ export function App() {
         categories={categories}
         onSelectProductFromSearch={handleSelectProductFromSearch}
         onPinProductFromSearch={handlePinProductFromSearch}
+        onResetHome={handleResetChart}
       />
       <div className="container">
         {/* 1. Componente Insights Generales (Ubicado antes de los filtros) */}

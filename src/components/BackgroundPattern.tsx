@@ -1,93 +1,96 @@
 import React from 'react';
-import { Broccoli, Apple, Banana, Carrot, ChartColumn } from 'lucide-react';
+import { Broccoli, Apple, Banana, Carrot, ChartColumn, LucideIcon } from 'lucide-react';
+
+interface PatternItem {
+  Icon: LucideIcon;
+  left: string;
+  rotation: number;
+  animClass: string;
+  delay: string;
+}
 
 export const BackgroundPattern: React.FC = () => {
-  // Pattern definition:
-  // Row 0: Broccoli (left), Apple (right)
-  // Row 1: ChartColumn (mid-left), ChartColumn (mid-right)
-  // Row 2: Banana (left), Carrot (right)
-  // Row 3: ChartColumn (mid-left), ChartColumn (mid-right)
+  const iconColor = 'rgba(148, 163, 184, 0.18)'; // Subtle watermark slate color
+  const iconSize = 22;
 
-  const iconColor = 'rgba(71, 85, 105, 0.35)'; // Slightly lighter slate than background #0f172a
-  const iconSize = 20;
+  // Staggered pattern definition following user sequence:
+  // Row 1: Broccoli (left), Apple (right)
+  // Row 2: ChartColumn (mid-left), ChartColumn (mid-right)
+  // Row 3: Banana (left), Carrot (right)
+  // Row 4: ChartColumn (mid-left), ChartColumn (mid-right)
+  const patternUnit: PatternItem[] = [
+    // Row 1
+    { Icon: Broccoli, left: '5%', rotation: -12, animClass: 'bg-float-1', delay: '0s' },
+    { Icon: Apple, left: '88%', rotation: 15, animClass: 'bg-float-2', delay: '1.5s' },
 
-  const rows = [
-    { type: 'outer', left: Broccoli, right: Apple },
-    { type: 'inner', left: ChartColumn, right: ChartColumn },
-    { type: 'outer', left: Banana, right: Carrot },
-    { type: 'inner', left: ChartColumn, right: ChartColumn },
+    // Row 2
+    { Icon: ChartColumn, left: '26%', rotation: 8, animClass: 'bg-float-1', delay: '2.8s' },
+    { Icon: ChartColumn, left: '68%', rotation: -10, animClass: 'bg-float-2', delay: '0.8s' },
+
+    // Row 3
+    { Icon: Banana, left: '8%', rotation: 18, animClass: 'bg-float-2', delay: '3.5s' },
+    { Icon: Carrot, left: '84%', rotation: -14, animClass: 'bg-float-1', delay: '2.0s' },
+
+    // Row 4
+    { Icon: ChartColumn, left: '32%', rotation: -6, animClass: 'bg-float-2', delay: '1.0s' },
+    { Icon: ChartColumn, left: '62%', rotation: 12, animClass: 'bg-float-1', delay: '4.2s' },
   ];
 
-  // Repeat the 4-row block to fill the screen height
-  const repeatedRows = Array.from({ length: 14 }).flatMap((_, blockIndex) =>
-    rows.map((row, rowIndex) => ({
-      ...row,
-      id: `bg-row-${blockIndex}-${rowIndex}`,
-      index: blockIndex * 4 + rowIndex
-    }))
-  );
+  const rowTopOffsets = ['5%', '28%', '53%', '78%'];
+  const blockCount = 5;
 
   return (
     <div
+      aria-hidden="true"
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
+        width: '100vw',
+        height: '100vh',
         pointerEvents: 'none',
-        zIndex: 0,
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        padding: '16px 0'
+        zIndex: -1, // Ensures icons sit strictly behind page background and content
+        overflow: 'hidden'
       }}
-      aria-hidden="true"
     >
-      {repeatedRows.map((item) => {
-        const LeftIcon = item.left;
-        const RightIcon = item.right;
-        const isInner = item.type === 'inner';
-        const delayLeft = `${(item.index * 0.7) % 6}s`;
-        const delayRight = `${((item.index * 0.7) + 3) % 6}s`;
+      {Array.from({ length: blockCount }).map((_, blockIndex) => {
+        const blockTopPercent = (blockIndex * 100) / blockCount;
 
         return (
           <div
-            key={item.id}
+            key={`block-${blockIndex}`}
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              position: 'absolute',
+              top: `${blockTopPercent}%`,
+              left: 0,
               width: '100%',
-              paddingLeft: isInner ? '36%' : '8%',
-              paddingRight: isInner ? '36%' : '8%'
+              height: `${100 / blockCount}%`
             }}
           >
-            <div
-              className="bg-floating-icon"
-              style={{
-                animationDelay: delayLeft,
-                color: iconColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <LeftIcon size={iconSize} color="currentColor" />
-            </div>
-            <div
-              className="bg-floating-icon"
-              style={{
-                animationDelay: delayRight,
-                color: iconColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <RightIcon size={iconSize} color="currentColor" />
-            </div>
+            {patternUnit.map((item, itemIndex) => {
+              const IconComponent = item.Icon;
+              const rowIndex = Math.floor(itemIndex / 2);
+              const topOffset = rowTopOffsets[rowIndex];
+
+              return (
+                <div
+                  key={`icon-${blockIndex}-${itemIndex}`}
+                  className={item.animClass}
+                  style={{
+                    position: 'absolute',
+                    top: topOffset,
+                    left: item.left,
+                    animationDelay: item.delay,
+                    color: iconColor,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <IconComponent size={iconSize} color="currentColor" />
+                </div>
+              );
+            })}
           </div>
         );
       })}

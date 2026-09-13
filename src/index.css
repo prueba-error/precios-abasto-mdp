@@ -604,21 +604,38 @@ body {
 }
 
 /* Background floating icons animation */
-@keyframes bgIconFloat {
+@keyframes bgFloat1 {
   0% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translateY(0px) rotate(-10deg);
   }
   50% {
-    transform: translateY(-6px) rotate(4deg);
+    transform: translateY(-8px) rotate(-4deg);
   }
   100% {
-    transform: translateY(4px) rotate(-3deg);
+    transform: translateY(6px) rotate(-14deg);
   }
 }
 
-.bg-floating-icon {
-  animation: bgIconFloat 6s ease-in-out infinite alternate;
-  will-change: transform;
-  transition: color 0.3s ease;
+@keyframes bgFloat2 {
+  0% {
+    transform: translateY(0px) rotate(12deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(18deg);
+  }
+  100% {
+    transform: translateY(5px) rotate(6deg);
+  }
 }
+
+.bg-float-1 {
+  animation: bgFloat1 7s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.bg-float-2 {
+  animation: bgFloat2 8.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
 

@@ -1,7 +1,8 @@
-import { Broccoli, Carrot, Banana, Apple, ChartColumn, Database, Sun, Moon } from 'lucide-react';
+import { Broccoli, Carrot, Banana, Apple, ChartColumn, Database } from 'lucide-react';
 import React from 'react';
 import { Product, Category } from '../types';
 import { ProductSearch } from './ProductSearch';
+import { ThemeToggle } from './ThemeToggle';
 
 interface HeaderProps {
   isMock: boolean;
@@ -76,36 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
             {onToggleTheme && (
-              <button
-                onClick={onToggleTheme}
-                title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-                style={{
-                  background: 'var(--bg-header-sub)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '9999px',
-                  padding: '4px 8px',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  color: 'var(--text-primary)',
-                  fontSize: '0.6875rem',
-                  fontWeight: 500,
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {theme === 'dark' ? (
-                  <>
-                    <Sun size={12} color="#f59e0b" />
-                    <span>Claro</span>
-                  </>
-                ) : (
-                  <>
-                    <Moon size={12} color="#3b82f6" />
-                    <span>Oscuro</span>
-                  </>
-                )}
-              </button>
+              <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
             )}
 
             <div

@@ -877,7 +877,7 @@ body {
 .theme-switch__track {
   position: relative;
   width: 46px;
-  height: 24px;
+  height: 25px;
   border-radius: 999px;
   background: var(--kpi-card-bg);
   border: 1px solid var(--kpi-card-border);
@@ -932,10 +932,10 @@ body {
 
 .theme-switch__thumb {
   position: absolute;
-  top: 2px;
+  top: 3px;
   left: 3px;
-  width: 18px;
-  height: 18px;
+  width: 19px;
+  height: 19px;
   border-radius: 50%;
   background: #ffffff !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -945,5 +945,5 @@ body {
 }
 
 .theme-switch[aria-checked="true"] .theme-switch__thumb {
-  transform: translateX(22px);
+  transform: translateX(21px);
 }

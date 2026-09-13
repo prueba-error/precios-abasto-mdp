@@ -216,14 +216,14 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 fontSize: '0.75rem',
                 borderRadius: '4px',
                 border: 'none',
-                background: viewMode === 'detailed' ? '#15803d' : 'transparent',
-                color: viewMode === 'detailed' ? '#dcfce7' : 'var(--text-secondary)',
+                background: viewMode === 'detailed' ? '#16a34a' : 'transparent',
+                color: viewMode === 'detailed' ? '#ffffff' : 'var(--text-secondary)',
                 fontWeight: viewMode === 'detailed' ? 600 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}
             >
-              <Table size={14} color={viewMode === 'detailed' ? '#dcfce7' : 'var(--text-secondary)'} />
+              <Table size={14} color={viewMode === 'detailed' ? '#ffffff' : 'var(--text-secondary)'} />
               <span>Detalle</span>
             </button>
             <button
@@ -237,14 +237,14 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 fontSize: '0.75rem',
                 borderRadius: '4px',
                 border: 'none',
-                background: viewMode === 'historical' ? '#15803d' : 'transparent',
-                color: viewMode === 'historical' ? '#dcfce7' : 'var(--text-secondary)',
+                background: viewMode === 'historical' ? '#16a34a' : 'transparent',
+                color: viewMode === 'historical' ? '#ffffff' : 'var(--text-secondary)',
                 fontWeight: viewMode === 'historical' ? 600 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}
             >
-              <Calendar size={14} color={viewMode === 'historical' ? '#dcfce7' : 'var(--text-secondary)'} />
+              <Calendar size={14} color={viewMode === 'historical' ? '#ffffff' : 'var(--text-secondary)'} />
               <span>Histórico</span>
             </button>
           </div>

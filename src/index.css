@@ -288,6 +288,39 @@ body {
   margin-bottom: 6px;
 }
 
+.kpi-header-clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s ease;
+  width: 100%;
+}
+
+.kpi-header-clickable:hover {
+  opacity: 0.85;
+}
+
+.kpi-header-chart-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-left: auto;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.kpi-header-clickable:hover .kpi-header-chart-btn,
+.kpi-header-chart-btn:hover {
+  opacity: 1;
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
 .kpi-list {
   display: flex;
   flex-direction: column;

@@ -168,30 +168,50 @@ export function App() {
     return computeProductInsights(activeProduct, records, null);
   }, [activeProduct, records]);
 
-  const handleViewInsightsInChart = () => {
-    const highlightItems = [...marketInsightsData.topSubas, ...marketInsightsData.topBajas];
+  const handleViewSectionInChart = (section: 'subas' | 'bajas' | 'rachas' | 'all') => {
+    let highlightItems: Array<{ product_id?: number; product_name: string }> = [];
+    if (section === 'subas') {
+      highlightItems = marketInsightsData.topSubas;
+    } else if (section === 'bajas') {
+      highlightItems = marketInsightsData.topBajas;
+    } else if (section === 'rachas') {
+      highlightItems = marketInsightsData.rachasActivas;
+    } else {
+      highlightItems = [
+        ...marketInsightsData.topSubas,
+        ...marketInsightsData.topBajas,
+        ...marketInsightsData.rachasActivas
+      ];
+    }
+
+    const newPinnedProducts: PinnedProduct[] = [];
     highlightItems.forEach(item => {
       const prod = allProductsList.find(p => p.id === item.product_id || p.name === item.product_name);
       if (prod) {
         const targetPinnedId = `cat_${prod.category_id}_prod_${prod.id}`;
-        if (!pinnedProducts.some(p => p.pinnedId === targetPinnedId)) {
-          const colorIndex = pinnedProducts.length % COLOR_PALETTE.length;
-          const newPinned: PinnedProduct = {
+        if (!newPinnedProducts.some(p => p.pinnedId === targetPinnedId)) {
+          const colorIndex = newPinnedProducts.length % COLOR_PALETTE.length;
+          newPinnedProducts.push({
             pinnedId: targetPinnedId,
             productId: prod.id,
             categoryId: prod.category_id,
             productName: prod.name,
             color: COLOR_PALETTE[colorIndex]
-          };
-          setPinnedProducts(prev => [...prev, newPinned]);
+          });
         }
       }
     });
+
+    setPinnedProducts(newPinnedProducts);
 
     const chartElem = document.querySelector('.price-chart-card') || document.querySelector('.recharts-responsive-container');
     if (chartElem) {
       chartElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+  };
+
+  const handleViewInsightsInChart = () => {
+    handleViewSectionInChart('all');
   };
 
   return (
@@ -206,7 +226,11 @@ export function App() {
       />
       <div className="container">
         {/* 1. Componente Insights Generales (Ubicado antes de los filtros) */}
-        <MarketInsights data={marketInsightsData} onViewInChart={handleViewInsightsInChart} />
+        <MarketInsights 
+          data={marketInsightsData} 
+          onViewInChart={handleViewInsightsInChart} 
+          onViewSectionInChart={(sec) => handleViewSectionInChart(sec)}
+        />
 
         <Filters 
           categories={categories}

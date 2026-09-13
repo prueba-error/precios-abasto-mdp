@@ -5,9 +5,10 @@ import { MarketInsightsData } from '../utils/insightsUtils';
 interface MarketInsightsProps {
   data: MarketInsightsData;
   onViewInChart?: () => void;
+  onViewSectionInChart?: (section: 'subas' | 'bajas' | 'rachas') => void;
 }
 
-export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInChart }) => {
+export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInChart, onViewSectionInChart }) => {
   const isIndexPositive = data.indexChangePercent >= 0;
 
   const nearMinText = data.nearMinProducts
@@ -58,9 +59,22 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
         {/* Contenedor 2 (Fondo invisible): Columna 3 (Top Subas) + Columna 4 (Top Bajas) */}
         <div className="kpi-subcontainer kpi-group-col3-4">
           <div className="kpi-card-transparent">
-            <div className="kpi-header-with-icon" style={{ color: '#f87171' }}>
+            <div 
+              className="kpi-header-with-icon kpi-header-clickable" 
+              style={{ color: '#f87171' }}
+              onClick={() => onViewSectionInChart && onViewSectionInChart('subas')}
+              title="Ver solo Top subas en el gráfico"
+            >
               <ArrowUpRight size={16} />
               <span className="kpi-label-bold">Top subas</span>
+              <button 
+                type="button" 
+                className="kpi-header-chart-btn" 
+                onClick={(e) => { e.stopPropagation(); onViewSectionInChart && onViewSectionInChart('subas'); }}
+                title="Ver Top subas en el gráfico"
+              >
+                <LineChart size={13} />
+              </button>
             </div>
             <div className="kpi-list">
               {data.topSubas.map((item, idx) => (
@@ -75,9 +89,22 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
           </div>
 
           <div className="kpi-card-transparent">
-            <div className="kpi-header-with-icon" style={{ color: '#34d399' }}>
+            <div 
+              className="kpi-header-with-icon kpi-header-clickable" 
+              style={{ color: '#34d399' }}
+              onClick={() => onViewSectionInChart && onViewSectionInChart('bajas')}
+              title="Ver solo Top bajas en el gráfico"
+            >
               <ArrowDownRight size={16} />
               <span className="kpi-label-bold">Top bajas</span>
+              <button 
+                type="button" 
+                className="kpi-header-chart-btn" 
+                onClick={(e) => { e.stopPropagation(); onViewSectionInChart && onViewSectionInChart('bajas'); }}
+                title="Ver Top bajas en el gráfico"
+              >
+                <LineChart size={13} />
+              </button>
             </div>
             <div className="kpi-list">
               {data.topBajas.map((item, idx) => (
@@ -95,9 +122,22 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
         {/* Contenedor 3 (Fondo invisible independiente): Columna 5 (Rachas Activas) */}
         <div className="kpi-subcontainer kpi-group-col5">
           <div className="kpi-card-transparent">
-            <div className="kpi-header-with-icon" style={{ color: '#fb923c' }}>
+            <div 
+              className="kpi-header-with-icon kpi-header-clickable" 
+              style={{ color: '#fb923c' }}
+              onClick={() => onViewSectionInChart && onViewSectionInChart('rachas')}
+              title="Ver solo Rachas activas en el gráfico"
+            >
               <Flame size={16} />
               <span className="kpi-label-bold">Rachas activas</span>
+              <button 
+                type="button" 
+                className="kpi-header-chart-btn" 
+                onClick={(e) => { e.stopPropagation(); onViewSectionInChart && onViewSectionInChart('rachas'); }}
+                title="Ver Rachas activas en el gráfico"
+              >
+                <LineChart size={13} />
+              </button>
             </div>
             <div className="kpi-list">
               {data.rachasActivas.map((item, idx) => (

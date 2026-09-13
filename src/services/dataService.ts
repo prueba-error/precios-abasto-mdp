@@ -54,29 +54,33 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getProducts(categoryId: number, categories: Category[] = []): Promise<Product[]> {
   let list: Product[] = [];
+  const targetCat = categoryId <= -1 ? 0 : categoryId;
   if (isUsingMock || !supabase) {
-    if (categoryId === 0) {
+    if (targetCat === 0) {
       list = [...MOCK_PRODUCTS].sort((a, b) => a.name.localeCompare(b.name));
     } else {
-      list = MOCK_PRODUCTS.filter(p => p.category_id === categoryId).sort((a, b) => a.name.localeCompare(b.name));
+      list = MOCK_PRODUCTS.filter(p => p.category_id === targetCat).sort((a, b) => a.name.localeCompare(b.name));
     }
   } else {
     let query = supabase.from('products').select('*').order('name');
-    if (categoryId !== 0) {
-      query = query.eq('category_id', categoryId);
+    if (targetCat !== 0) {
+      query = query.eq('category_id', targetCat);
     }
     const { data, error } = await query;
     if (error || !data) {
-      list = categoryId === 0 ? MOCK_PRODUCTS : MOCK_PRODUCTS.filter(p => p.category_id === categoryId);
+      list = targetCat === 0 ? MOCK_PRODUCTS : MOCK_PRODUCTS.filter(p => p.category_id === targetCat);
     } else {
       list = data;
     }
   }
-  const basketOption = getBasketOptionForCategory(categoryId, categories);
+  const basketOption = getBasketOptionForCategory(targetCat, categories);
   return [basketOption, ...list];
 }
 
 export async function getPriceHistory(productId: number, categoryId: number): Promise<PriceRecord[]> {
+  if (productId <= -1 || categoryId <= -1) {
+    return [];
+  }
   if (productId === 0) {
     return getAggregatedPriceHistory(categoryId);
   }
@@ -96,6 +100,7 @@ export async function getPriceHistory(productId: number, categoryId: number): Pr
 }
 
 export async function getCategoryAllProductsRecords(categoryId: number): Promise<ExtendedPriceRecord[]> {
+  if (categoryId <= -1) return [];
   if (isUsingMock || !supabase) {
     let validProducts = MOCK_PRODUCTS;
     if (categoryId !== 0) {

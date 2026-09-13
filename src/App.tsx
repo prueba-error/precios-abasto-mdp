@@ -43,7 +43,7 @@ export function App() {
   useEffect(() => {
     getProducts(selectedCategory, categories).then(prods => {
       setProducts(prods);
-      if (!prods.some(p => p.id === selectedProduct)) {
+      if (selectedCategory !== -1 && !prods.some(p => p.id === selectedProduct)) {
         setSelectedProduct(0);
       }
     });
@@ -194,7 +194,7 @@ export function App() {
       setChartTitleOverride('Top subas, bajas y rachas');
     }
 
-    const isCurrentlyPinned = selectedProduct !== 0 && pinnedProducts.some(p => p.productId === selectedProduct);
+    const isCurrentlyPinned = selectedProduct > 0 && pinnedProducts.some(p => p.productId === selectedProduct);
 
     const newPinnedProducts: PinnedProduct[] = [];
 
@@ -205,7 +205,8 @@ export function App() {
         newPinnedProducts.push(currentPinnedObj);
       }
     } else {
-      setSelectedProduct(0);
+      setSelectedCategory(-1);
+      setSelectedProduct(-1);
     }
 
     highlightItems.forEach(item => {
@@ -278,8 +279,23 @@ export function App() {
           selectedProduct={selectedProduct}
           pinnedProducts={pinnedProducts}
           isCurrentPinned={isCurrentPinned}
-          onCategoryChange={(cat) => { setSelectedCategory(cat); setChartTitleOverride(null); }}
-          onProductChange={(prod) => { setSelectedProduct(prod); setChartTitleOverride(null); }}
+          onCategoryChange={(catId) => { 
+            setSelectedCategory(catId); 
+            if (catId !== -1 && selectedProduct === -1) {
+              setSelectedProduct(0);
+            }
+            setChartTitleOverride(null); 
+          }}
+          onProductChange={(prodId) => { 
+            if (prodId > 0 && selectedCategory === -1) {
+              const prodObj = allProductsList.find(p => p.id === prodId);
+              if (prodObj) {
+                setSelectedCategory(prodObj.category_id);
+              }
+            }
+            setSelectedProduct(prodId); 
+            setChartTitleOverride(null); 
+          }}
           onTogglePin={handleTogglePin}
           onUnpinProduct={(pinnedId: string) => handleUnpinProduct(pinnedId)}
           onClearPinned={handleClearPinned}

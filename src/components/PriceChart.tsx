@@ -130,53 +130,82 @@ export const PriceChart: React.FC<PriceChartProps> = ({
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
             <XAxis dataKey="date" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" unit="$" />
-            <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} />
+            <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} isAnimationActive={false} />
             {pinnedProducts.length > 0 && <Legend wrapperStyle={{ paddingTop: '10px' }} />}
             {!hideMainLine && (
-              <Line 
-                type="monotone" 
-                dataKey={productName} 
-                stroke={mainLineColor} 
-                strokeWidth={hoveredSeries === productName ? 5 : 3}
-                strokeOpacity={hoveredSeries ? (hoveredSeries === productName ? 1 : 0.35) : 1}
-                dot={{ r: 5 }} 
-                activeDot={{ 
-                  r: 8, 
-                  strokeWidth: 2, 
-                  stroke: '#ffffff',
-                  onMouseOver: () => setHoveredSeries(productName),
-                  onMouseOut: () => setHoveredSeries(null)
-                }}
-                connectNulls 
-                onMouseOver={() => setHoveredSeries(productName)}
-                onMouseOut={() => setHoveredSeries(null)}
-                style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease, stroke-opacity 0.15s ease' }}
-              />
+              <>
+                {/* Invisible wide line target for mouse hover tolerance */}
+                <Line
+                  type="monotone"
+                  dataKey={productName}
+                  stroke="rgba(0,0,0,0)"
+                  strokeWidth={14}
+                  dot={false}
+                  activeDot={false}
+                  connectNulls
+                  onMouseOver={() => setHoveredSeries(productName)}
+                  onMouseOut={() => setHoveredSeries(null)}
+                  style={{ cursor: 'pointer' }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey={productName} 
+                  stroke={mainLineColor} 
+                  strokeWidth={hoveredSeries === productName ? 4 : 3}
+                  strokeOpacity={hoveredSeries ? (hoveredSeries === productName ? 1 : 0.35) : 1}
+                  dot={{ r: 4 }} 
+                  activeDot={{ 
+                    r: 6, 
+                    strokeWidth: 2, 
+                    stroke: '#ffffff',
+                    onMouseOver: () => setHoveredSeries(productName),
+                    onMouseOut: () => setHoveredSeries(null)
+                  }}
+                  connectNulls 
+                  onMouseOver={() => setHoveredSeries(productName)}
+                  onMouseOut={() => setHoveredSeries(null)}
+                  style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease, stroke-opacity 0.15s ease' }}
+                />
+              </>
             )}
             {activePinnedProducts.map(p => {
               const isHovered = hoveredSeries === p.productName;
               return (
-                <Line
-                  key={p.pinnedId}
-                  type="monotone"
-                  dataKey={p.productName}
-                  stroke={p.color}
-                  strokeWidth={isHovered ? 4 : 2}
-                  strokeOpacity={hoveredSeries ? (isHovered ? 1 : 0.35) : 1}
-                  strokeDasharray={hideMainLine ? undefined : "4 4"}
-                  dot={{ r: 4 }}
-                  activeDot={{ 
-                    r: 8, 
-                    strokeWidth: 2, 
-                    stroke: '#ffffff',
-                    onMouseOver: () => setHoveredSeries(p.productName),
-                    onMouseOut: () => setHoveredSeries(null)
-                  }}
-                  connectNulls
-                  onMouseOver={() => setHoveredSeries(p.productName)}
-                  onMouseOut={() => setHoveredSeries(null)}
-                  style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease, stroke-opacity 0.15s ease' }}
-                />
+                <React.Fragment key={p.pinnedId}>
+                  {/* Invisible wide line target for mouse hover tolerance */}
+                  <Line
+                    type="monotone"
+                    dataKey={p.productName}
+                    stroke="rgba(0,0,0,0)"
+                    strokeWidth={14}
+                    dot={false}
+                    activeDot={false}
+                    connectNulls
+                    onMouseOver={() => setHoveredSeries(p.productName)}
+                    onMouseOut={() => setHoveredSeries(null)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey={p.productName}
+                    stroke={p.color}
+                    strokeWidth={isHovered ? 3.5 : 2}
+                    strokeOpacity={hoveredSeries ? (isHovered ? 1 : 0.35) : 1}
+                    strokeDasharray={hideMainLine ? undefined : "4 4"}
+                    dot={{ r: 3.5 }}
+                    activeDot={{ 
+                      r: 5.5, 
+                      strokeWidth: 2, 
+                      stroke: '#ffffff',
+                      onMouseOver: () => setHoveredSeries(p.productName),
+                      onMouseOut: () => setHoveredSeries(null)
+                    }}
+                    connectNulls
+                    onMouseOver={() => setHoveredSeries(p.productName)}
+                    onMouseOut={() => setHoveredSeries(null)}
+                    style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease, stroke-opacity 0.15s ease' }}
+                  />
+                </React.Fragment>
               );
             })}
           </LineChart>

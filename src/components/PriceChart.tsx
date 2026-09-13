@@ -121,12 +121,26 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     ? chartTitleOverride
     : (hideMainLine ? 'Comparativa de Productos' : `${titlePrefix}${productName}${titleOthers}`);
 
+  const getColorForSeries = (seriesName: string, entryColor?: string) => {
+    if (entryColor && entryColor !== 'rgba(0,0,0,0)' && entryColor !== 'transparent') {
+      return entryColor;
+    }
+    if (seriesName === productName) return mainLineColor;
+    const found = pinnedProducts.find(p => p.productName === seriesName);
+    return found ? found.color : '#38bdf8';
+  };
+
   const renderCustomLegend = (props: any) => {
     const { payload } = props;
     if (!payload || !payload.length) return null;
 
-    // Filter out duplicates by product name
-    const uniquePayload = payload.filter((entry: any, index: number, self: any[]) =>
+    // Filter out transparent hover target entries and duplicates by product name
+    const validEntries = payload.filter((entry: any) =>
+      entry.color && entry.color !== 'rgba(0,0,0,0)' && entry.color !== 'transparent'
+    );
+    const targetPayload = validEntries.length > 0 ? validEntries : payload;
+
+    const uniquePayload = targetPayload.filter((entry: any, index: number, self: any[]) =>
       index === self.findIndex((t: any) => t.value === entry.value)
     );
 
@@ -141,6 +155,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       }}>
         {uniquePayload.map((entry: any, index: number) => {
           const isHovered = hoveredSeries === entry.value;
+          const itemColor = getColorForSeries(entry.value, entry.color);
           return (
             <div
               key={`legend-item-${index}`}
@@ -164,7 +179,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  backgroundColor: entry.color,
+                  backgroundColor: itemColor,
                   display: 'inline-block',
                   flexShrink: 0
                 }}

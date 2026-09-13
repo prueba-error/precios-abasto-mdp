@@ -115,6 +115,11 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   if (!hideMainLine) {
     records.forEach(r => datesSet.add(r.snapshot_date));
   }
+  activePinnedProducts.forEach(p => {
+    const list = pinnedHistories[p.pinnedId] || [];
+    list.forEach(r => datesSet.add(r.snapshot_date));
+  });
+
   const sortedDates = Array.from(datesSet).sort((a, b) => a.localeCompare(b));
 
   const activeMap = new Map(records.map(r => [r.snapshot_date, r[metric]]));
@@ -126,8 +131,13 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   });
 
   const parseDateToTimestamp = (dateStr: string) => {
-    const [y, m, d] = dateStr.split('-').map(Number);
-    return new Date(y, m - 1, d).getTime();
+    if (!dateStr) return 0;
+    const parts = dateStr.split('-').map(Number);
+    if (parts.length === 3 && !parts.some(isNaN)) {
+      return new Date(parts[0], parts[1] - 1, parts[2]).getTime();
+    }
+    const parsed = new Date(dateStr).getTime();
+    return isNaN(parsed) ? 0 : parsed;
   };
 
   const sortedTimestamps = sortedDates.map(parseDateToTimestamp);

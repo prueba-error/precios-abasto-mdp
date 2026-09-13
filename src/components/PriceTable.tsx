@@ -114,7 +114,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   const activePinnedObj = pinnedProducts.find(p => p.pinnedId === activePinnedId);
   const activeColor = hideMainLine
     ? '#64748b'
-    : (activePinnedObj ? activePinnedObj.color : '#38bdf8');
+    : (activePinnedObj ? activePinnedObj.color : '#10b981');
   const allActiveRows = processProductRecords(records, activeProductName, activeColor, true, false, selectedProduct, selectedCategory);
   const activeRows = (!hideMainLine && allActiveRows.length > 0) ? [allActiveRows[allActiveRows.length - 1]] : [];
 

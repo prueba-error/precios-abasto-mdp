@@ -168,7 +168,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
                       </span>
                     </span>
                     <span style={{ fontSize: '0.75rem', fontWeight: 400, color: item.type === 'up' ? '#f87171' : '#34d399', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                      <span>x{item.weeks} sem{item.cumPercent !== undefined ? ` (${item.cumPercent}%)` : ''}</span>
+                      <span>x{item.weeks}</span>
                       {item.type === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                     </span>
                   </div>

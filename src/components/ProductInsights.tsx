@@ -75,9 +75,9 @@ export const ProductInsights: React.FC<ProductInsightsProps> = ({ selectedProduc
             )}
             <span>
               {data.consecutiveTrendType === 'up'
-                ? `Subiendo hace ${data.consecutiveTrendWeeks} semanas seguidas`
+                ? `Subiendo hace ${data.consecutiveTrendWeeks} mediciones seguidas`
                 : data.consecutiveTrendType === 'down'
-                ? `Bajando hace ${data.consecutiveTrendWeeks} semanas seguidas`
+                ? `Bajando hace ${data.consecutiveTrendWeeks} mediciones seguidas`
                 : 'Precio estable respecto al registro anterior'}
             </span>
           </div>
@@ -87,8 +87,8 @@ export const ProductInsights: React.FC<ProductInsightsProps> = ({ selectedProduc
             <span>
               {data.categoryComparisonPercent !== null
                 ? data.categoryComparisonPercent < 0
-                  ? `${Math.abs(data.categoryComparisonPercent)}% más barato que el promedio de su categoría esta semana`
-                  : `${data.categoryComparisonPercent}% más caro que el promedio de su categoría esta semana`
+                  ? `${Math.abs(data.categoryComparisonPercent)}% más barato que el promedio de su categoría`
+                  : `${data.categoryComparisonPercent}% más caro que el promedio de su categoría`
                 : 'En línea con el promedio de su categoría'}
             </span>
           </div>

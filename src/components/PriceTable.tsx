@@ -254,7 +254,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
             <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
             {latestDate && viewMode === 'detailed' && (
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                — Semana del {latestDate}
+                — {latestDate}
               </span>
             )}
           </div>
@@ -320,7 +320,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                   <th style={{ padding: '12px' }}>Desde</th>
                   <th style={{ padding: '12px' }}>Hasta</th>
                   <th style={{ padding: '12px' }}>Promedio</th>
-                  <th style={{ padding: '12px' }}>Variación Semanal</th>
+                  <th style={{ padding: '12px' }}>Variación</th>
                   <th style={{ padding: '12px' }}>Origen</th>
                   <th style={{ padding: '12px' }}>Presentación</th>
                 </tr>

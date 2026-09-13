@@ -215,15 +215,15 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 padding: '4px 10px',
                 fontSize: '0.75rem',
                 borderRadius: '4px',
-                border: viewMode === 'detailed' ? '1px solid var(--border-color)' : '1px solid transparent',
-                background: viewMode === 'detailed' ? 'var(--bg-header-sub)' : 'transparent',
-                color: viewMode === 'detailed' ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                border: 'none',
+                background: viewMode === 'detailed' ? '#15803d' : 'transparent',
+                color: viewMode === 'detailed' ? '#dcfce7' : 'var(--text-secondary)',
                 fontWeight: viewMode === 'detailed' ? 600 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}
             >
-              <Table size={14} color={viewMode === 'detailed' ? 'var(--accent-primary)' : 'var(--text-secondary)'} />
+              <Table size={14} color={viewMode === 'detailed' ? '#dcfce7' : 'var(--text-secondary)'} />
               <span>Detalle</span>
             </button>
             <button
@@ -236,15 +236,15 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 padding: '4px 10px',
                 fontSize: '0.75rem',
                 borderRadius: '4px',
-                border: viewMode === 'historical' ? '1px solid var(--border-color)' : '1px solid transparent',
-                background: viewMode === 'historical' ? 'var(--bg-header-sub)' : 'transparent',
-                color: viewMode === 'historical' ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                border: 'none',
+                background: viewMode === 'historical' ? '#15803d' : 'transparent',
+                color: viewMode === 'historical' ? '#dcfce7' : 'var(--text-secondary)',
                 fontWeight: viewMode === 'historical' ? 600 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}
             >
-              <Calendar size={14} color={viewMode === 'historical' ? 'var(--accent-primary)' : 'var(--text-secondary)'} />
+              <Calendar size={14} color={viewMode === 'historical' ? '#dcfce7' : 'var(--text-secondary)'} />
               <span>Histórico</span>
             </button>
           </div>

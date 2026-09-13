@@ -53,23 +53,23 @@ export const Filters: React.FC<FiltersProps> = ({
   // Compute Fijar/Fijado button styles dynamically based on state
   const getPinStyle = () => {
     if (isPinPressed) {
-      return { background: '#166534', border: '1px solid #14532d', color: '#ffffff', transform: 'scale(0.97)' };
+      return { background: '#081c15', border: '1px solid #081c15', color: '#ffffff', transform: 'scale(0.97)' };
     }
     if (isPinHovered) {
-      return { background: '#15803d', border: '1px solid #166534', color: '#ffffff', transform: 'none' };
+      return { background: '#1b4332', border: '1px solid #1b4332', color: '#ffffff', transform: 'none' };
     }
-    return { background: '#16a34a', border: '1px solid #15803d', color: '#ffffff', transform: 'none' };
+    return { background: '#2d6a4f', border: '1px solid #1b4332', color: '#ffffff', transform: 'none' };
   };
 
   // Compute Restablecer button styles dynamically based on state
   const getResetStyle = () => {
     if (isResetPressed) {
-      return { background: '#9a3412', border: '1px solid #7c2d12', color: '#ffffff', transform: 'scale(0.97)' };
+      return { background: '#78350f', border: '1px solid #78350f', color: '#ffffff', transform: 'scale(0.97)' };
     }
     if (isResetHovered) {
-      return { background: '#c2410c', border: '1px solid #9a3412', color: '#ffffff', transform: 'none' };
+      return { background: '#92400e', border: '1px solid #92400e', color: '#ffffff', transform: 'none' };
     }
-    return { background: '#ea580c', border: '1px solid #c2410c', color: '#ffffff', transform: 'none' };
+    return { background: '#b45309', border: '1px solid #92400e', color: '#ffffff', transform: 'none' };
   };
 
   const pinStyle = getPinStyle();
@@ -126,9 +126,8 @@ export const Filters: React.FC<FiltersProps> = ({
                     height: '38px',
                     borderRadius: '6px',
                     border: '1px solid var(--border-color)',
-                    background: 'var(--bg-card)',
-                    color: isCleared ? 'var(--text-secondary)' : '#f87171',
-                    opacity: isCleared ? 0.35 : 1,
+                    background: 'var(--bg-header-sub)',
+                    color: isCleared ? 'var(--text-secondary)' : '#ef4444',
                     cursor: isCleared ? 'not-allowed' : 'pointer',
                     flexShrink: 0,
                     transition: 'all 0.15s ease'

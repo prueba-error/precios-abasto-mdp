@@ -2,8 +2,8 @@ import React from 'react';
 import { Broccoli, Apple, Banana, Carrot, ChartColumn, LucideIcon } from 'lucide-react';
 
 export const BackgroundPattern: React.FC = () => {
-  const iconColor = 'rgba(148, 163, 184, 0.15)'; // Subtle watermark slate color
-  const iconSize = 20;
+  const iconColor = 'rgba(203, 213, 225, 0.28)'; // Brighter & clearer watermark color
+  const iconSize = 25;
 
   // The 5 header icons in uniform sequence
   const icons: LucideIcon[] = [Broccoli, Apple, Banana, Carrot, ChartColumn];

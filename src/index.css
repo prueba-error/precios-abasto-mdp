@@ -19,8 +19,8 @@
   --btn-pin-hover: #1b8054;
   --btn-reset-bg: #d97736;
   --btn-reset-hover: #c46218;
-  --kpi-card-bg: #123334;
-  --kpi-card-border: #1d4f50;
+  --kpi-card-bg: rgba(18, 55, 48, 0.82);
+  --kpi-card-border: rgba(29, 79, 68, 0.90);
   --pill-border: rgba(240, 253, 244, 0.25);
 }
 
@@ -43,8 +43,8 @@
   --btn-pin-hover: #388e3c;
   --btn-reset-bg: #f59e0b;
   --btn-reset-hover: #d97706;
-  --kpi-card-bg: #fdf4ea;
-  --kpi-card-border: #f0dbca;
+  --kpi-card-bg: rgba(254, 239, 222, 0.85);
+  --kpi-card-border: rgba(240, 212, 192, 0.90);
   --pill-border: #c3dac9;
 }
 
@@ -251,6 +251,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* 1. Header KPI Grid */

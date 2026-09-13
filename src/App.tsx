@@ -194,7 +194,20 @@ export function App() {
       setChartTitleOverride('Top subas, bajas y rachas');
     }
 
+    const isCurrentlyPinned = selectedProduct !== 0 && pinnedProducts.some(p => p.productId === selectedProduct);
+
     const newPinnedProducts: PinnedProduct[] = [];
+
+    // If active product was explicitly pinned, keep it pinned
+    if (isCurrentlyPinned) {
+      const currentPinnedObj = pinnedProducts.find(p => p.productId === selectedProduct);
+      if (currentPinnedObj) {
+        newPinnedProducts.push(currentPinnedObj);
+      }
+    } else {
+      setSelectedProduct(0);
+    }
+
     highlightItems.forEach(item => {
       const prod = allProductsList.find(p => p.id === item.product_id || p.name === item.product_name);
       if (prod) {

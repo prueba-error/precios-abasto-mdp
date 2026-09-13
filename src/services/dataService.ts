@@ -34,7 +34,7 @@ export function getBasketOptionForCategory(categoryId: number, categories: Categ
   const cat = categories.find(c => c.id === categoryId);
   const catName = cat ? cat.name : (categoryId === 1 ? 'Frutas' : categoryId === 2 ? 'Verduras' : categoryId === 3 ? 'Hortalizas' : categoryId === 4 ? 'Otros' : '');
   const name = categoryId === 0
-    ? 'Promedio Canasta (Todas las categorías)'
+    ? 'Promedio Canasta'
     : `Promedio ${catName}`;
   return { id: 0, original_id: `ALL_${categoryId}`, name, category_id: categoryId };
 }

@@ -54,7 +54,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   // Reset to page 1 whenever active selection or records change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeProductName, isAllProducts, categoryProductsRecords.length]);
+  }, [activeProductName, isAllProducts, categoryProductsRecords.length, selectedCategory, selectedProduct]);
 
   const calculateChange = (current: number | null, prev: number | null): string => {
     if (current === null || prev === null || prev <= 0) return 'N/A';

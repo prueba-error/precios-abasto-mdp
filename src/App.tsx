@@ -53,13 +53,11 @@ export function App() {
 
   useEffect(() => {
     getPriceHistory(selectedProduct, selectedCategory).then(recs => setRecords(recs));
-    
-    if (selectedProduct === 0) {
-      getCategoryAllProductsRecords(selectedCategory).then(recs => setCategoryProductsRecords(recs));
-    } else {
-      setCategoryProductsRecords([]);
-    }
   }, [selectedProduct, selectedCategory]);
+
+  useEffect(() => {
+    getCategoryAllProductsRecords(selectedCategory).then(recs => setCategoryProductsRecords(recs));
+  }, [selectedCategory]);
 
   // Fetch histories for all pinned products using pinnedId
   useEffect(() => {
@@ -361,7 +359,7 @@ export function App() {
               activePinnedId={currentPinnedId}
               selectedCategory={selectedCategory}
               selectedProduct={selectedProduct}
-              isAllProducts={selectedProduct === 0}
+              isAllProducts={true}
               categoryProductsRecords={categoryProductsRecords}
               pinnedProducts={pinnedProducts}
               pinnedHistories={pinnedHistories}

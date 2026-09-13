@@ -879,8 +879,8 @@ body {
   width: 46px;
   height: 24px;
   border-radius: 999px;
-  background: var(--btn-reset-bg);
-  border: 1px solid var(--btn-reset-bg);
+  background: var(--btn-pin-bg);
+  border: 1px solid var(--btn-pin-bg);
   padding: 0 3px;
   display: flex;
   justify-content: space-between;
@@ -891,8 +891,8 @@ body {
 }
 
 .theme-switch[aria-checked="true"] .theme-switch__track {
-  background: var(--btn-pin-bg);
-  border-color: var(--btn-pin-bg);
+  background: var(--btn-reset-bg);
+  border-color: var(--btn-reset-bg);
   box-shadow: none;
 }
 

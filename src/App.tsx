@@ -276,12 +276,10 @@ export function App() {
           allProducts={allProductsList}
           selectedCategory={selectedCategory}
           selectedProduct={selectedProduct}
-          selectedMetric={selectedMetric}
           pinnedProducts={pinnedProducts}
           isCurrentPinned={isCurrentPinned}
           onCategoryChange={(cat) => { setSelectedCategory(cat); setChartTitleOverride(null); }}
           onProductChange={(prod) => { setSelectedProduct(prod); setChartTitleOverride(null); }}
-          onMetricChange={setSelectedMetric}
           onTogglePin={handleTogglePin}
           onUnpinProduct={(pinnedId: string) => handleUnpinProduct(pinnedId)}
           onClearPinned={handleClearPinned}

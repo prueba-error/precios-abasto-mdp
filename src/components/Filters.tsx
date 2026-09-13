@@ -9,12 +9,10 @@ interface FiltersProps {
   allProducts: Product[];
   selectedCategory: number;
   selectedProduct: number;
-  selectedMetric: PriceMetric;
   pinnedProducts: PinnedProduct[];
   isCurrentPinned: boolean;
   onCategoryChange: (catId: number) => void;
   onProductChange: (prodId: number) => void;
-  onMetricChange: (metric: PriceMetric) => void;
   onTogglePin: () => void;
   onUnpinProduct: (pinnedId: string) => void;
   onClearPinned: () => void;
@@ -29,12 +27,10 @@ export const Filters: React.FC<FiltersProps> = ({
   allProducts,
   selectedCategory,
   selectedProduct,
-  selectedMetric,
   pinnedProducts,
   isCurrentPinned,
   onCategoryChange,
   onProductChange,
-  onMetricChange,
   onTogglePin,
   onUnpinProduct,
   onClearPinned,
@@ -136,18 +132,6 @@ export const Filters: React.FC<FiltersProps> = ({
               <span>{isCurrentPinned ? 'Fijado' : 'Fijar'}</span>
             </button>
           </div>
-        </div>
-        <div style={{ flex: '1 1 180px' }}>
-          <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Métrica de Precio</label>
-          <select 
-            value={selectedMetric} 
-            onChange={(e) => onMetricChange(e.target.value as PriceMetric)}
-            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
-          >
-            <option value="price_avg">Precio Promedio</option>
-            <option value="price_from">Precio Desde</option>
-            <option value="price_to">Precio Hasta</option>
-          </select>
         </div>
         <div style={{ flex: '0 0 auto' }}>
           <button

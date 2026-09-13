@@ -877,11 +877,11 @@ body {
 .theme-switch__track {
   position: relative;
   width: 46px;
-  height: 25px;
+  height: 24px;
   border-radius: 999px;
   background: var(--kpi-card-bg);
   border: 1px solid var(--kpi-card-border);
-  padding: 3px;
+  padding: 0 3px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -932,18 +932,19 @@ body {
 
 .theme-switch__thumb {
   position: absolute;
-  top: 3px;
+  top: 50%;
   left: 3px;
-  width: 19px;
-  height: 19px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #ffffff !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transform: translateY(-50%);
   transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 2;
   display: block;
 }
 
 .theme-switch[aria-checked="true"] .theme-switch__thumb {
-  transform: translateX(21px);
+  transform: translate(20px, -50%);
 }

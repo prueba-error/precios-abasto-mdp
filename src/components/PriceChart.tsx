@@ -196,7 +196,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
 
   return (
     <div className="price-chart-card" style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
-      <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {headerTitle}&nbsp; — &nbsp;{metricLabel}</h3>
+      <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {headerTitle}&nbsp;</h3>
       <div style={{ width: '100%', height: 380 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} onMouseLeave={() => setHoveredSeries(null)}>

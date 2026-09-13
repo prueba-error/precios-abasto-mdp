@@ -26,11 +26,11 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     >
       <span className="theme-switch__track" aria-hidden="true">
         <span className="theme-switch__icon theme-switch__icon--sun">
-          <Sun size={13} />
+          <Sun size={11} />
         </span>
         <span className="theme-switch__thumb" />
         <span className="theme-switch__icon theme-switch__icon--moon">
-          <Moon size={13} />
+          <Moon size={11} />
         </span>
       </span>
     </button>

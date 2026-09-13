@@ -96,14 +96,8 @@ export const Filters: React.FC<FiltersProps> = ({
             <button
               type="button"
               onClick={() => onCategoryChange(-1)}
-              disabled={selectedCategory === -1 || (isCurrentPinned && selectedCategory > 0)}
-              title={
-                selectedCategory === -1
-                  ? 'Sin selección de categoría'
-                  : (isCurrentPinned && selectedCategory > 0)
-                  ? 'No se puede deseleccionar una categoría fijada al gráfico'
-                  : 'Eliminar selección de categoría'
-              }
+              disabled={selectedCategory === -1}
+              title={selectedCategory === -1 ? 'Sin selección de categoría' : 'Eliminar selección de categoría'}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -113,9 +107,9 @@ export const Filters: React.FC<FiltersProps> = ({
                 borderRadius: '6px',
                 border: '1px solid var(--border-color)',
                 background: 'var(--bg-card)',
-                color: (selectedCategory === -1 || (isCurrentPinned && selectedCategory > 0)) ? 'var(--text-secondary)' : '#f87171',
-                opacity: (selectedCategory === -1 || (isCurrentPinned && selectedCategory > 0)) ? 0.35 : 1,
-                cursor: (selectedCategory === -1 || (isCurrentPinned && selectedCategory > 0)) ? 'not-allowed' : 'pointer',
+                color: selectedCategory === -1 ? 'var(--text-secondary)' : '#f87171',
+                opacity: selectedCategory === -1 ? 0.35 : 1,
+                cursor: selectedCategory === -1 ? 'not-allowed' : 'pointer',
                 flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}
@@ -138,14 +132,8 @@ export const Filters: React.FC<FiltersProps> = ({
             <button
               type="button"
               onClick={() => onProductChange(-1)}
-              disabled={selectedProduct === -1 || (isCurrentPinned && selectedProduct > 0)}
-              title={
-                selectedProduct === -1
-                  ? 'Sin selección de producto'
-                  : (isCurrentPinned && selectedProduct > 0)
-                  ? 'No se puede deseleccionar un producto fijado al gráfico'
-                  : 'Eliminar selección de producto'
-              }
+              disabled={selectedProduct === -1}
+              title={selectedProduct === -1 ? 'Sin selección de producto' : 'Eliminar selección de producto'}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -155,9 +143,9 @@ export const Filters: React.FC<FiltersProps> = ({
                 borderRadius: '6px',
                 border: '1px solid var(--border-color)',
                 background: 'var(--bg-card)',
-                color: (selectedProduct === -1 || (isCurrentPinned && selectedProduct > 0)) ? 'var(--text-secondary)' : '#f87171',
-                opacity: (selectedProduct === -1 || (isCurrentPinned && selectedProduct > 0)) ? 0.35 : 1,
-                cursor: (selectedProduct === -1 || (isCurrentPinned && selectedProduct > 0)) ? 'not-allowed' : 'pointer',
+                color: selectedProduct === -1 ? 'var(--text-secondary)' : '#f87171',
+                opacity: selectedProduct === -1 ? 0.35 : 1,
+                cursor: selectedProduct === -1 ? 'not-allowed' : 'pointer',
                 flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}

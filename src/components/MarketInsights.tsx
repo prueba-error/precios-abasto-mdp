@@ -63,7 +63,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
               className="kpi-header-with-icon kpi-header-clickable" 
               style={{ color: '#f87171' }}
               onClick={() => onViewSectionInChart && onViewSectionInChart('subas')}
-              title="Ver solo Top subas en el gráfico"
+              title="Ver Top subas en el gráfico"
             >
               <ArrowUpRight size={16} />
               <span className="kpi-label-bold">Top subas</span>
@@ -93,7 +93,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
               className="kpi-header-with-icon kpi-header-clickable" 
               style={{ color: '#34d399' }}
               onClick={() => onViewSectionInChart && onViewSectionInChart('bajas')}
-              title="Ver solo Top bajas en el gráfico"
+              title="Ver Top bajas en el gráfico"
             >
               <ArrowDownRight size={16} />
               <span className="kpi-label-bold">Top bajas</span>
@@ -126,7 +126,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
               className="kpi-header-with-icon kpi-header-clickable" 
               style={{ color: '#fb923c' }}
               onClick={() => onViewSectionInChart && onViewSectionInChart('rachas')}
-              title="Ver solo Rachas activas en el gráfico"
+              title="Ver Rachas activas en el gráfico"
             >
               <Flame size={16} />
               <span className="kpi-label-bold">Rachas activas</span>

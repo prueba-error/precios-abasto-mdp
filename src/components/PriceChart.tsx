@@ -88,6 +88,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
             <XAxis dataKey="date" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" unit="$" />
             <Tooltip 
+              shared={false}
               contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }}
               formatter={(val: any, name: string) => [val !== null ? `$${val.toLocaleString()}` : '-', name]}
             />

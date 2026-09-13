@@ -15,6 +15,10 @@
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
   --grid-line: #334155;
   --icon-watermark: rgba(148, 163, 184, 0.20);
+  --btn-pin-bg: #2e7d5b;
+  --btn-pin-hover: #236347;
+  --btn-reset-bg: #c46218;
+  --btn-reset-hover: #a34f10;
 }
 
 [data-theme="light"] {
@@ -32,6 +36,10 @@
   --danger: #dc2626;
   --grid-line: #c3dac9;
   --icon-watermark: rgba(22, 163, 74, 0.15);
+  --btn-pin-bg: #388e3c;
+  --btn-pin-hover: #2e7d32;
+  --btn-reset-bg: #d97706;
+  --btn-reset-hover: #b45309;
 }
 
 * {

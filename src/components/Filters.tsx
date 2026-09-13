@@ -53,23 +53,23 @@ export const Filters: React.FC<FiltersProps> = ({
   // Compute Fijar/Fijado button styles dynamically based on state
   const getPinStyle = () => {
     if (isPinPressed) {
-      return { background: '#081c15', border: '1px solid #081c15', color: '#ffffff', transform: 'scale(0.97)' };
+      return { background: 'var(--btn-pin-hover)', border: '1px solid var(--btn-pin-hover)', color: '#ffffff', transform: 'scale(0.97)' };
     }
     if (isPinHovered) {
-      return { background: '#1b4332', border: '1px solid #1b4332', color: '#ffffff', transform: 'none' };
+      return { background: 'var(--btn-pin-hover)', border: '1px solid var(--btn-pin-hover)', color: '#ffffff', transform: 'none' };
     }
-    return { background: '#2d6a4f', border: '1px solid #1b4332', color: '#ffffff', transform: 'none' };
+    return { background: 'var(--btn-pin-bg)', border: '1px solid var(--btn-pin-bg)', color: '#ffffff', transform: 'none' };
   };
 
   // Compute Restablecer button styles dynamically based on state
   const getResetStyle = () => {
     if (isResetPressed) {
-      return { background: '#78350f', border: '1px solid #78350f', color: '#ffffff', transform: 'scale(0.97)' };
+      return { background: 'var(--btn-reset-hover)', border: '1px solid var(--btn-reset-hover)', color: '#ffffff', transform: 'scale(0.97)' };
     }
     if (isResetHovered) {
-      return { background: '#92400e', border: '1px solid #92400e', color: '#ffffff', transform: 'none' };
+      return { background: 'var(--btn-reset-hover)', border: '1px solid var(--btn-reset-hover)', color: '#ffffff', transform: 'none' };
     }
-    return { background: '#b45309', border: '1px solid #92400e', color: '#ffffff', transform: 'none' };
+    return { background: 'var(--btn-reset-bg)', border: '1px solid var(--btn-reset-bg)', color: '#ffffff', transform: 'none' };
   };
 
   const pinStyle = getPinStyle();

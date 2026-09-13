@@ -527,7 +527,8 @@ export const PriceTable: React.FC<PriceTableProps> = ({
       )}
       </div>
 
-      {/* Bottom Right Last Updated Indicator (Outside Table Container) */}
+      {/* Bottom Right Last Updated Indicator (Outside Table Container) - Comentado */}
+      {/*
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
         <div
           style={{
@@ -547,6 +548,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
         </div>
       </div>
+      */}
     </div>
   );
 };

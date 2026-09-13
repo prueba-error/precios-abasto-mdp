@@ -879,8 +879,8 @@ body {
   width: 46px;
   height: 24px;
   border-radius: 999px;
-  background: var(--kpi-card-bg);
-  border: 1px solid var(--kpi-card-border);
+  background: var(--btn-reset-bg);
+  border: 1px solid var(--btn-reset-bg);
   padding: 0 3px;
   display: flex;
   justify-content: space-between;

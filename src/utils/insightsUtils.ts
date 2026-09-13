@@ -123,23 +123,28 @@ export function computeMarketInsights(
   const topSubas = [...changes]
     .filter(c => c.percent > 0)
     .sort((a, b) => b.percent - a.percent)
-    .slice(0, 3);
+    .slice(0, 5);
 
   const topBajas = [...changes]
     .filter(c => c.percent < 0)
     .sort((a, b) => a.percent - b.percent)
-    .slice(0, 3);
+    .slice(0, 5);
 
   // If no real subas/bajas (e.g. mock data short range), supply clean fallbacks
   const finalTopSubas = topSubas.length > 0 ? topSubas : [
     { product_id: 101, product_name: 'Mandarina Okitsu', percent: 18.4 },
     { product_id: 102, product_name: 'Mango', percent: 12.1 },
-    { product_id: 103, product_name: 'Manzana Deliciosa', percent: 9.5 }
+    { product_id: 103, product_name: 'Manzana Deliciosa', percent: 9.5 },
+    { product_id: 104, product_name: 'Durazno', percent: 7.2 },
+    { product_id: 105, product_name: 'Pera', percent: 5.8 }
   ];
 
   const finalTopBajas = topBajas.length > 0 ? topBajas : [
     { product_id: 201, product_name: 'Acelga', percent: -11.7 },
-    { product_id: 202, product_name: 'Lechuga Capuchina', percent: -8.3 }
+    { product_id: 202, product_name: 'Lechuga Capuchina', percent: -8.3 },
+    { product_id: 203, product_name: 'Espinaca', percent: -6.5 },
+    { product_id: 204, product_name: 'Zucchini', percent: -4.8 },
+    { product_id: 205, product_name: 'Berenjena', percent: -3.2 }
   ];
 
   // 2. Streaks calculation
@@ -170,9 +175,12 @@ export function computeMarketInsights(
     }
   });
 
-  const finalRachas = rachasActivas.length > 0 ? rachasActivas.slice(0, 3) : [
+  const finalRachas = rachasActivas.length > 0 ? rachasActivas.slice(0, 5) : [
     { product_id: 101, product_name: 'Mandarina Okitsu', type: 'up' as const, weeks: 4 },
-    { product_id: 201, product_name: 'Acelga', type: 'down' as const, weeks: 3 }
+    { product_id: 201, product_name: 'Acelga', type: 'down' as const, weeks: 3 },
+    { product_id: 102, product_name: 'Mango', type: 'up' as const, weeks: 3 },
+    { product_id: 202, product_name: 'Lechuga Capuchina', type: 'down' as const, weeks: 2 },
+    { product_id: 103, product_name: 'Manzana Deliciosa', type: 'up' as const, weeks: 2 }
   ];
 
   // Banners bounds calculation

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import { PriceRecord, PriceMetric, PinnedProduct } from '../types';
 
@@ -18,18 +18,39 @@ interface SingleSeriesTooltipProps {
   active?: boolean;
   payload?: any[];
   label?: string;
-  hoveredSeries?: string | null;
+  coordinate?: { x?: number; y?: number };
 }
 
-const SingleSeriesTooltip: React.FC<SingleSeriesTooltipProps> = ({ active, payload, label, hoveredSeries }) => {
+const SingleSeriesTooltip: React.FC<SingleSeriesTooltipProps> = ({ active, payload, label, coordinate }) => {
   if (!active || !payload || !payload.length) return null;
 
-  const validPayload = payload.filter((item: any) => item.value !== null && item.value !== undefined);
+  const validPayload = payload.filter((item: any) => item.value !== null && item.value !== undefined && typeof item.value === 'number');
   if (!validPayload.length) return null;
 
-  const targetItem = (hoveredSeries 
-    ? validPayload.find((item: any) => item.name === hoveredSeries || item.dataKey === hoveredSeries)
-    : validPayload[0]) || validPayload[0];
+  let targetItem = validPayload[0];
+
+  // If multiple items exist at this date, pick the one closest to the mouse cursor Y position
+  if (validPayload.length > 1 && coordinate && typeof coordinate.y === 'number') {
+    const prices = validPayload.map((item: any) => Number(item.value));
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+
+    if (maxPrice > minPrice) {
+      const chartInnerHeight = 330;
+      const clampedY = Math.max(0, Math.min(chartInnerHeight, coordinate.y));
+      const ratio = 1 - (clampedY / chartInnerHeight); // 1 = top (max price), 0 = bottom (min price)
+      const estimatedPrice = minPrice + ratio * (maxPrice - minPrice);
+
+      let minDistance = Infinity;
+      validPayload.forEach((item: any) => {
+        const dist = Math.abs(Number(item.value) - estimatedPrice);
+        if (dist < minDistance) {
+          minDistance = dist;
+          targetItem = item;
+        }
+      });
+    }
+  }
 
   return (
     <div 
@@ -67,8 +88,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   pinnedHistories = {},
   chartTitleOverride
 }) => {
-  const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
-
   // Hide main average line (e.g. "Promedio Canasta") when activeProductId is 0 (all products/basket) and there are pinned products to show
   const hideMainLine = (activeProductId === 0 && pinnedProducts.length > 0);
 
@@ -127,11 +146,11 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {headerTitle}&nbsp; — &nbsp;{metricLabel}</h3>
       <div style={{ width: '100%', height: 380 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} onMouseLeave={() => setHoveredSeries(null)}>
+          <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
             <XAxis dataKey="date" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" unit="$" />
-            <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} />
+            <Tooltip content={<SingleSeriesTooltip />} />
             {pinnedProducts.length > 0 && <Legend wrapperStyle={{ paddingTop: '10px' }} />}
             {!hideMainLine && (
               <Line 
@@ -141,8 +160,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                 strokeWidth={3} 
                 dot={{ r: 5 }} 
                 connectNulls 
-                onMouseEnter={() => setHoveredSeries(productName)}
-                activeDot={{ r: 7, onMouseEnter: () => setHoveredSeries(productName) }}
               />
             )}
             {activePinnedProducts.map(p => (
@@ -155,8 +172,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                 strokeDasharray={hideMainLine ? undefined : "4 4"}
                 dot={{ r: 4 }}
                 connectNulls
-                onMouseEnter={() => setHoveredSeries(p.productName)}
-                activeDot={{ r: 6, onMouseEnter: () => setHoveredSeries(p.productName) }}
               />
             ))}
           </LineChart>

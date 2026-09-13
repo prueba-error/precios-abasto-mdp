@@ -52,6 +52,41 @@ export async function getCategories(): Promise<Category[]> {
   return [ALL_CATEGORIES_OPTION, ...data];
 }
 
+async function disambiguateProductNames(list: Product[]): Promise<Product[]> {
+  if (isUsingMock || !supabase || list.length === 0) return list;
+
+  const nameCounts = new Map<string, number>();
+  list.forEach(p => nameCounts.set(p.name, (nameCounts.get(p.name) || 0) + 1));
+  
+  const duplicateProdIds = list.filter(p => (nameCounts.get(p.name) || 0) > 1).map(p => p.id);
+  if (duplicateProdIds.length === 0) return list;
+
+  const { data: detailRecs } = await supabase
+    .from('price_records')
+    .select('product_id, presentation, quantity_raw')
+    .in('product_id', duplicateProdIds);
+
+  const detailMap = new Map<number, string>();
+  (detailRecs || []).forEach(r => {
+    if (!detailMap.has(r.product_id)) {
+      const label = r.quantity_raw || r.presentation;
+      if (label) {
+        detailMap.set(r.product_id, label);
+      }
+    }
+  });
+
+  return list.map(p => {
+    if ((nameCounts.get(p.name) || 0) > 1) {
+      const suffix = detailMap.get(p.id);
+      if (suffix) {
+        return { ...p, name: `${p.name} (${suffix})` };
+      }
+    }
+    return p;
+  });
+}
+
 export async function getProducts(categoryId: number, categories: Category[] = []): Promise<Product[]> {
   let list: Product[] = [];
   const targetCat = categoryId <= -1 ? 0 : categoryId;
@@ -73,6 +108,7 @@ export async function getProducts(categoryId: number, categories: Category[] = [
       list = data;
     }
   }
+  list = await disambiguateProductNames(list);
   const basketOption = getBasketOptionForCategory(targetCat, categories);
   return [basketOption, ...list];
 }
@@ -112,12 +148,13 @@ export async function getCategoryAllProductsRecords(categoryId: number): Promise
       .map(r => ({ ...r, product_name: prodMap.get(r.product_id) }));
   }
 
-  let prodQuery = supabase.from('products').select('id, name');
+  let prodQuery = supabase.from('products').select('*');
   if (targetCat !== 0) {
     prodQuery = prodQuery.eq('category_id', targetCat);
   }
   const { data: prods } = await prodQuery;
-  const prodMap = new Map((prods || []).map(p => [p.id, p.name]));
+  const disambiguatedProds = await disambiguateProductNames((prods || []) as Product[]);
+  const prodMap = new Map(disambiguatedProds.map(p => [p.id, p.name]));
   const prodIds = Array.from(prodMap.keys());
 
   if (prodIds.length === 0) return [];

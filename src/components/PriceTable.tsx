@@ -118,14 +118,13 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   const allActiveRows = processProductRecords(records, activeProductName, activeColor, true, false, selectedProduct, selectedCategory);
   const activeRows = (!hideMainLine && allActiveRows.length > 0) ? [allActiveRows[allActiveRows.length - 1]] : [];
 
-  // Map category individual products by product name
-  const individualMap = new Map<string, ExtendedPriceRecord[]>();
+  // Map category individual products by product_id
+  const individualMap = new Map<number, ExtendedPriceRecord[]>();
   categoryProductsRecords.forEach(r => {
-    const pName = r.product_name || `Producto ${r.product_id}`;
-    if (!individualMap.has(pName)) {
-      individualMap.set(pName, []);
+    if (!individualMap.has(r.product_id)) {
+      individualMap.set(r.product_id, []);
     }
-    individualMap.get(pName)!.push(r);
+    individualMap.get(r.product_id)!.push(r);
   });
 
   // 2. Process pinned products records (Rows 2..N, placed right below Active Product: Latest snapshot per pinned item)
@@ -135,7 +134,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     : pinnedProducts.filter(p => p.pinnedId !== activePinnedId);
 
   targetPinnedProducts.forEach(p => {
-    const list = pinnedHistories[p.pinnedId] || (p.productId === 0 ? records : (individualMap.get(p.productName) || []));
+    const list = pinnedHistories[p.pinnedId] || (p.productId === 0 ? records : (individualMap.get(p.productId) || []));
     if (list.length > 0) {
       const processed = processProductRecords(list, p.productName, p.color, p.productId === 0, true, p.productId, p.categoryId);
       if (processed.length > 0) {
@@ -147,13 +146,13 @@ export const PriceTable: React.FC<PriceTableProps> = ({
 
   // 3. Process remaining category individual products records (excluding active & pinned)
   const individualRows: CombinedRow[] = [];
-  individualMap.forEach((list, pName) => {
-    const isPinned = pinnedProducts.some(p => p.productName === pName);
-    if (!isPinned && pName !== activeProductName) {
+  individualMap.forEach((list, prodId) => {
+    const isPinned = pinnedProducts.some(p => p.productId === prodId);
+    if (!isPinned && prodId !== selectedProduct) {
       const firstRec = list[0];
-      const pId = firstRec.product_id;
+      const pName = firstRec.product_name || `Producto ${prodId}`;
       const cId = (firstRec as any).category_id ?? selectedCategory;
-      individualRows.push(...processProductRecords(list, pName, '#64748b', false, false, pId, cId));
+      individualRows.push(...processProductRecords(list, pName, '#64748b', false, false, prodId, cId));
     }
   });
 

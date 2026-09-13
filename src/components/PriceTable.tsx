@@ -324,7 +324,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                       </td>
                       <td style={{ padding: '12px' }}>{r.price_from ? `$${r.price_from.toLocaleString()}` : '-'}</td>
                       <td style={{ padding: '12px' }}>{r.price_to ? `$${r.price_to.toLocaleString()}` : '-'}</td>
-                      <td style={{ padding: '12px', fontWeight: 600, color: '#10b981' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
+                      <td style={{ padding: '12px', fontWeight: 600, color: '#38bdf8' }}>{r.price_avg ? `$${r.price_avg.toLocaleString()}` : '-'}</td>
                       <td style={{ padding: '12px', fontWeight: 600, color: changeColor }}>{r.changeStr}</td>
                       <td style={{ padding: '12px' }}>{r.origin || '-'}</td>
                       <td style={{ padding: '12px' }}>{formatPresentation(r.presentation, r.quantity_raw)}</td>

@@ -110,7 +110,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
 
   // 1. Process active product records (Row 1: Latest snapshot)
   const activePinnedObj = pinnedProducts.find(p => p.pinnedId === activePinnedId);
-  const activeColor = activePinnedObj ? activePinnedObj.color : '#10b981';
+  const activeColor = activePinnedObj ? activePinnedObj.color : '#38bdf8';
   const allActiveRows = processProductRecords(records, activeProductName, activeColor, true, false, selectedProduct, selectedCategory);
   const activeRows = allActiveRows.length > 0 ? [allActiveRows[allActiveRows.length - 1]] : [];
 
@@ -277,7 +277,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                       style={{ 
                         borderBottom: '1px solid var(--border-color)',
                         background: r.isBasketAverage 
-                          ? 'rgba(16, 185, 129, 0.08)' 
+                          ? 'rgba(56, 189, 248, 0.08)' 
                           : r.isPinnedRow 
                           ? 'rgba(51, 65, 85, 0.3)' 
                           : 'transparent'

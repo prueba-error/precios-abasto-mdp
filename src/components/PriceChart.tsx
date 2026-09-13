@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import { PriceRecord, PriceMetric, PinnedProduct } from '../types';
 
@@ -14,6 +14,48 @@ interface PriceChartProps {
   chartTitleOverride?: string | null;
 }
 
+interface SingleSeriesTooltipProps {
+  active?: boolean;
+  payload?: any[];
+  label?: string;
+  hoveredSeries?: string | null;
+}
+
+const SingleSeriesTooltip: React.FC<SingleSeriesTooltipProps> = ({ active, payload, label, hoveredSeries }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  const validPayload = payload.filter((item: any) => item.value !== null && item.value !== undefined);
+  if (!validPayload.length) return null;
+
+  const targetItem = (hoveredSeries 
+    ? validPayload.find((item: any) => item.name === hoveredSeries || item.dataKey === hoveredSeries)
+    : validPayload[0]) || validPayload[0];
+
+  return (
+    <div 
+      style={{
+        backgroundColor: '#1e293b',
+        borderColor: '#334155',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderRadius: '6px',
+        padding: '8px 12px',
+        color: '#f8fafc',
+        fontSize: '0.8125rem',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
+        pointerEvents: 'none'
+      }}
+    >
+      <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginBottom: '4px' }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
+        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: targetItem.color, display: 'inline-block' }} />
+        <span>{targetItem.name}:</span>
+        <span style={{ color: '#38bdf8' }}>${Number(targetItem.value).toLocaleString('es-AR')}</span>
+      </div>
+    </div>
+  );
+};
+
 export const PriceChart: React.FC<PriceChartProps> = ({
   records,
   metric,
@@ -25,6 +67,8 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   pinnedHistories = {},
   chartTitleOverride
 }) => {
+  const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
+
   // Hide main average line (e.g. "Promedio Canasta") when activeProductId is 0 (all products/basket) and there are pinned products to show
   const hideMainLine = (activeProductId === 0 && pinnedProducts.length > 0);
 
@@ -83,18 +127,23 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {headerTitle}&nbsp; — &nbsp;{metricLabel}</h3>
       <div style={{ width: '100%', height: 380 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
+          <LineChart data={chartData} onMouseLeave={() => setHoveredSeries(null)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
             <XAxis dataKey="date" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" unit="$" />
-            <Tooltip 
-              shared={false}
-              contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }}
-              formatter={(val: any, name: string) => [val !== null ? `$${val.toLocaleString()}` : '-', name]}
-            />
+            <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} />
             {pinnedProducts.length > 0 && <Legend wrapperStyle={{ paddingTop: '10px' }} />}
             {!hideMainLine && (
-              <Line type="monotone" dataKey={productName} stroke={mainLineColor} strokeWidth={3} dot={{ r: 5 }} connectNulls />
+              <Line 
+                type="monotone" 
+                dataKey={productName} 
+                stroke={mainLineColor} 
+                strokeWidth={3} 
+                dot={{ r: 5 }} 
+                connectNulls 
+                onMouseEnter={() => setHoveredSeries(productName)}
+                activeDot={{ r: 7, onMouseEnter: () => setHoveredSeries(productName) }}
+              />
             )}
             {activePinnedProducts.map(p => (
               <Line
@@ -106,6 +155,8 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                 strokeDasharray={hideMainLine ? undefined : "4 4"}
                 dot={{ r: 4 }}
                 connectNulls
+                onMouseEnter={() => setHoveredSeries(p.productName)}
+                activeDot={{ r: 6, onMouseEnter: () => setHoveredSeries(p.productName) }}
               />
             ))}
           </LineChart>

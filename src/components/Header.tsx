@@ -76,10 +76,6 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-            {onToggleTheme && (
-              <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
-            )}
-
             <div
               style={{
                 display: 'inline-flex',
@@ -97,6 +93,10 @@ export const Header: React.FC<HeaderProps> = ({
               <Database size={11} color={isMock ? '#f59e0b' : 'var(--text-secondary)'} />
               <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
             </div>
+
+            {onToggleTheme && (
+              <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
+            )}
           </div>
         </div>
       </div>

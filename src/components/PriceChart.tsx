@@ -220,7 +220,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
             <XAxis dataKey="date" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" unit="$" />
             <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} isAnimationActive={false} />
-            {pinnedProducts.length > 0 && <Legend content={renderCustomLegend} />}
+            {/* Legend with product names and colors below chart hidden */}
             {!hideMainLine && (
               <>
                 {/* Invisible wide line target for mouse hover tolerance */}

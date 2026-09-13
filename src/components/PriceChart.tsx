@@ -33,6 +33,16 @@ const SingleSeriesTooltip: React.FC<SingleSeriesTooltipProps> = ({ active, paylo
   const targetItem = validPayload.find((item: any) => item.name === hoveredSeries || item.dataKey === hoveredSeries);
   if (!targetItem) return null;
 
+  const formattedLabel = typeof label === 'number'
+    ? (() => {
+        const d = new Date(label);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      })()
+    : label;
+
   return (
     <div 
       style={{
@@ -48,7 +58,7 @@ const SingleSeriesTooltip: React.FC<SingleSeriesTooltipProps> = ({ active, paylo
         pointerEvents: 'none'
       }}
     >
-      <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginBottom: '4px' }}>{label}</div>
+      <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginBottom: '4px' }}>{formattedLabel}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
         <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: targetItem.color, display: 'inline-block' }} />
         <span>{targetItem.name}:</span>
@@ -105,11 +115,6 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   if (!hideMainLine) {
     records.forEach(r => datesSet.add(r.snapshot_date));
   }
-  activePinnedProducts.forEach(p => {
-    const list = pinnedHistories[p.pinnedId] || [];
-    list.forEach(r => datesSet.add(r.snapshot_date));
-  });
-
   const sortedDates = Array.from(datesSet).sort((a, b) => a.localeCompare(b));
 
   const activeMap = new Map(records.map(r => [r.snapshot_date, r[metric]]));
@@ -120,8 +125,16 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     pinnedMaps.set(p.pinnedId, new Map(list.map(r => [r.snapshot_date, r[metric]])));
   });
 
+  const parseDateToTimestamp = (dateStr: string) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, d).getTime();
+  };
+
+  const sortedTimestamps = sortedDates.map(parseDateToTimestamp);
+
   const chartData = sortedDates.map(date => {
-    const item: any = { date };
+    const ts = parseDateToTimestamp(date);
+    const item: any = { date, timestamp: ts };
     if (!hideMainLine) {
       item[productName] = activeMap.get(date) ?? null;
     }
@@ -217,7 +230,23 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} onMouseLeave={() => setHoveredSeries(null)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="date" stroke="#94a3b8" tick={{ fontSize: 11 }} tickMargin={8} />
+            <XAxis 
+              dataKey="timestamp" 
+              type="number"
+              scale="time"
+              domain={['dataMin', 'dataMax']}
+              ticks={sortedTimestamps}
+              stroke="#94a3b8" 
+              tick={{ fontSize: 11 }} 
+              tickMargin={8} 
+              tickFormatter={(ts: number) => {
+                const d = new Date(ts);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+              }}
+            />
             <YAxis stroke="#94a3b8" unit="$" tick={{ fontSize: 11 }} tickMargin={8} />
             <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} isAnimationActive={false} />
             {/* Legend with product names and colors below chart hidden */}

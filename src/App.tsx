@@ -104,9 +104,12 @@ export function App() {
     });
   };
 
+  const [chartTitleOverride, setChartTitleOverride] = useState<string | null>(null);
+
   const handleClearPinned = () => {
     setPinnedProducts([]);
     setPinnedHistories({});
+    setChartTitleOverride(null);
   };
 
   const handleResetChart = () => {
@@ -114,6 +117,7 @@ export function App() {
     setSelectedCategory(defaultConfig.categoryId);
     setSelectedProduct(defaultConfig.productId);
     setSelectedMetric(defaultConfig.metric);
+    setChartTitleOverride(null);
     if (defaultConfig.clearPinned) {
       handleClearPinned();
     }
@@ -122,6 +126,7 @@ export function App() {
   const handleSelectProductFromSearch = (product: Product) => {
     setSelectedCategory(product.category_id);
     setSelectedProduct(product.id);
+    setChartTitleOverride(null);
   };
 
   const handlePinProductFromSearch = (product: Product) => {
@@ -153,6 +158,7 @@ export function App() {
       setSelectedCategory(categoryId);
     }
     setSelectedProduct(productId);
+    setChartTitleOverride(null);
   };
 
   const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
@@ -172,16 +178,20 @@ export function App() {
     let highlightItems: Array<{ product_id?: number; product_name: string }> = [];
     if (section === 'subas') {
       highlightItems = marketInsightsData.topSubas;
+      setChartTitleOverride('Top subas');
     } else if (section === 'bajas') {
       highlightItems = marketInsightsData.topBajas;
+      setChartTitleOverride('Top bajas');
     } else if (section === 'rachas') {
       highlightItems = marketInsightsData.rachasActivas;
+      setChartTitleOverride('Rachas activas');
     } else {
       highlightItems = [
         ...marketInsightsData.topSubas,
         ...marketInsightsData.topBajas,
         ...marketInsightsData.rachasActivas
       ];
+      setChartTitleOverride('Top subas, bajas y rachas');
     }
 
     const newPinnedProducts: PinnedProduct[] = [];
@@ -241,8 +251,8 @@ export function App() {
           selectedMetric={selectedMetric}
           pinnedProducts={pinnedProducts}
           isCurrentPinned={isCurrentPinned}
-          onCategoryChange={setSelectedCategory}
-          onProductChange={setSelectedProduct}
+          onCategoryChange={(cat) => { setSelectedCategory(cat); setChartTitleOverride(null); }}
+          onProductChange={(prod) => { setSelectedProduct(prod); setChartTitleOverride(null); }}
           onMetricChange={setSelectedMetric}
           onTogglePin={handleTogglePin}
           onUnpinProduct={(pinnedId: string) => handleUnpinProduct(pinnedId)}
@@ -262,6 +272,7 @@ export function App() {
               categoryName={activeCategory?.name}
               pinnedProducts={pinnedProducts}
               pinnedHistories={pinnedHistories}
+              chartTitleOverride={chartTitleOverride}
             />
 
             {/* 2. Componente Insights Producto (Ubicado a continuación del gráfico) */}

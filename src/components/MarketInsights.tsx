@@ -27,7 +27,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
     .join('; ');
 
   return (
-    <div style={{ marginBottom: '6px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <section className="market-insights-card">
       {/* 1. Fila de Métricas Generales (Header KPI Grid) */}
       <div className="kpi-grid-container">

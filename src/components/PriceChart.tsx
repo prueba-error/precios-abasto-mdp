@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import { PriceRecord, PriceMetric, PinnedProduct } from '../types';
 
@@ -18,39 +18,17 @@ interface SingleSeriesTooltipProps {
   active?: boolean;
   payload?: any[];
   label?: string;
-  coordinate?: { x?: number; y?: number };
+  hoveredSeries?: string | null;
 }
 
-const SingleSeriesTooltip: React.FC<SingleSeriesTooltipProps> = ({ active, payload, label, coordinate }) => {
-  if (!active || !payload || !payload.length) return null;
+const SingleSeriesTooltip: React.FC<SingleSeriesTooltipProps> = ({ active, payload, label, hoveredSeries }) => {
+  if (!active || !payload || !payload.length || !hoveredSeries) return null;
 
   const validPayload = payload.filter((item: any) => item.value !== null && item.value !== undefined && typeof item.value === 'number');
   if (!validPayload.length) return null;
 
-  let targetItem = validPayload[0];
-
-  // If multiple items exist at this date, pick the one closest to the mouse cursor Y position
-  if (validPayload.length > 1 && coordinate && typeof coordinate.y === 'number') {
-    const prices = validPayload.map((item: any) => Number(item.value));
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-
-    if (maxPrice > minPrice) {
-      const chartInnerHeight = 330;
-      const clampedY = Math.max(0, Math.min(chartInnerHeight, coordinate.y));
-      const ratio = 1 - (clampedY / chartInnerHeight); // 1 = top (max price), 0 = bottom (min price)
-      const estimatedPrice = minPrice + ratio * (maxPrice - minPrice);
-
-      let minDistance = Infinity;
-      validPayload.forEach((item: any) => {
-        const dist = Math.abs(Number(item.value) - estimatedPrice);
-        if (dist < minDistance) {
-          minDistance = dist;
-          targetItem = item;
-        }
-      });
-    }
-  }
+  const targetItem = validPayload.find((item: any) => item.name === hoveredSeries || item.dataKey === hoveredSeries);
+  if (!targetItem) return null;
 
   return (
     <div 
@@ -88,6 +66,8 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   pinnedHistories = {},
   chartTitleOverride
 }) => {
+  const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
+
   // Hide main average line (e.g. "Promedio Canasta") when activeProductId is 0 (all products/basket) and there are pinned products to show
   const hideMainLine = (activeProductId === 0 && pinnedProducts.length > 0);
 
@@ -146,34 +126,59 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {headerTitle}&nbsp; — &nbsp;{metricLabel}</h3>
       <div style={{ width: '100%', height: 380 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
+          <LineChart data={chartData} onMouseLeave={() => setHoveredSeries(null)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
             <XAxis dataKey="date" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" unit="$" />
-            <Tooltip content={<SingleSeriesTooltip />} />
+            <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} />
             {pinnedProducts.length > 0 && <Legend wrapperStyle={{ paddingTop: '10px' }} />}
             {!hideMainLine && (
               <Line 
                 type="monotone" 
                 dataKey={productName} 
                 stroke={mainLineColor} 
-                strokeWidth={3} 
+                strokeWidth={hoveredSeries === productName ? 5 : 3}
+                strokeOpacity={hoveredSeries ? (hoveredSeries === productName ? 1 : 0.35) : 1}
                 dot={{ r: 5 }} 
+                activeDot={{ 
+                  r: 8, 
+                  strokeWidth: 2, 
+                  stroke: '#ffffff',
+                  onMouseOver: () => setHoveredSeries(productName),
+                  onMouseOut: () => setHoveredSeries(null)
+                }}
                 connectNulls 
+                onMouseOver={() => setHoveredSeries(productName)}
+                onMouseOut={() => setHoveredSeries(null)}
+                style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease, stroke-opacity 0.15s ease' }}
               />
             )}
-            {activePinnedProducts.map(p => (
-              <Line
-                key={p.pinnedId}
-                type="monotone"
-                dataKey={p.productName}
-                stroke={p.color}
-                strokeWidth={2}
-                strokeDasharray={hideMainLine ? undefined : "4 4"}
-                dot={{ r: 4 }}
-                connectNulls
-              />
-            ))}
+            {activePinnedProducts.map(p => {
+              const isHovered = hoveredSeries === p.productName;
+              return (
+                <Line
+                  key={p.pinnedId}
+                  type="monotone"
+                  dataKey={p.productName}
+                  stroke={p.color}
+                  strokeWidth={isHovered ? 4 : 2}
+                  strokeOpacity={hoveredSeries ? (isHovered ? 1 : 0.35) : 1}
+                  strokeDasharray={hideMainLine ? undefined : "4 4"}
+                  dot={{ r: 4 }}
+                  activeDot={{ 
+                    r: 8, 
+                    strokeWidth: 2, 
+                    stroke: '#ffffff',
+                    onMouseOver: () => setHoveredSeries(p.productName),
+                    onMouseOut: () => setHoveredSeries(null)
+                  }}
+                  connectNulls
+                  onMouseOver={() => setHoveredSeries(p.productName)}
+                  onMouseOut={() => setHoveredSeries(null)}
+                  style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease, stroke-opacity 0.15s ease' }}
+                />
+              );
+            })}
           </LineChart>
         </ResponsiveContainer>
       </div>

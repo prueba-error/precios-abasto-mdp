@@ -78,33 +78,33 @@ export async function getProducts(categoryId: number, categories: Category[] = [
 }
 
 export async function getPriceHistory(productId: number, categoryId: number): Promise<PriceRecord[]> {
-  if (productId <= -1 || categoryId <= -1) {
-    return [];
-  }
-  if (productId === 0) {
-    return getAggregatedPriceHistory(categoryId);
+  const targetProd = productId <= -1 ? 0 : productId;
+  const targetCat = categoryId <= -1 ? 0 : categoryId;
+
+  if (targetProd === 0) {
+    return getAggregatedPriceHistory(targetCat);
   }
 
   if (isUsingMock || !supabase) {
     return MOCK_PRICE_RECORDS
-      .filter(r => r.product_id === productId)
+      .filter(r => r.product_id === targetProd)
       .sort((a, b) => a.snapshot_date.localeCompare(b.snapshot_date));
   }
   const { data, error } = await supabase
     .from('price_records')
     .select('*')
-    .eq('product_id', productId)
+    .eq('product_id', targetProd)
     .order('snapshot_date', { ascending: true });
-  if (error || !data) return MOCK_PRICE_RECORDS.filter(r => r.product_id === productId);
+  if (error || !data) return MOCK_PRICE_RECORDS.filter(r => r.product_id === targetProd);
   return data;
 }
 
 export async function getCategoryAllProductsRecords(categoryId: number): Promise<ExtendedPriceRecord[]> {
-  if (categoryId <= -1) return [];
+  const targetCat = categoryId <= -1 ? 0 : categoryId;
   if (isUsingMock || !supabase) {
     let validProducts = MOCK_PRODUCTS;
-    if (categoryId !== 0) {
-      validProducts = MOCK_PRODUCTS.filter(p => p.category_id === categoryId);
+    if (targetCat !== 0) {
+      validProducts = MOCK_PRODUCTS.filter(p => p.category_id === targetCat);
     }
     const prodMap = new Map(validProducts.map(p => [p.id, p.name]));
     return MOCK_PRICE_RECORDS
@@ -113,8 +113,8 @@ export async function getCategoryAllProductsRecords(categoryId: number): Promise
   }
 
   let prodQuery = supabase.from('products').select('id, name');
-  if (categoryId !== 0) {
-    prodQuery = prodQuery.eq('category_id', categoryId);
+  if (targetCat !== 0) {
+    prodQuery = prodQuery.eq('category_id', targetCat);
   }
   const { data: prods } = await prodQuery;
   const prodMap = new Map((prods || []).map(p => [p.id, p.name]));

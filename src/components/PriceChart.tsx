@@ -131,7 +131,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
             <XAxis dataKey="date" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" unit="$" />
             <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} isAnimationActive={false} />
-            {pinnedProducts.length > 0 && <Legend wrapperStyle={{ paddingTop: '10px' }} />}
+            {pinnedProducts.length > 0 && <Legend wrapperStyle={{ paddingTop: '14px' }} iconType="circle" />}
             {!hideMainLine && (
               <>
                 {/* Invisible wide line target for mouse hover tolerance */}
@@ -140,6 +140,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                   dataKey={productName}
                   stroke="rgba(0,0,0,0)"
                   strokeWidth={14}
+                  legendType="none"
                   dot={false}
                   activeDot={false}
                   connectNulls
@@ -178,6 +179,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                     dataKey={p.productName}
                     stroke="rgba(0,0,0,0)"
                     strokeWidth={14}
+                    legendType="none"
                     dot={false}
                     activeDot={false}
                     connectNulls

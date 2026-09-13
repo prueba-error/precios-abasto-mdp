@@ -84,14 +84,45 @@ export const Filters: React.FC<FiltersProps> = ({
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
         <div style={{ flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Categoría</label>
-          <select 
-            value={selectedCategory} 
-            onChange={(e) => onCategoryChange(Number(e.target.value))}
-            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: selectedCategory === -1 ? 'var(--text-secondary)' : 'var(--text-primary)', border: '1px solid var(--border-color)' }}
-          >
-            <option value={-1}>— Seleccionar categoría —</option>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <select 
+              value={selectedCategory} 
+              onChange={(e) => onCategoryChange(Number(e.target.value))}
+              style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: selectedCategory === -1 ? 'var(--text-secondary)' : 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+            >
+              <option value={-1}>— Seleccionar categoría —</option>
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <button
+              type="button"
+              onClick={() => onCategoryChange(-1)}
+              disabled={selectedCategory === -1 || (isCurrentPinned && selectedCategory > 0)}
+              title={
+                selectedCategory === -1
+                  ? 'Sin selección de categoría'
+                  : (isCurrentPinned && selectedCategory > 0)
+                  ? 'No se puede deseleccionar una categoría fijada al gráfico'
+                  : 'Eliminar selección de categoría'
+              }
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '38px',
+                height: '38px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-card)',
+                color: (selectedCategory === -1 || (isCurrentPinned && selectedCategory > 0)) ? 'var(--text-secondary)' : '#f87171',
+                opacity: (selectedCategory === -1 || (isCurrentPinned && selectedCategory > 0)) ? 0.35 : 1,
+                cursor: (selectedCategory === -1 || (isCurrentPinned && selectedCategory > 0)) ? 'not-allowed' : 'pointer',
+                flexShrink: 0,
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <X size={15} />
+            </button>
+          </div>
         </div>
         <div style={{ flex: '1.2 1 260px' }}>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Producto</label>
@@ -104,6 +135,35 @@ export const Filters: React.FC<FiltersProps> = ({
               <option value={-1}>— Seleccionar producto —</option>
               {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
+            <button
+              type="button"
+              onClick={() => onProductChange(-1)}
+              disabled={selectedProduct === -1 || (isCurrentPinned && selectedProduct > 0)}
+              title={
+                selectedProduct === -1
+                  ? 'Sin selección de producto'
+                  : (isCurrentPinned && selectedProduct > 0)
+                  ? 'No se puede deseleccionar un producto fijado al gráfico'
+                  : 'Eliminar selección de producto'
+              }
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '38px',
+                height: '38px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-card)',
+                color: (selectedProduct === -1 || (isCurrentPinned && selectedProduct > 0)) ? 'var(--text-secondary)' : '#f87171',
+                opacity: (selectedProduct === -1 || (isCurrentPinned && selectedProduct > 0)) ? 0.35 : 1,
+                cursor: (selectedProduct === -1 || (isCurrentPinned && selectedProduct > 0)) ? 'not-allowed' : 'pointer',
+                flexShrink: 0,
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <X size={15} />
+            </button>
             <button
               onClick={onTogglePin}
               onMouseEnter={() => setIsPinHovered(true)}

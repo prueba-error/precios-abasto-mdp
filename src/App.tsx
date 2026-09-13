@@ -281,7 +281,9 @@ export function App() {
           isCurrentPinned={isCurrentPinned}
           onCategoryChange={(catId) => { 
             setSelectedCategory(catId); 
-            if (catId !== -1 && selectedProduct === -1) {
+            if (catId === -1) {
+              setSelectedProduct(-1);
+            } else if (selectedProduct === -1) {
               setSelectedProduct(0);
             }
             setChartTitleOverride(null); 

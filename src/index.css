@@ -897,8 +897,8 @@ body {
 }
 
 .theme-switch__icon {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -907,15 +907,15 @@ body {
 }
 
 .theme-switch__icon--sun {
-  color: rgba(255, 255, 255, 0.4);
-  opacity: 0.5;
-  transform: scale(0.9);
+  color: rgba(255, 255, 255, 0.45);
+  opacity: 0.55;
+  transform: scale(0.92);
 }
 
 .theme-switch[aria-checked="true"] .theme-switch__icon--sun {
   color: #ffffff;
   opacity: 1;
-  transform: scale(1);
+  transform: scale(1.05);
 }
 
 .theme-switch__icon--moon {
@@ -925,9 +925,9 @@ body {
 }
 
 .theme-switch[aria-checked="true"] .theme-switch__icon--moon {
-  color: rgba(255, 255, 255, 0.4);
-  opacity: 0.5;
-  transform: scale(0.9);
+  color: rgba(255, 255, 255, 0.45);
+  opacity: 0.55;
+  transform: scale(0.92);
 }
 
 .theme-switch__thumb {

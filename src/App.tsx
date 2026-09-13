@@ -294,6 +294,8 @@ export function App() {
               if (prodObj) {
                 setSelectedCategory(prodObj.category_id);
               }
+            } else if (prodId === -1) {
+              setSelectedCategory(-1);
             }
             setSelectedProduct(prodId); 
             setChartTitleOverride(null); 

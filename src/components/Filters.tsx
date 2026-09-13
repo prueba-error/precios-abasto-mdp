@@ -110,32 +110,44 @@ export const Filters: React.FC<FiltersProps> = ({
               <option value={-1}>— Seleccionar producto —</option>
               {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
-            <button
-              type="button"
-              onClick={() => {
-                onCategoryChange(-1);
-                onProductChange(-1);
-              }}
-              disabled={selectedCategory === -1 && selectedProduct === -1}
-              title={selectedCategory === -1 && selectedProduct === -1 ? 'Sin selección' : 'Eliminar selección de categoría y producto'}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '38px',
-                height: '38px',
-                borderRadius: '6px',
-                border: '1px solid var(--border-color)',
-                background: 'var(--bg-card)',
-                color: (selectedCategory === -1 && selectedProduct === -1) ? 'var(--text-secondary)' : '#f87171',
-                opacity: (selectedCategory === -1 && selectedProduct === -1) ? 0.35 : 1,
-                cursor: (selectedCategory === -1 && selectedProduct === -1) ? 'not-allowed' : 'pointer',
-                flexShrink: 0,
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <X size={15} />
-            </button>
+            {(() => {
+              const isCleared = pinnedProducts.length === 0 
+                ? ((selectedCategory === 0 || selectedCategory === -1) && (selectedProduct === 0 || selectedProduct === -1))
+                : (selectedCategory === -1 && selectedProduct === -1);
+              return (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (pinnedProducts.length === 0) {
+                      onCategoryChange(0);
+                      onProductChange(0);
+                    } else {
+                      onCategoryChange(-1);
+                      onProductChange(-1);
+                    }
+                  }}
+                  disabled={isCleared}
+                  title={isCleared ? 'Sin selección' : 'Eliminar selección de categoría y producto'}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    background: 'var(--bg-card)',
+                    color: isCleared ? 'var(--text-secondary)' : '#f87171',
+                    opacity: isCleared ? 0.35 : 1,
+                    cursor: isCleared ? 'not-allowed' : 'pointer',
+                    flexShrink: 0,
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <X size={15} />
+                </button>
+              );
+            })()}
             <button
               onClick={onTogglePin}
               onMouseEnter={() => setIsPinHovered(true)}

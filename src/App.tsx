@@ -98,7 +98,14 @@ export function App() {
   };
 
   const handleUnpinProduct = (pinnedId: string) => {
-    setPinnedProducts(prev => prev.filter(p => p.pinnedId !== pinnedId));
+    setPinnedProducts(prev => {
+      const next = prev.filter(p => p.pinnedId !== pinnedId);
+      if (next.length === 0 && (selectedCategory <= 0 && selectedProduct <= 0)) {
+        setSelectedCategory(0);
+        setSelectedProduct(0);
+      }
+      return next;
+    });
     setPinnedHistories(prev => {
       const copy = { ...prev };
       delete copy[pinnedId];
@@ -112,6 +119,10 @@ export function App() {
     setPinnedProducts([]);
     setPinnedHistories({});
     setChartTitleOverride(null);
+    if (selectedCategory <= 0 && selectedProduct <= 0) {
+      setSelectedCategory(0);
+      setSelectedProduct(0);
+    }
   };
 
   const handleResetChart = () => {
@@ -284,11 +295,16 @@ export function App() {
           hoveredSeries={hoveredSeries}
           onHoverSeries={setHoveredSeries}
           onCategoryChange={(catId) => { 
-            setSelectedCategory(catId); 
-            if (catId === -1) {
-              setSelectedProduct(-1);
-            } else if (selectedProduct === -1) {
+            if (catId === -1 && pinnedProducts.length === 0) {
+              setSelectedCategory(0);
               setSelectedProduct(0);
+            } else {
+              setSelectedCategory(catId); 
+              if (catId === -1) {
+                setSelectedProduct(-1);
+              } else if (selectedProduct === -1) {
+                setSelectedProduct(0);
+              }
             }
             setChartTitleOverride(null); 
           }}
@@ -299,6 +315,12 @@ export function App() {
                 setSelectedCategory(prodObj.category_id);
               }
             } else if (prodId === -1) {
+              if (pinnedProducts.length === 0) {
+                setSelectedCategory(0);
+                setSelectedProduct(0);
+                setChartTitleOverride(null); 
+                return;
+              }
               setSelectedCategory(-1);
             }
             setSelectedProduct(prodId); 

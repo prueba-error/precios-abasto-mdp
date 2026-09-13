@@ -217,8 +217,8 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 borderRadius: '4px',
                 border: 'none',
                 background: viewMode === 'detailed' ? 'var(--accent-primary)' : 'transparent',
-                color: viewMode === 'detailed' ? '#000' : 'var(--text-secondary)',
-                fontWeight: viewMode === 'detailed' ? 600 : 400,
+                color: viewMode === 'detailed' ? '#ffffff' : 'var(--text-secondary)',
+                fontWeight: viewMode === 'detailed' ? 600 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
@@ -238,8 +238,8 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 borderRadius: '4px',
                 border: 'none',
                 background: viewMode === 'historical' ? 'var(--accent-primary)' : 'transparent',
-                color: viewMode === 'historical' ? '#000' : 'var(--text-secondary)',
-                fontWeight: viewMode === 'historical' ? 600 : 400,
+                color: viewMode === 'historical' ? '#ffffff' : 'var(--text-secondary)',
+                fontWeight: viewMode === 'historical' ? 600 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}

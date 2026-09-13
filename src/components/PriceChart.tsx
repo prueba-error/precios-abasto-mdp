@@ -121,6 +121,58 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     ? chartTitleOverride
     : (hideMainLine ? 'Comparativa de Productos' : `${titlePrefix}${productName}${titleOthers}`);
 
+  const renderCustomLegend = (props: any) => {
+    const { payload } = props;
+    if (!payload || !payload.length) return null;
+    return (
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '8px 16px',
+        paddingTop: '16px'
+      }}>
+        {payload.map((entry: any, index: number) => {
+          const isHovered = hoveredSeries === entry.value;
+          return (
+            <div
+              key={`legend-item-${index}`}
+              onMouseOver={() => setHoveredSeries(entry.value)}
+              onMouseOut={() => setHoveredSeries(null)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+                opacity: hoveredSeries ? (isHovered ? 1 : 0.4) : 1,
+                transition: 'all 0.15s ease',
+                padding: '3px 8px',
+                borderRadius: '4px',
+                backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                border: isHovered ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid transparent'
+              }}
+            >
+              <span
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: entry.color,
+                  display: 'inline-block',
+                  flexShrink: 0
+                }}
+              />
+              <span style={{ color: isHovered ? '#ffffff' : '#cbd5e1', fontSize: '0.8125rem', fontWeight: isHovered ? 600 : 500 }}>
+                {entry.value}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="price-chart-card" style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
       <h3 style={{ marginBottom: '16px', fontSize: '1.125rem' }}>Evolución: {headerTitle}&nbsp; — &nbsp;{metricLabel}</h3>
@@ -131,7 +183,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
             <XAxis dataKey="date" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" unit="$" />
             <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} isAnimationActive={false} />
-            {pinnedProducts.length > 0 && <Legend wrapperStyle={{ paddingTop: '14px' }} iconType="circle" />}
+            {pinnedProducts.length > 0 && <Legend content={renderCustomLegend} />}
             {!hideMainLine && (
               <>
                 {/* Invisible wide line target for mouse hover tolerance */}

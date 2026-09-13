@@ -601,5 +601,24 @@ body {
   .product-contextual-col-clean {
     grid-column: 1 / -1;
     width: 100%;
+}
+
+/* Background floating icons animation */
+@keyframes bgIconFloat {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(4deg);
+  }
+  100% {
+    transform: translateY(4px) rotate(-3deg);
   }
 }
+
+.bg-floating-icon {
+  animation: bgIconFloat 6s ease-in-out infinite alternate;
+  will-change: transform;
+  transition: color 0.3s ease;
+}
+

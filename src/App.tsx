@@ -6,6 +6,7 @@ import { PriceChart } from './components/PriceChart';
 import { ProductInsights } from './components/ProductInsights';
 import { PriceTable } from './components/PriceTable';
 import { Footer } from './components/Footer';
+import { BackgroundPattern } from './components/BackgroundPattern';
 import { Category, Product, PriceRecord, PriceMetric, PinnedProduct } from './types';
 import { getCategories, getProducts, getPriceHistory, getCategoryAllProductsRecords, getBasketOptionForCategory, getDefaultViewConfig, ExtendedPriceRecord, isUsingMock } from './services/dataService';
 import { computeMarketInsights, computeProductInsights } from './utils/insightsUtils';
@@ -263,7 +264,8 @@ export function App() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <BackgroundPattern />
       <Header
         isMock={isUsingMock}
         lastUpdated={latestDate}

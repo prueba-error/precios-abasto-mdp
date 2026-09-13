@@ -52,27 +52,24 @@ export const Filters: React.FC<FiltersProps> = ({
 
   // Compute Fijar/Fijado button styles dynamically based on state
   const getPinStyle = () => {
-    if (isCurrentPinned) {
-      return { background: 'var(--accent-primary)', border: '1px solid var(--accent-hover)', color: '#ffffff', transform: isPinPressed ? 'scale(0.97)' : 'none' };
-    }
     if (isPinPressed) {
-      return { background: 'rgba(22, 163, 74, 0.25)', border: '1px solid var(--accent-primary)', color: 'var(--text-primary)', transform: 'scale(0.97)' };
+      return { background: '#166534', border: '1px solid #14532d', color: '#ffffff', transform: 'scale(0.97)' };
     }
     if (isPinHovered) {
-      return { background: 'rgba(22, 163, 74, 0.18)', border: '1px solid var(--accent-primary)', color: 'var(--text-primary)', transform: 'none' };
+      return { background: '#15803d', border: '1px solid #166534', color: '#ffffff', transform: 'none' };
     }
-    return { background: 'rgba(22, 163, 74, 0.08)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', transform: 'none' };
+    return { background: '#16a34a', border: '1px solid #15803d', color: '#ffffff', transform: 'none' };
   };
 
   // Compute Restablecer button styles dynamically based on state
   const getResetStyle = () => {
     if (isResetPressed) {
-      return { background: 'var(--accent-orange)', border: '1px solid var(--accent-orange)', color: '#ffffff', transform: 'scale(0.97)' };
+      return { background: '#9a3412', border: '1px solid #7c2d12', color: '#ffffff', transform: 'scale(0.97)' };
     }
     if (isResetHovered) {
-      return { background: 'rgba(234, 88, 12, 0.18)', border: '1px solid var(--accent-orange)', color: 'var(--text-primary)', transform: 'none' };
+      return { background: '#c2410c', border: '1px solid #9a3412', color: '#ffffff', transform: 'none' };
     }
-    return { background: 'rgba(234, 88, 12, 0.08)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', transform: 'none' };
+    return { background: '#ea580c', border: '1px solid #c2410c', color: '#ffffff', transform: 'none' };
   };
 
   const pinStyle = getPinStyle();

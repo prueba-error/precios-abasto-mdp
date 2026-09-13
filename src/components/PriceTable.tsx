@@ -204,7 +204,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
       <div style={{ padding: '12px 16px', background: 'var(--bg-header-sub)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           {/* View Mode Toggle Switch (Far Left) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
             <button
               onClick={() => setViewMode('detailed')}
               title="Vista de detalle actual"
@@ -215,15 +215,15 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 padding: '4px 10px',
                 fontSize: '0.75rem',
                 borderRadius: '4px',
-                border: 'none',
-                background: viewMode === 'detailed' ? 'var(--accent-primary)' : 'transparent',
-                color: viewMode === 'detailed' ? '#ffffff' : 'var(--text-secondary)',
+                border: viewMode === 'detailed' ? '1px solid var(--border-color)' : '1px solid transparent',
+                background: viewMode === 'detailed' ? 'var(--bg-header-sub)' : 'transparent',
+                color: viewMode === 'detailed' ? 'var(--accent-primary)' : 'var(--text-secondary)',
                 fontWeight: viewMode === 'detailed' ? 600 : 500,
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.15s ease'
               }}
             >
-              <Table size={14} />
+              <Table size={14} color={viewMode === 'detailed' ? 'var(--accent-primary)' : 'var(--text-secondary)'} />
               <span>Detalle</span>
             </button>
             <button
@@ -236,15 +236,15 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 padding: '4px 10px',
                 fontSize: '0.75rem',
                 borderRadius: '4px',
-                border: 'none',
-                background: viewMode === 'historical' ? 'var(--accent-primary)' : 'transparent',
-                color: viewMode === 'historical' ? '#ffffff' : 'var(--text-secondary)',
+                border: viewMode === 'historical' ? '1px solid var(--border-color)' : '1px solid transparent',
+                background: viewMode === 'historical' ? 'var(--bg-header-sub)' : 'transparent',
+                color: viewMode === 'historical' ? 'var(--accent-primary)' : 'var(--text-secondary)',
                 fontWeight: viewMode === 'historical' ? 600 : 500,
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.15s ease'
               }}
             >
-              <Calendar size={14} />
+              <Calendar size={14} color={viewMode === 'historical' ? 'var(--accent-primary)' : 'var(--text-secondary)'} />
               <span>Histórico</span>
             </button>
           </div>

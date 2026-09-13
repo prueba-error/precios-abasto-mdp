@@ -75,11 +75,11 @@ body {
   font: inherit;
   cursor: pointer;
   text-align: left;
-  transition: color 0.15s ease, text-decoration 0.15s ease;
+  transition: text-decoration 0.15s ease;
 }
 
 .table-product-link:hover {
-  color: #60a5fa;
+  color: var(--text-primary);
   text-decoration: underline;
 }
 

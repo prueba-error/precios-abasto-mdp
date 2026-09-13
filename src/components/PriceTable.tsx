@@ -130,15 +130,17 @@ export const PriceTable: React.FC<PriceTableProps> = ({
 
   // 2. Process pinned products records (Rows 2..N, placed right below Active Product: Latest snapshot per pinned item)
   const pinnedRows: CombinedRow[] = [];
-  pinnedProducts.forEach(p => {
-    if (p.pinnedId !== activePinnedId) {
-      const list = pinnedHistories[p.pinnedId] || individualMap.get(p.productName) || [];
-      if (list.length > 0) {
-        const processed = processProductRecords(list, p.productName, p.color, false, true, p.productId, p.categoryId);
-        if (processed.length > 0) {
-          const latestPinnedRow = (latestDate ? processed.find(r => r.snapshot_date === latestDate) : null) || processed[processed.length - 1];
-          pinnedRows.push(latestPinnedRow);
-        }
+  const targetPinnedProducts = hideMainLine
+    ? pinnedProducts
+    : pinnedProducts.filter(p => p.pinnedId !== activePinnedId);
+
+  targetPinnedProducts.forEach(p => {
+    const list = pinnedHistories[p.pinnedId] || (p.productId === 0 ? records : (individualMap.get(p.productName) || []));
+    if (list.length > 0) {
+      const processed = processProductRecords(list, p.productName, p.color, p.productId === 0, true, p.productId, p.categoryId);
+      if (processed.length > 0) {
+        const latestPinnedRow = (latestDate ? processed.find(r => r.snapshot_date === latestDate) : null) || processed[processed.length - 1];
+        pinnedRows.push(latestPinnedRow);
       }
     }
   });
@@ -183,7 +185,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
     records.forEach(r => historicalDatesSet.add(r.snapshot_date));
   }
   activePinnedProducts.forEach(p => {
-    const list = pinnedHistories[p.pinnedId] || [];
+    const list = pinnedHistories[p.pinnedId] || (p.productId === 0 ? records : []);
     list.forEach(r => historicalDatesSet.add(r.snapshot_date));
   });
 
@@ -193,7 +195,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   
   const pinnedDateValueMaps = new Map<string, Map<string, number | null>>();
   activePinnedProducts.forEach(p => {
-    const list = pinnedHistories[p.pinnedId] || [];
+    const list = pinnedHistories[p.pinnedId] || (p.productId === 0 ? records : []);
     pinnedDateValueMaps.set(p.pinnedId, new Map(list.map(r => [r.snapshot_date, r[selectedMetric]])));
   });
 

@@ -201,7 +201,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   return (
     <div style={{ marginBottom: '0px' }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-      <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+      <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
           {latestDate && viewMode === 'detailed' && (
@@ -211,7 +211,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           )}
         </div>
 
-        {/* View Mode Toggle Switch */}
+        {/* View Mode Toggle Switch (Aligned Left) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
           <button
             onClick={() => setViewMode('detailed')}
@@ -346,9 +346,6 @@ export const PriceTable: React.FC<PriceTableProps> = ({
 
           {isAllProducts && totalPages > 1 && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-              <div>
-                Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
-              </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -388,6 +385,9 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                   <span>Siguiente</span>
                   <ChevronRight size={16} />
                 </button>
+              </div>
+              <div>
+                Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
               </div>
             </div>
           )}

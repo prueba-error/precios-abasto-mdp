@@ -21,6 +21,7 @@
   --btn-reset-hover: #c46218;
   --kpi-card-bg: #123334;
   --kpi-card-border: #1d4f50;
+  --pill-border: rgba(240, 253, 244, 0.25);
 }
 
 [data-theme="light"] {
@@ -44,6 +45,7 @@
   --btn-reset-hover: #d97706;
   --kpi-card-bg: #fdf4ea;
   --kpi-card-border: #f0dbca;
+  --pill-border: #c3dac9;
 }
 
 * {

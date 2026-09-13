@@ -84,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
                 padding: '4px 10px',
                 borderRadius: '9999px',
                 background: isMock ? 'rgba(245, 158, 11, 0.14)' : 'var(--bg-header-sub)',
-                border: isMock ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid var(--border-color)',
+                border: isMock ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid var(--pill-border)',
                 color: isMock ? '#f59e0b' : 'var(--text-secondary)',
                 fontSize: '0.6875rem',
                 fontWeight: 500

@@ -345,7 +345,10 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           </div>
 
           {isAllProducts && totalPages > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', padding: '12px 16px', background: '#0f172a', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+              <div>
+                Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
+              </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -385,9 +388,6 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                   <span>Siguiente</span>
                   <ChevronRight size={16} />
                 </button>
-              </div>
-              <div>
-                Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
               </div>
             </div>
           )}

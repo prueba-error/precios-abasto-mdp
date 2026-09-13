@@ -217,10 +217,10 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} onMouseLeave={() => setHoveredSeries(null)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="date" stroke="#94a3b8" />
-            <YAxis stroke="#94a3b8" unit="$" />
+            <XAxis dataKey="date" stroke="#94a3b8" tick={{ fontSize: 11 }} tickMargin={8} />
+            <YAxis stroke="#94a3b8" unit="$" tick={{ fontSize: 11 }} tickMargin={8} />
             <Tooltip content={<SingleSeriesTooltip hoveredSeries={hoveredSeries} />} isAnimationActive={false} />
-            {pinnedProducts.length > 0 && <Legend content={renderCustomLegend} />}
+            {/* Legend with product names and colors below chart hidden */}
             {!hideMainLine && (
               <>
                 {/* Invisible wide line target for mouse hover tolerance */}

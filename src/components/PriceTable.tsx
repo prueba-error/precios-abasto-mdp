@@ -201,62 +201,113 @@ export const PriceTable: React.FC<PriceTableProps> = ({
   return (
     <div style={{ marginBottom: '0px' }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-      <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        {/* View Mode Toggle Switch (Far Left) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-          <button
-            onClick={() => setViewMode('detailed')}
-            title="Vista de detalle actual"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              fontSize: '0.75rem',
-              borderRadius: '4px',
-              border: 'none',
-              background: viewMode === 'detailed' ? 'var(--accent-primary)' : 'transparent',
-              color: viewMode === 'detailed' ? '#000' : 'var(--text-secondary)',
-              fontWeight: viewMode === 'detailed' ? 600 : 400,
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Table size={14} />
-            <span>Detalle</span>
-          </button>
-          <button
-            onClick={() => setViewMode('historical')}
-            title="Vista de serie temporal histórica"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              fontSize: '0.75rem',
-              borderRadius: '4px',
-              border: 'none',
-              background: viewMode === 'historical' ? 'var(--accent-primary)' : 'transparent',
-              color: viewMode === 'historical' ? '#000' : 'var(--text-secondary)',
-              fontWeight: viewMode === 'historical' ? 600 : 400,
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Calendar size={14} />
-            <span>Histórico</span>
-          </button>
+      <div style={{ padding: '12px 16px', background: '#0f172a', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          {/* View Mode Toggle Switch (Far Left) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+            <button
+              onClick={() => setViewMode('detailed')}
+              title="Vista de detalle actual"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                fontSize: '0.75rem',
+                borderRadius: '4px',
+                border: 'none',
+                background: viewMode === 'detailed' ? 'var(--accent-primary)' : 'transparent',
+                color: viewMode === 'detailed' ? '#000' : 'var(--text-secondary)',
+                fontWeight: viewMode === 'detailed' ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Table size={14} />
+              <span>Detalle</span>
+            </button>
+            <button
+              onClick={() => setViewMode('historical')}
+              title="Vista de serie temporal histórica"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                fontSize: '0.75rem',
+                borderRadius: '4px',
+                border: 'none',
+                background: viewMode === 'historical' ? 'var(--accent-primary)' : 'transparent',
+                color: viewMode === 'historical' ? '#000' : 'var(--text-secondary)',
+                fontWeight: viewMode === 'historical' ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Calendar size={14} />
+              <span>Histórico</span>
+            </button>
+          </div>
+
+          {/* Title & Date (Right of toggle switch) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
+            {latestDate && viewMode === 'detailed' && (
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                — Semana del {latestDate}
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Title & Date (Right of toggle switch) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tabla de Precios</span>
-          {latestDate && viewMode === 'detailed' && (
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              — Semana del {latestDate}
-            </span>
-          )}
-        </div>
+        {/* Top Paginator */}
+        {viewMode === 'detailed' && isAllProducts && totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <div>
+              Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  background: currentPage === 1 ? 'transparent' : 'var(--bg-card)',
+                  color: currentPage === 1 ? 'var(--text-secondary)' : 'var(--text-primary)',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === 1 ? 0.5 : 1
+                }}
+              >
+                <ChevronLeft size={16} />
+                <span>Anterior</span>
+              </button>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  background: currentPage === totalPages ? 'transparent' : 'var(--bg-card)',
+                  color: currentPage === totalPages ? 'var(--text-secondary)' : 'var(--text-primary)',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === totalPages ? 0.5 : 1
+                }}
+              >
+                <span>Siguiente</span>
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {viewMode === 'detailed' ? (

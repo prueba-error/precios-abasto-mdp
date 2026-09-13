@@ -14,6 +14,7 @@ interface PriceChartProps {
   chartTitleOverride?: string | null;
   hoveredSeries?: string | null;
   onHoverSeries?: (seriesName: string | null) => void;
+  onSelectProductItem?: (productId?: number, productName?: string) => void;
 }
 
 interface SingleSeriesTooltipProps {
@@ -68,7 +69,8 @@ export const PriceChart: React.FC<PriceChartProps> = ({
   pinnedHistories = {},
   chartTitleOverride,
   hoveredSeries: hoveredSeriesProp,
-  onHoverSeries
+  onHoverSeries,
+  onSelectProductItem
 }) => {
   const [internalHoveredSeries, setInternalHoveredSeries] = useState<string | null>(null);
 
@@ -174,6 +176,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
               key={`legend-item-${index}`}
               onMouseOver={() => setHoveredSeries(entry.value)}
               onMouseOut={() => setHoveredSeries(null)}
+              onClick={() => onSelectProductItem?.(undefined, entry.value)}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -232,6 +235,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                   connectNulls
                   onMouseOver={() => setHoveredSeries(productName)}
                   onMouseOut={() => setHoveredSeries(null)}
+                  onClick={() => onSelectProductItem?.(activeProductId, productName)}
                   style={{ cursor: 'pointer' }}
                 />
                 <Line 
@@ -246,11 +250,13 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                     strokeWidth: 2, 
                     stroke: '#ffffff',
                     onMouseOver: () => setHoveredSeries(productName),
-                    onMouseOut: () => setHoveredSeries(null)
+                    onMouseOut: () => setHoveredSeries(null),
+                    onClick: () => onSelectProductItem?.(activeProductId, productName)
                   }}
                   connectNulls 
                   onMouseOver={() => setHoveredSeries(productName)}
                   onMouseOut={() => setHoveredSeries(null)}
+                  onClick={() => onSelectProductItem?.(activeProductId, productName)}
                   style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease, stroke-opacity 0.15s ease' }}
                 />
               </>
@@ -271,6 +277,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                     connectNulls
                     onMouseOver={() => setHoveredSeries(p.productName)}
                     onMouseOut={() => setHoveredSeries(null)}
+                    onClick={() => onSelectProductItem?.(p.productId, p.productName)}
                     style={{ cursor: 'pointer' }}
                   />
                   <Line
@@ -286,11 +293,13 @@ export const PriceChart: React.FC<PriceChartProps> = ({
                       strokeWidth: 2, 
                       stroke: '#ffffff',
                       onMouseOver: () => setHoveredSeries(p.productName),
-                      onMouseOut: () => setHoveredSeries(null)
+                      onMouseOut: () => setHoveredSeries(null),
+                      onClick: () => onSelectProductItem?.(p.productId, p.productName)
                     }}
                     connectNulls
                     onMouseOver={() => setHoveredSeries(p.productName)}
                     onMouseOut={() => setHoveredSeries(null)}
+                    onClick={() => onSelectProductItem?.(p.productId, p.productName)}
                     style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease, stroke-opacity 0.15s ease' }}
                   />
                 </React.Fragment>

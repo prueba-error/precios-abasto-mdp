@@ -310,6 +310,7 @@ export function App() {
           onResetChart={handleResetChart}
           onSelectProductFromSearch={handleSelectProductFromSearch}
           onPinProductFromSearch={handlePinProductFromSearch}
+          onSelectProductItem={handleSelectProductFromList}
         />
         {records.length > 0 ? (
           <>
@@ -325,6 +326,7 @@ export function App() {
               chartTitleOverride={chartTitleOverride}
               hoveredSeries={hoveredSeries}
               onHoverSeries={setHoveredSeries}
+              onSelectProductItem={handleSelectProductFromList}
             />
 
             {/* 2. Componente Insights Producto (Ubicado a continuación del gráfico) */}

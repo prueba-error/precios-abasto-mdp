@@ -21,6 +21,7 @@ interface FiltersProps {
   onSelectProductFromSearch: (product: Product) => void;
   onPinProductFromSearch?: (product: Product) => void;
   onHoverSeries?: (seriesName: string | null) => void;
+  onSelectProductItem?: (productId?: number, productName?: string) => void;
 }
 
 export const Filters: React.FC<FiltersProps> = ({
@@ -40,7 +41,8 @@ export const Filters: React.FC<FiltersProps> = ({
   onResetChart,
   onSelectProductFromSearch,
   onPinProductFromSearch,
-  onHoverSeries
+  onHoverSeries,
+  onSelectProductItem
 }) => {
   const [isPinHovered, setIsPinHovered] = React.useState(false);
   const [isPinPressed, setIsPinPressed] = React.useState(false);
@@ -209,6 +211,7 @@ export const Filters: React.FC<FiltersProps> = ({
                 key={p.pinnedId}
                 onMouseEnter={() => onHoverSeries?.(p.productName)}
                 onMouseLeave={() => onHoverSeries?.(null)}
+                onClick={() => onSelectProductItem?.(p.productId, p.productName)}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

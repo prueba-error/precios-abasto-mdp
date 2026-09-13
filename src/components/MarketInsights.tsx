@@ -156,9 +156,11 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
         </div>
       </div>
 
-      {/* 2. Cintas de Estado y Alertas (Status Banners Stack - Single Line with Semicolon) */}
+
+
+      {/* 2. Cintas de Estado y Alertas (Status Banners Stack - Comentados temporalmente) */}
+      {/* 
       <div className="banners-stack">
-        {/* Banner 1: Mínimos Promedio */}
         <div className="status-banner banner-green">
           <p className="banner-inline-paragraph">
             <TrendingDown size={15} className="banner-icon-green banner-inline-icon" />
@@ -167,7 +169,6 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
           </p>
         </div>
 
-        {/* Banner 2: Máximos Promedio */}
         <div className="status-banner banner-red">
           <p className="banner-inline-paragraph">
             <TrendingUp size={15} className="banner-icon-red banner-inline-icon" />
@@ -176,7 +177,6 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
           </p>
         </div>
 
-        {/* Banner 3: Alerta de Anomalías */}
         <div className="status-banner banner-amber">
           <p className="banner-inline-paragraph">
             <AlertTriangle size={15} className="banner-icon-amber banner-inline-icon" />
@@ -185,15 +185,18 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
           </p>
         </div>
       </div>
+      */}
     </section>
 
-    {/* 3. Enlace inferior: Ver en el gráfico (A continuación del contenedor) */}
+    {/* 3. Enlace inferior: Ver en el gráfico (Comentado temporalmente) */}
+    {/* 
     <div className="market-insights-footer">
       <button className="view-in-chart-link" onClick={onViewInChart}>
         <LineChart size={14} />
         <span>Ver en el gráfico</span>
       </button>
     </div>
+    */}
   </div>
 );
 };

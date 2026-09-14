@@ -62,7 +62,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
           <div className="kpi-card-transparent">
             <div 
               className="kpi-header-with-icon kpi-header-clickable" 
-              style={{ color: '#f87171' }}
+              style={{ color: 'var(--trend-up)' }}
               onClick={() => onViewSectionInChart && onViewSectionInChart('subas')}
               title="Ver Top subas en el gráfico"
             >
@@ -99,7 +99,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
           <div className="kpi-card-transparent">
             <div 
               className="kpi-header-with-icon kpi-header-clickable" 
-              style={{ color: '#34d399' }}
+              style={{ color: 'var(--trend-down)' }}
               onClick={() => onViewSectionInChart && onViewSectionInChart('bajas')}
               title="Ver Top bajas en el gráfico"
             >
@@ -167,7 +167,7 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
                         {item.product_name}
                       </span>
                     </span>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 400, color: item.type === 'up' ? '#f87171' : '#34d399', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 500, color: item.type === 'up' ? 'var(--trend-up)' : 'var(--trend-down)', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
                       <span>x{item.weeks}{item.cumPercent !== undefined ? ` (${item.cumPercent}%)` : ''}</span>
                       {item.type === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                     </span>

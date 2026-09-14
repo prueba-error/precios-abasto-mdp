@@ -40,7 +40,7 @@ export const ProductInsights: React.FC<ProductInsightsProps> = ({ selectedProduc
         {/* Columna 2: Variación vs último registro */}
         <div className="product-metric-col">
           <span className="metric-label">Vs último registro</span>
-          <span className="metric-value-large" style={{ color: isVariationPositive ? '#ef4444' : '#10b981' }}>
+          <span className="metric-value-large" style={{ color: isVariationPositive ? 'var(--trend-up)' : 'var(--trend-down)' }}>
             {data.variationPercent !== null ? (isVariationPositive ? `+${data.variationPercent}%` : `${data.variationPercent}%`) : '0%'}
           </span>
         </div>
@@ -67,9 +67,9 @@ export const ProductInsights: React.FC<ProductInsightsProps> = ({ selectedProduc
         <div className="product-contextual-col-clean">
           <div className="contextual-item">
             {data.consecutiveTrendType === 'up' ? (
-              <TrendingUp size={15} color="#ef4444" style={{ flexShrink: 0 }} />
+              <TrendingUp size={15} color="var(--trend-up)" style={{ flexShrink: 0 }} />
             ) : data.consecutiveTrendType === 'down' ? (
-              <TrendingDown size={15} color="#10b981" style={{ flexShrink: 0 }} />
+              <TrendingDown size={15} color="var(--trend-down)" style={{ flexShrink: 0 }} />
             ) : (
               <Sparkles size={15} color="#3b82f6" style={{ flexShrink: 0 }} />
             )}

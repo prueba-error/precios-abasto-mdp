@@ -22,6 +22,8 @@
   --kpi-card-bg: rgba(16, 52, 45, 0.52);
   --kpi-card-border: rgba(34, 100, 85, 0.70);
   --pill-border: rgba(240, 253, 244, 0.25);
+  --trend-up: #f87171;
+  --trend-down: #34d399;
 }
 
 [data-theme="light"] {
@@ -46,6 +48,8 @@
   --kpi-card-bg: rgba(254, 235, 215, 0.58);
   --kpi-card-border: rgba(230, 195, 170, 0.80);
   --pill-border: #c3dac9;
+  --trend-up: #dc2626;
+  --trend-down: #15803d;
 }
 
 * {
@@ -405,13 +409,13 @@ body {
 }
 
 .kpi-item-badge-danger {
-  color: #f87171;
-  font-weight: 400;
+  color: var(--trend-up);
+  font-weight: 500;
 }
 
 .kpi-item-badge-success {
-  color: #34d399;
-  font-weight: 400;
+  color: var(--trend-down);
+  font-weight: 500;
 }
 
 /* 2. Status Banners Stack */

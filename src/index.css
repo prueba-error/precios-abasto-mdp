@@ -249,6 +249,31 @@ body {
   }
 }
 
+@media (max-width: 640px) {
+  .header-right-group {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .header-icons {
+    gap: 4px;
+  }
+
+  .header-icon-item {
+    width: 20px;
+    height: 20px;
+  }
+
+  .header-updated-text {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+}
+
 /* ==========================================================================
    Market Insights Component Styles (_aux-prompt-UI.md)
    ========================================================================== */

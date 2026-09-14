@@ -250,6 +250,28 @@ body {
 }
 
 @media (max-width: 640px) {
+  .header-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .header-left-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .header-title-block {
+    width: 100%;
+  }
+
+  .header-search-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .header-right-group {
     flex-direction: row;
     justify-content: space-between;
@@ -1007,6 +1029,15 @@ body {
 
   .kpi-item-name {
     max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .kpi-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 }
 

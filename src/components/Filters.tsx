@@ -83,7 +83,7 @@ export const Filters: React.FC<FiltersProps> = ({
           <select 
             value={selectedCategory} 
             onChange={(e) => onCategoryChange(Number(e.target.value))}
-            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: selectedCategory === -1 ? 'var(--text-secondary)' : 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+            style={{ width: '100%', minWidth: 0, padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: selectedCategory === -1 ? 'var(--text-secondary)' : 'var(--text-primary)', border: '1px solid var(--border-color)' }}
           >
             <option value={-1}>— Seleccionar categoría —</option>
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -95,7 +95,7 @@ export const Filters: React.FC<FiltersProps> = ({
             <select 
               value={selectedProduct} 
               onChange={(e) => onProductChange(Number(e.target.value))}
-              style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: selectedProduct === -1 ? 'var(--text-secondary)' : 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+              style={{ flex: '1 1 0%', minWidth: 0, padding: '8px 12px', borderRadius: '6px', background: 'var(--bg-card)', color: selectedProduct === -1 ? 'var(--text-secondary)' : 'var(--text-primary)', border: '1px solid var(--border-color)' }}
             >
               <option value={-1}>— Seleccionar producto —</option>
               {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -160,6 +160,7 @@ export const Filters: React.FC<FiltersProps> = ({
                 fontSize: '0.8125rem',
                 whiteSpace: 'nowrap',
                 cursor: 'pointer',
+                flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}
             >

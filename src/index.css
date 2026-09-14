@@ -1060,6 +1060,13 @@ body {
 .filter-product-controls {
   display: flex;
   gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+.filter-product-controls select {
+  min-width: 0;
+  flex: 1 1 0%;
 }
 
 .filter-item-actions {

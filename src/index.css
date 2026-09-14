@@ -81,6 +81,11 @@
   background: var(--text-secondary);
 }
 
+html, body, #root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   background-color: var(--bg-main);
   color: var(--text-primary);
@@ -94,6 +99,7 @@ body {
   width: 100%;
   margin: 0 auto;
   padding: 0 16px 24px 16px;
+  box-sizing: border-box;
 }
 
 .footer-link {
@@ -941,4 +947,40 @@ body {
 
 .theme-switch[aria-checked="true"] .theme-switch__thumb {
   transform: translate(22px, -50%);
+}
+
+/* Mobile Viewport Breakpoint for Market Insights (< 640px) */
+@media (max-width: 640px) {
+  .market-insights-card {
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .kpi-grid-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .kpi-subcontainer {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .kpi-group-col1-2,
+  .kpi-group-col3-4 {
+    border-right: none !important;
+    padding-right: 0 !important;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+  }
+
+  .kpi-card-transparent {
+    min-height: auto;
+  }
+
+  .kpi-item-name {
+    max-width: 70%;
+  }
 }

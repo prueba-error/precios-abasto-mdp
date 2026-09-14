@@ -43,9 +43,6 @@ export const BackgroundPattern: React.FC = () => {
               const iconIndex = (rowIdx * 3 + colIdx) % icons.length;
               const IconComponent = icons[iconIndex];
 
-              const diagonalIdx = rowIdx + colIdx;
-              const delay = `${(diagonalIdx * 0.35) % 4}s`;
-
               return (
                 <div
                   key={`cell-${rowIdx}-${colIdx}`}
@@ -59,8 +56,7 @@ export const BackgroundPattern: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: iconColor,
-                    animationDelay: delay
+                    color: iconColor
                   }}
                 >
                   <IconComponent size={iconSize} color="currentColor" />

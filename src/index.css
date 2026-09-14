@@ -841,22 +841,8 @@ body {
   }
 }
 
-/* Background floating icons animation */
-@keyframes bgIconFloat {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}
-
 .bg-floating-icon {
-  animation: bgIconFloat 5s ease-in-out infinite;
-  will-change: transform;
+  /* Static background watermark icons */
 }
 
 /* Theme Toggle Switch Component (Clean Dual-Icon Pill) */

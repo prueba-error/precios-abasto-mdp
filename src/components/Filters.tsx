@@ -76,9 +76,9 @@ export const Filters: React.FC<FiltersProps> = ({
   const resetStyle = getResetStyle();
 
   return (
-    <div style={{ marginBottom: '24px' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
-        <div style={{ flex: '1 1 200px' }}>
+    <div className="filters-root" style={{ marginBottom: '24px' }}>
+      <div className="filters-flex-row">
+        <div className="filter-item-category">
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Categoría</label>
           <select 
             value={selectedCategory} 
@@ -89,9 +89,9 @@ export const Filters: React.FC<FiltersProps> = ({
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
-        <div style={{ flex: '1.2 1 260px' }}>
+        <div className="filter-item-product">
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>Producto</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="filter-product-controls">
             <select 
               value={selectedProduct} 
               onChange={(e) => onProductChange(Number(e.target.value))}
@@ -168,7 +168,7 @@ export const Filters: React.FC<FiltersProps> = ({
             </button>
           </div>
         </div>
-        <div style={{ flex: '0 0 auto' }}>
+        <div className="filter-item-actions">
           <button
             onClick={onResetChart}
             onMouseEnter={() => setIsResetHovered(true)}
@@ -176,6 +176,7 @@ export const Filters: React.FC<FiltersProps> = ({
             onMouseDown={() => setIsResetPressed(true)}
             onMouseUp={() => setIsResetPressed(false)}
             title="Restablecer gráfico a la vista por defecto"
+            className="filter-reset-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',

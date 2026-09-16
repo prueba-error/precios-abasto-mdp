@@ -78,21 +78,27 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
               </button>
             </div>
             <div className="kpi-list">
-              {data.topSubas.map((item, idx) => (
-                <div key={item.product_id || idx} className="kpi-list-item">
-                  <span className="kpi-item-name">
-                    <span className="kpi-item-index">{idx + 1}.</span>
-                    <span 
-                      className="kpi-item-link"
-                      onClick={() => onSelectProductItem && onSelectProductItem(item.product_id, item.product_name)}
-                      title={`Ver producto ${item.product_name}`}
-                    >
-                      {item.product_name}
+              {data.topSubas.length > 0 ? (
+                data.topSubas.map((item, idx) => (
+                  <div key={item.product_id || idx} className="kpi-list-item">
+                    <span className="kpi-item-name">
+                      <span className="kpi-item-index">{idx + 1}.</span>
+                      <span 
+                        className="kpi-item-link"
+                        onClick={() => onSelectProductItem && onSelectProductItem(item.product_id, item.product_name)}
+                        title={`Ver producto ${item.product_name}`}
+                      >
+                        {item.product_name}
+                      </span>
                     </span>
-                  </span>
-                  <span className="kpi-item-badge-danger">+{item.percent}%</span>
+                    <span className="kpi-item-badge-danger">+{item.percent}%</span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', padding: '4px 0' }}>
+                  Sin subas registradas
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -115,21 +121,27 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
               </button>
             </div>
             <div className="kpi-list">
-              {data.topBajas.map((item, idx) => (
-                <div key={item.product_id || idx} className="kpi-list-item">
-                  <span className="kpi-item-name">
-                    <span className="kpi-item-index">{idx + 1}.</span>
-                    <span 
-                      className="kpi-item-link"
-                      onClick={() => onSelectProductItem && onSelectProductItem(item.product_id, item.product_name)}
-                      title={`Ver producto ${item.product_name}`}
-                    >
-                      {item.product_name}
+              {data.topBajas.length > 0 ? (
+                data.topBajas.map((item, idx) => (
+                  <div key={item.product_id || idx} className="kpi-list-item">
+                    <span className="kpi-item-name">
+                      <span className="kpi-item-index">{idx + 1}.</span>
+                      <span 
+                        className="kpi-item-link"
+                        onClick={() => onSelectProductItem && onSelectProductItem(item.product_id, item.product_name)}
+                        title={`Ver producto ${item.product_name}`}
+                      >
+                        {item.product_name}
+                      </span>
                     </span>
-                  </span>
-                  <span className="kpi-item-badge-success">{item.percent}%</span>
+                    <span className="kpi-item-badge-success">{item.percent}%</span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', padding: '4px 0' }}>
+                  Sin bajas registradas
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -155,25 +167,31 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
               </button>
             </div>
             <div className="kpi-list">
-              {data.rachasActivas.map((item, idx) => (
-                <div key={item.product_id || idx} className="kpi-list-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    <span className="kpi-item-name">
-                      <span 
-                        className="kpi-item-link"
-                        onClick={() => onSelectProductItem && onSelectProductItem(item.product_id, item.product_name)}
-                        title={`Ver producto ${item.product_name}`}
-                      >
-                        {item.product_name}
+              {data.rachasActivas.length > 0 ? (
+                data.rachasActivas.map((item, idx) => (
+                  <div key={item.product_id || idx} className="kpi-list-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                      <span className="kpi-item-name">
+                        <span 
+                          className="kpi-item-link"
+                          onClick={() => onSelectProductItem && onSelectProductItem(item.product_id, item.product_name)}
+                          title={`Ver producto ${item.product_name}`}
+                        >
+                          {item.product_name}
+                        </span>
                       </span>
-                    </span>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 500, color: item.type === 'up' ? 'var(--trend-up)' : 'var(--trend-down)', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                      <span>x{item.weeks}{item.cumPercent !== undefined ? ` (${item.cumPercent}%)` : ''}</span>
-                      {item.type === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                    </span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: item.type === 'up' ? 'var(--trend-up)' : 'var(--trend-down)', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                        <span>x{item.weeks}{item.cumPercent !== undefined ? ` (${item.cumPercent}%)` : ''}</span>
+                        {item.type === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                      </span>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', padding: '4px 0' }}>
+                  Sin rachas registradas
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

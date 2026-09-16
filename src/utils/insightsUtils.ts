@@ -90,9 +90,31 @@ export function computeMarketInsights(
   // Get unique dates sorted ascending
   const dates = Array.from(new Set(allRecords.map(r => r.snapshot_date))).sort((a, b) => a.localeCompare(b));
   const latestDate = dates[dates.length - 1];
-  const previousDate = dates.length > 1 ? dates[dates.length - 2] : null;
-
+  
+  // Look back to find a previous date that has price differences compared to latestDate
+  let previousDate: string | null = null;
   const latestRecords = allRecords.filter(r => r.snapshot_date === latestDate && r.price_avg !== null);
+
+  for (let i = dates.length - 2; i >= 0; i--) {
+    const candidateDate = dates[i];
+    const candidateRecords = allRecords.filter(r => r.snapshot_date === candidateDate && r.price_avg !== null);
+    const candidateMap = new Map(candidateRecords.map(r => [r.product_id, r.price_avg]));
+    
+    const hasDiff = latestRecords.some(r => {
+      const prevPrice = candidateMap.get(r.product_id);
+      return prevPrice !== undefined && prevPrice !== r.price_avg;
+    });
+    
+    if (hasDiff) {
+      previousDate = candidateDate;
+      break;
+    }
+  }
+
+  if (!previousDate && dates.length > 1) {
+    previousDate = dates[dates.length - 2];
+  }
+
   const prevRecordsMap = new Map<number, PriceRecord>();
   if (previousDate) {
     allRecords.filter(r => r.snapshot_date === previousDate && r.price_avg !== null).forEach(r => {
@@ -131,22 +153,28 @@ export function computeMarketInsights(
     .sort((a, b) => a.percent - b.percent)
     .slice(0, 5);
 
-  // If no real subas/bajas (e.g. mock data short range), supply clean fallbacks
-  const finalTopSubas = topSubas.length > 0 ? topSubas : [
-    { product_id: 101, product_name: 'Mandarina Okitsu', percent: 18.4 },
-    { product_id: 102, product_name: 'Mango', percent: 12.1 },
-    { product_id: 103, product_name: 'Manzana Deliciosa', percent: 9.5 },
-    { product_id: 104, product_name: 'Durazno', percent: 7.2 },
-    { product_id: 105, product_name: 'Pera', percent: 5.8 }
-  ];
+  const hasRealData = allRecords.length > 0;
 
-  const finalTopBajas = topBajas.length > 0 ? topBajas : [
-    { product_id: 201, product_name: 'Acelga', percent: -11.7 },
-    { product_id: 202, product_name: 'Lechuga Capuchina', percent: -8.3 },
-    { product_id: 203, product_name: 'Espinaca', percent: -6.5 },
-    { product_id: 204, product_name: 'Zucchini', percent: -4.8 },
-    { product_id: 205, product_name: 'Berenjena', percent: -3.2 }
-  ];
+  // If no real subas/bajas and no real records, supply clean fallbacks
+  const finalTopSubas = topSubas.length > 0 
+    ? topSubas 
+    : (hasRealData ? [] : [
+        { product_id: 101, product_name: 'Mandarina Okitsu', percent: 18.4 },
+        { product_id: 102, product_name: 'Mango', percent: 12.1 },
+        { product_id: 103, product_name: 'Manzana Deliciosa', percent: 9.5 },
+        { product_id: 104, product_name: 'Durazno', percent: 7.2 },
+        { product_id: 105, product_name: 'Pera', percent: 5.8 }
+      ]);
+
+  const finalTopBajas = topBajas.length > 0 
+    ? topBajas 
+    : (hasRealData ? [] : [
+        { product_id: 201, product_name: 'Acelga', percent: -11.7 },
+        { product_id: 202, product_name: 'Lechuga Capuchina', percent: -8.3 },
+        { product_id: 203, product_name: 'Espinaca', percent: -6.5 },
+        { product_id: 204, product_name: 'Zucchini', percent: -4.8 },
+        { product_id: 205, product_name: 'Berenjena', percent: -3.2 }
+      ]);
 
   // 2. Streaks calculation
   const rachasActivas: StreakItem[] = [];
@@ -192,13 +220,15 @@ export function computeMarketInsights(
     return (b.cumPercent || 0) - (a.cumPercent || 0);
   });
 
-  const finalRachas = rachasActivas.length > 0 ? rachasActivas.slice(0, 5) : [
-    { product_id: 101, product_name: 'Mandarina Okitsu', type: 'up' as const, weeks: 4, cumPercent: 24.5 },
-    { product_id: 201, product_name: 'Acelga', type: 'down' as const, weeks: 3, cumPercent: 18.2 },
-    { product_id: 102, product_name: 'Mango', type: 'up' as const, weeks: 3, cumPercent: 15.0 },
-    { product_id: 202, product_name: 'Lechuga Capuchina', type: 'down' as const, weeks: 2, cumPercent: 12.8 },
-    { product_id: 103, product_name: 'Manzana Deliciosa', type: 'up' as const, weeks: 2, cumPercent: 9.4 }
-  ];
+  const finalRachas = rachasActivas.length > 0 
+    ? rachasActivas.slice(0, 5) 
+    : (hasRealData ? [] : [
+        { product_id: 101, product_name: 'Mandarina Okitsu', type: 'up' as const, weeks: 4, cumPercent: 24.5 },
+        { product_id: 201, product_name: 'Acelga', type: 'down' as const, weeks: 3, cumPercent: 18.2 },
+        { product_id: 102, product_name: 'Mango', type: 'up' as const, weeks: 3, cumPercent: 15.0 },
+        { product_id: 202, product_name: 'Lechuga Capuchina', type: 'down' as const, weeks: 2, cumPercent: 12.8 },
+        { product_id: 103, product_name: 'Manzana Deliciosa', type: 'up' as const, weeks: 2, cumPercent: 9.4 }
+      ]);
 
   // Banners bounds calculation
   const nearMinProducts: BannerProductItem[] = [];
@@ -223,22 +253,22 @@ export function computeMarketInsights(
     }
   });
 
-  const finalNearMin = nearMinProducts.length > 0 ? nearMinProducts : [
+  const finalNearMin = nearMinProducts.length > 0 ? nearMinProducts : (hasRealData ? [] : [
     { product_name: 'Limón', percent_from_bound: 5, price: 540 },
     { product_name: 'Banana', percent_from_bound: 8, price: 950 },
     { product_name: 'Naranja', percent_from_bound: 10, price: 390 }
-  ];
+  ]);
 
-  const finalNearMax = nearMaxProducts.length > 0 ? nearMaxProducts : [
+  const finalNearMax = nearMaxProducts.length > 0 ? nearMaxProducts : (hasRealData ? [] : [
     { product_name: 'Tomate', percent_from_bound: 95 },
     { product_name: 'Morrón', percent_from_bound: 92 },
     { product_name: 'Papa', percent_from_bound: 90 }
-  ];
+  ]);
 
-  const finalAtypical = atypicalProducts.length > 0 ? atypicalProducts : [
+  const finalAtypical = atypicalProducts.length > 0 ? atypicalProducts : (hasRealData ? [] : [
     { product_name: 'Berenjena', text: '$4.200 (x2.5 el valor habitual)' },
     { product_name: 'Acelga', text: '$3.500 (1/3 del valor habitual)' }
-  ];
+  ]);
 
   return {
     indexChangePercent,

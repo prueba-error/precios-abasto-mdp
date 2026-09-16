@@ -199,7 +199,15 @@ export function App() {
     setChartTitleOverride(null);
   };
 
-  const latestDate = records.length > 0 ? records[records.length - 1].snapshot_date : undefined;
+  const latestDate = useMemo(() => {
+    if (globalMarketRecords.length > 0) {
+      return globalMarketRecords[0].snapshot_date;
+    }
+    if (records.length > 0) {
+      return records[records.length - 1].snapshot_date;
+    }
+    return undefined;
+  }, [globalMarketRecords, records]);
 
   const marketInsightsData = useMemo(() => {
     const dataset = globalMarketRecords.length > 0 

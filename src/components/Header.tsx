@@ -16,6 +16,16 @@ interface HeaderProps {
   onToggleTheme?: () => void;
 }
 
+function formatDateLabel(dateStr?: string): string {
+  if (!dateStr) return 'Hoy';
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    const [, yyyy, mm, dd] = match;
+    return `${dd}/${mm}/${yyyy}`;
+  }
+  return dateStr;
+}
+
 export const Header: React.FC<HeaderProps> = ({
   isMock,
   lastUpdated,
@@ -91,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
             >
               <Database size={11} color={isMock ? '#f59e0b' : 'var(--text-secondary)'} />
-              <span>{isMock ? 'Modo Demo (Mock Data)' : `Última act.: ${lastUpdated || 'Hoy'}`}</span>
+              <span>{isMock ? 'Modo Demo (Mock Data)' : `Precios al: ${formatDateLabel(lastUpdated)}`}</span>
             </div>
 
             {onToggleTheme && (

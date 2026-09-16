@@ -119,17 +119,19 @@ export const Filters: React.FC<FiltersProps> = ({
                   disabled={isCleared}
                   title={isCleared ? 'Sin selección' : 'Eliminar selección de categoría y producto'}
                   style={{
-                    display: 'flex',
+                    display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     width: '38px',
                     height: '38px',
+                    padding: 0,
                     borderRadius: '6px',
                     border: '1px solid var(--border-color)',
                     background: 'var(--bg-header-sub)',
                     color: isCleared ? 'var(--text-secondary)' : '#ef4444',
                     cursor: isCleared ? 'not-allowed' : 'pointer',
                     flexShrink: 0,
+                    boxSizing: 'border-box',
                     transition: 'all 0.15s ease'
                   }}
                 >
@@ -145,12 +147,13 @@ export const Filters: React.FC<FiltersProps> = ({
               onMouseUp={() => setIsPinPressed(false)}
               title={isCurrentPinned ? 'Desfijar del gráfico' : 'Fijar en el gráfico'}
               style={{
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 minWidth: '88px',
+                height: '38px',
                 gap: '6px',
-                padding: '8px 14px',
+                padding: '0 14px',
                 borderRadius: '6px',
                 border: pinStyle.border,
                 background: pinStyle.background,
@@ -161,6 +164,7 @@ export const Filters: React.FC<FiltersProps> = ({
                 whiteSpace: 'nowrap',
                 cursor: 'pointer',
                 flexShrink: 0,
+                boxSizing: 'border-box',
                 transition: 'all 0.15s ease'
               }}
             >
@@ -194,6 +198,7 @@ export const Filters: React.FC<FiltersProps> = ({
               fontSize: '0.8125rem',
               whiteSpace: 'nowrap',
               cursor: 'pointer',
+              boxSizing: 'border-box',
               transition: 'all 0.15s ease'
             }}
           >

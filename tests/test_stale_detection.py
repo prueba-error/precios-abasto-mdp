@@ -164,4 +164,39 @@ def test_run_scraper_success_flow(mock_fetch_cat, mock_fetch_date, mock_create_c
     assert any("SUCCESS" in str(c) for c in insert_calls)
 
 
+@patch("scraper.scrape.time.sleep")
+@patch.dict(os.environ, {"SUPABASE_URL": "https://fake.supabase.co", "SUPABASE_SERVICE_ROLE_KEY": "fake-key"})
+@patch("scraper.scrape.create_client")
+@patch("scraper.scrape.fetch_market_date")
+@patch("scraper.scrape.fetch_category_data")
+def test_run_scraper_new_market_date_identical_prices(mock_fetch_cat, mock_fetch_date, mock_create_client, mock_sleep):
+    # Market date is NEWER (2026-08-20 > 2026-08-19), but prices are identical
+    mock_fetch_date.return_value = date(2026, 8, 20)
+    mock_fetch_cat.return_value = [
+        {"id": str(i), "producto": f"PROD_{i}", "categoria": "Frutas", "precio_hasta": "12000"}
+        for i in range(1, 7)
+    ]
+    
+    mock_supabase = MagicMock()
+    mock_create_client.return_value = mock_supabase
+    
+    mock_prods = [{"id": i, "original_id": str(i), "category_id": cat} for cat in [1, 2, 3, 4] for i in range(1, 7)]
+    mock_supabase.table().select().execute.return_value.data = mock_prods
+    
+    # DB has older snapshot 2026-08-19 with identical prices
+    mock_supabase.table().select().order().limit().execute.return_value.data = [{"snapshot_date": "2026-08-19"}]
+    mock_supabase.table().select().eq().execute.return_value.data = [
+        {"product_id": i, "price_from": None, "price_to": 12000.0, "price_avg": 12000.0}
+        for i in range(1, 7)
+    ]
+    
+    # Should run and insert snapshot without SystemExit(0)
+    run_scraper(dry_run=False)
+    
+    mock_supabase.table.assert_any_call("price_records")
+    insert_calls = [call for call in mock_supabase.table().insert.call_args_list]
+    assert any("SUCCESS" in str(c) for c in insert_calls)
+
+
+
 

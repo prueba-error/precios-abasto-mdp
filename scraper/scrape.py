@@ -192,7 +192,10 @@ def run_scraper(dry_run: bool = False) -> None:
     latest_db_date, latest_db_records = get_latest_db_snapshot(supabase)
     
     is_stale_by_date = (market_date is not None and latest_db_date is not None and market_date <= latest_db_date)
-    is_stale_by_prices = is_price_list_identical(all_normalized, latest_db_records, prod_id_lookup)
+    is_stale_by_prices = (
+        (market_date is None or is_stale_by_date)
+        and is_price_list_identical(all_normalized, latest_db_records, prod_id_lookup)
+    )
     
     if is_stale_by_date or is_stale_by_prices:
         reason = "fecha del mercado no ha cambiado" if is_stale_by_date else "precios idénticos al snapshot anterior"

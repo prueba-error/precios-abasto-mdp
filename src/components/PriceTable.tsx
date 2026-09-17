@@ -200,11 +200,11 @@ export const PriceTable: React.FC<PriceTableProps> = ({
 
   return (
     <div style={{ marginBottom: '0px' }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-      <div style={{ padding: '12px 16px', background: 'var(--bg-header-sub)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ background: 'transparent', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+      <div style={{ padding: '12px 16px', background: 'var(--bg-header-sub)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           {/* View Mode Toggle Switch (Far Left) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--bg-card)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--bg-header-sub)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
             <button
               onClick={() => setViewMode('detailed')}
               title="Vista de detalle actual"
@@ -277,7 +277,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                   padding: '6px 12px',
                   borderRadius: '6px',
                   border: '1px solid var(--border-color)',
-                  background: currentPage === 1 ? 'transparent' : 'var(--bg-card)',
+                  background: currentPage === 1 ? 'transparent' : 'var(--bg-header-sub)',
                   color: currentPage === 1 ? 'var(--text-secondary)' : 'var(--text-primary)',
                   cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                   opacity: currentPage === 1 ? 0.5 : 1
@@ -296,7 +296,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                   padding: '6px 12px',
                   borderRadius: '6px',
                   border: '1px solid var(--border-color)',
-                  background: currentPage === totalPages ? 'transparent' : 'var(--bg-card)',
+                  background: currentPage === totalPages ? 'transparent' : 'var(--bg-header-sub)',
                   color: currentPage === totalPages ? 'var(--text-secondary)' : 'var(--text-primary)',
                   cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                   opacity: currentPage === totalPages ? 0.5 : 1
@@ -315,7 +315,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           <div style={{ overflowX: 'auto', width: '100%' }}>
             <table style={{ width: '100%', minWidth: '720px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-header-sub)' }}>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-header-sub)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)' }}>
                   <th style={{ padding: '12px' }}>Producto</th>
                   <th style={{ padding: '12px' }}>Desde</th>
                   <th style={{ padding: '12px' }}>Hasta</th>
@@ -338,10 +338,10 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                       style={{ 
                         borderBottom: '1px solid var(--border-color)',
                         background: (r.isBasketAverage && !hideMainLine) 
-                          ? 'rgba(56, 189, 248, 0.08)' 
+                          ? 'linear-gradient(rgba(56, 189, 248, 0.12), rgba(56, 189, 248, 0.12)), var(--bg-card)' 
                           : r.isPinnedRow 
                           ? 'var(--bg-card-hover)' 
-                          : 'transparent'
+                          : 'var(--bg-card)'
                       }}
                     >
                       <td style={{ padding: '12px', fontWeight: (r.isBasketAverage || r.isPinnedRow) ? 700 : 500 }}>
@@ -397,7 +397,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
           </div>
 
           {isAllProducts && totalPages > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', padding: '12px 16px', background: 'var(--bg-header-sub)', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', padding: '12px 16px', background: 'var(--bg-header-sub)', borderTop: '1px solid var(--border-color)', fontSize: '0.875rem', color: 'var(--text-secondary)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)' }}>
               <div>
                 Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong> ({totalItems} registros)
               </div>
@@ -412,7 +412,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                     padding: '6px 12px',
                     borderRadius: '6px',
                     border: '1px solid var(--border-color)',
-                    background: currentPage === 1 ? 'transparent' : 'var(--bg-card)',
+                    background: currentPage === 1 ? 'transparent' : 'var(--bg-header-sub)',
                     color: currentPage === 1 ? 'var(--text-secondary)' : 'var(--text-primary)',
                     cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                     opacity: currentPage === 1 ? 0.5 : 1
@@ -431,7 +431,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                     padding: '6px 12px',
                     borderRadius: '6px',
                     border: '1px solid var(--border-color)',
-                    background: currentPage === totalPages ? 'transparent' : 'var(--bg-card)',
+                    background: currentPage === totalPages ? 'transparent' : 'var(--bg-header-sub)',
                     color: currentPage === totalPages ? 'var(--text-secondary)' : 'var(--text-primary)',
                     cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                     opacity: currentPage === totalPages ? 0.5 : 1
@@ -449,7 +449,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-header-sub)' }}>
+              <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-header-sub)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)' }}>
                 <th style={{ padding: '12px' }}>Fecha</th>
                 {!hideMainLine && (
                   <th style={{ padding: '12px' }}>
@@ -502,7 +502,7 @@ export const PriceTable: React.FC<PriceTableProps> = ({
                 const activeVal = activeDateValueMap.get(date);
 
                 return (
-                  <tr key={date} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <tr key={date} style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                     <td style={{ padding: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>{date}</td>
                     {!hideMainLine && (
                       <td style={{ padding: '12px', fontWeight: 600, color: activeColor }}>

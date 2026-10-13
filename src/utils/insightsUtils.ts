@@ -90,30 +90,8 @@ export function computeMarketInsights(
   // Get unique dates sorted ascending
   const dates = Array.from(new Set(allRecords.map(r => r.snapshot_date))).sort((a, b) => a.localeCompare(b));
   const latestDate = dates[dates.length - 1];
-  
-  // Look back to find a previous date that has price differences compared to latestDate
-  let previousDate: string | null = null;
+  const previousDate = dates.length > 1 ? dates[dates.length - 2] : null;
   const latestRecords = allRecords.filter(r => r.snapshot_date === latestDate && r.price_avg !== null);
-
-  for (let i = dates.length - 2; i >= 0; i--) {
-    const candidateDate = dates[i];
-    const candidateRecords = allRecords.filter(r => r.snapshot_date === candidateDate && r.price_avg !== null);
-    const candidateMap = new Map(candidateRecords.map(r => [r.product_id, r.price_avg]));
-    
-    const hasDiff = latestRecords.some(r => {
-      const prevPrice = candidateMap.get(r.product_id);
-      return prevPrice !== undefined && prevPrice !== r.price_avg;
-    });
-    
-    if (hasDiff) {
-      previousDate = candidateDate;
-      break;
-    }
-  }
-
-  if (!previousDate && dates.length > 1) {
-    previousDate = dates[dates.length - 2];
-  }
 
   const prevRecordsMap = new Map<number, PriceRecord>();
   if (previousDate) {
@@ -141,7 +119,7 @@ export function computeMarketInsights(
 
   const indexChangePercent = changes.length > 0
     ? Math.round((changes.reduce((acc, c) => acc + c.percent, 0) / changes.length) * 10) / 10
-    : 2.5;
+    : 0;
 
   const topSubas = [...changes]
     .filter(c => c.percent > 0)

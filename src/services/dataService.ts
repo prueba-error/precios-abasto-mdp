@@ -135,6 +135,29 @@ export async function getPriceHistory(productId: number, categoryId: number): Pr
   return data;
 }
 
+async function fetchAllRows<T>(
+  queryBuilder: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: any }>
+): Promise<T[]> {
+  const pageSize = 1000;
+  let from = 0;
+  const allData: T[] = [];
+
+  while (true) {
+    const to = from + pageSize - 1;
+    const { data, error } = await queryBuilder(from, to);
+    if (error || !data || data.length === 0) {
+      break;
+    }
+    allData.push(...data);
+    if (data.length < pageSize) {
+      break;
+    }
+    from += pageSize;
+  }
+
+  return allData;
+}
+
 export async function getCategoryAllProductsRecords(categoryId: number): Promise<ExtendedPriceRecord[]> {
   const targetCat = categoryId <= -1 ? 0 : categoryId;
   if (isUsingMock || !supabase) {
@@ -159,13 +182,16 @@ export async function getCategoryAllProductsRecords(categoryId: number): Promise
 
   if (prodIds.length === 0) return [];
 
-  const { data: recs } = await supabase
-    .from('price_records')
-    .select('*')
-    .in('product_id', prodIds)
-    .order('snapshot_date', { ascending: false });
+  const recs = await fetchAllRows<ExtendedPriceRecord>((from, to) =>
+    supabase!
+      .from('price_records')
+      .select('*')
+      .in('product_id', prodIds)
+      .order('snapshot_date', { ascending: false })
+      .range(from, to)
+  );
 
-  return (recs || []).map(r => ({
+  return recs.map(r => ({
     ...r,
     product_name: prodMap.get(r.product_id)
   }));
@@ -182,14 +208,23 @@ async function getAggregatedPriceHistory(categoryId: number): Promise<PriceRecor
     records = MOCK_PRICE_RECORDS.filter(r => validProductIds.includes(r.product_id));
   } else {
     if (categoryId === 0) {
-      const { data } = await supabase.from('price_records').select('*');
-      records = data || [];
+      records = await fetchAllRows<PriceRecord>((from, to) =>
+        supabase!
+          .from('price_records')
+          .select('*')
+          .range(from, to)
+      );
     } else {
       const { data: prods } = await supabase.from('products').select('id').eq('category_id', categoryId);
       const prodIds = (prods || []).map(p => p.id);
       if (prodIds.length > 0) {
-        const { data } = await supabase.from('price_records').select('*').in('product_id', prodIds);
-        records = data || [];
+        records = await fetchAllRows<PriceRecord>((from, to) =>
+          supabase!
+            .from('price_records')
+            .select('*')
+            .in('product_id', prodIds)
+            .range(from, to)
+        );
       }
     }
   }

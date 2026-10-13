@@ -10,7 +10,10 @@ interface MarketInsightsProps {
 }
 
 export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInChart, onViewSectionInChart, onSelectProductItem }) => {
-  const isIndexPositive = data.indexChangePercent >= 0;
+  const isIndexZero = data.indexChangePercent === 0;
+  const isIndexPositive = data.indexChangePercent > 0;
+  const indexColor = isIndexZero ? 'var(--text-primary)' : isIndexPositive ? '#ef4444' : '#10b981';
+  const indexText = isIndexZero ? '0%' : isIndexPositive ? `+${data.indexChangePercent}%` : `${data.indexChangePercent}%`;
 
   const nearMinText = data.nearMinProducts
     .slice(0, 10)
@@ -37,8 +40,8 @@ export const MarketInsights: React.FC<MarketInsightsProps> = ({ data, onViewInCh
           <div className="kpi-card-transparent">
             <span className="kpi-label">Índice Abasto</span>
             <div className="kpi-value-group">
-              <span style={{ color: isIndexPositive ? '#ef4444' : '#10b981' }} className="kpi-value-large">
-                {isIndexPositive ? `+${data.indexChangePercent}%` : `${data.indexChangePercent}%`}
+              <span style={{ color: indexColor }} className="kpi-value-large">
+                {indexText}
               </span>
             </div>
             <span className="kpi-subtext">desde último registro</span>
